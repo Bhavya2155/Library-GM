@@ -193,62 +193,92 @@ export default function Circulation() {
 
   const handleRenew = (id: string) => {
     if(!confirm('Renew this book for another 7 days?')) return;
-    toast.promise(axios.post(`/circulation/renew/${id}`), {
-      loading: 'Renewing...',
-      success: () => {
+    
+    // Instant Reflect
+    setRecords(prev => prev.map(r => {
+      if (r._id === id) {
+        const newDueDate = new Date(r.dueDate || new Date());
+        newDueDate.setDate(newDueDate.getDate() + 7);
+        return { ...r, renewals: r.renewals + 1, dueDate: newDueDate.toISOString(), renewDate: new Date().toISOString() };
+      }
+      return r;
+    }));
+
+    axios.post(`/circulation/renew/${id}`)
+      .then(() => toast.success('Book renewed successfully'))
+      .catch((err) => {
         refreshCirculation();
-        return 'Book renewed successfully';
-      },
-      error: (err) => err.response?.data?.error || 'Failed to renew book'
-    });
+        toast.error(err.response?.data?.error || 'Failed to renew book');
+      });
   };
 
   const handleUndoRenew = (id: string) => {
     if(!confirm('Undo the renewal?')) return;
-    toast.promise(axios.post(`/circulation/undo-renew/${id}`), {
-      loading: 'Undoing renewal...',
-      success: () => {
+    
+    // Instant Reflect
+    setRecords(prev => prev.map(r => {
+      if (r._id === id) {
+        const originalDueDate = new Date(r.dueDate || new Date());
+        originalDueDate.setDate(originalDueDate.getDate() - 7);
+        return { ...r, renewals: Math.max(0, r.renewals - 1), dueDate: originalDueDate.toISOString(), renewDate: null };
+      }
+      return r;
+    }));
+
+    axios.post(`/circulation/undo-renew/${id}`)
+      .then(() => toast.success('Renew undone'))
+      .catch((err) => {
         refreshCirculation();
-        return 'Renew undone';
-      },
-      error: (err) => err.response?.data?.error || 'Failed to undo renew'
-    });
+        toast.error(err.response?.data?.error || 'Failed to undo renew');
+      });
   };
 
   const handleReturn = (id: string) => {
     if(!confirm('Mark this book as returned?')) return;
-    toast.promise(axios.post(`/circulation/return/${id}`), {
-      loading: 'Processing return...',
-      success: () => {
+    
+    // Instant Reflect
+    setRecords(prev => prev.map(r => r._id === id ? { ...r, status: 'returned', returnDate: new Date().toISOString() } : r));
+    setBooks(prev => prev.map(b => b._id === records.find(r => r._id === id)?.bookId?._id ? { ...b, availableCopies: b.availableCopies + 1 } : b));
+
+    axios.post(`/circulation/return/${id}`)
+      .then(() => toast.success('Book returned'))
+      .catch((err) => {
         refreshCirculation();
-        return 'Book returned';
-      },
-      error: (err) => err.response?.data?.error || 'Failed to process return'
-    });
+        toast.error(err.response?.data?.error || 'Failed to process return');
+      });
   };
 
   const handleUndoReturn = (id: string) => {
     if(!confirm('Undo the return?')) return;
-    toast.promise(axios.post(`/circulation/undo-return/${id}`), {
-      loading: 'Undoing return...',
-      success: () => {
+    
+    // Instant Reflect
+    setRecords(prev => prev.map(r => r._id === id ? { ...r, status: 'issued', returnDate: null } : r));
+    setBooks(prev => prev.map(b => b._id === records.find(r => r._id === id)?.bookId?._id ? { ...b, availableCopies: b.availableCopies - 1 } : b));
+
+    axios.post(`/circulation/undo-return/${id}`)
+      .then(() => toast.success('Return undone'))
+      .catch((err) => {
         refreshCirculation();
-        return 'Return undone';
-      },
-      error: (err) => err.response?.data?.error || 'Failed to undo return'
-    });
+        toast.error(err.response?.data?.error || 'Failed to undo return');
+      });
   };
 
   const handleDelete = (id: string) => {
     if(!confirm('Are you sure you want to permanently delete this circulation record?')) return;
-    toast.promise(axios.delete(`/circulation/${id}`), {
-      loading: 'Deleting record...',
-      success: () => {
+    
+    // Instant Reflect
+    const record = records.find(r => r._id === id);
+    setRecords(prev => prev.filter(r => r._id !== id));
+    if (record?.status === 'issued') {
+       setBooks(prev => prev.map(b => b._id === record.bookId?._id ? { ...b, availableCopies: b.availableCopies + 1 } : b));
+    }
+
+    axios.delete(`/circulation/${id}`)
+      .then(() => toast.success('Record deleted'))
+      .catch((err) => {
         refreshCirculation();
-        return 'Record deleted';
-      },
-      error: (err) => err.response?.data?.error || 'Failed to delete record'
-    });
+        toast.error(err.response?.data?.error || 'Failed to delete record');
+      });
   };
 
   const exportToExcel = () => {
