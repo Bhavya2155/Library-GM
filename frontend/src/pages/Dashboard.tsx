@@ -10,7 +10,7 @@ export default function Dashboard() {
   const { role } = useAuth();
   const navigate = useNavigate();
   const { data: stats = { totalBooks: 0, totalStudents: 0, issuedBooks: 0, availableBooks: 0 } } = useSWR('/dashboard/stats');
-  const { data: logins = [] } = useSWR(role === 'admin' ? '/dashboard/logins' : null);
+  const { data: logins = [], isLoading: isLoadingLogins } = useSWR(role === 'admin' ? '/dashboard/logins' : null);
 
   const cards = [
     { title: 'Total Books', value: stats.totalBooks, icon: Book, color: 'text-indigo-600', bg: 'bg-indigo-100', link: '/books' },
@@ -47,7 +47,12 @@ export default function Dashboard() {
             <Clock size={24} className="text-indigo-600" /> Recent Logins
           </h2>
           <div className="bg-white/70 backdrop-blur-2xl rounded-2xl shadow-xl shadow-slate-200/40 border border-white/60 overflow-hidden">
-            {logins.length === 0 ? (
+            {isLoadingLogins ? (
+              <div className="p-8 flex flex-col items-center justify-center space-y-3 text-slate-500">
+                <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                <p>Loading login history...</p>
+              </div>
+            ) : logins.length === 0 ? (
               <div className="p-8 text-center text-slate-500">No login history found.</div>
             ) : (
               <table className="w-full text-left border-collapse table-fixed">

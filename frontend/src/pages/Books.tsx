@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 export default function Books() {
   const [search, setSearch] = useState('');
-  const { data: books = [], mutate } = useSWR(`/books?search=${search}`);
+  const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${search}`);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: '', author: '', isbn: '', category: '', quantity: 1 });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -115,7 +115,17 @@ export default function Books() {
                   </td>
                 </tr>
               ))}
-              {books.length === 0 && (
+              {isLoading && books.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-slate-500">
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                      <p>Loading books...</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!isLoading && books.length === 0 && (
                 <tr>
                   <td colSpan={6} className="p-8 text-center text-slate-500 font-medium">No books found.</td>
                 </tr>

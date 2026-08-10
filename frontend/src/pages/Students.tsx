@@ -6,12 +6,12 @@ import { Users, Trash2, ArrowUp, ArrowDown, Pencil, Search } from 'lucide-react'
 import toast from 'react-hot-toast';
 
 export default function Students() {
-  const { data: students = [], mutate } = useSWR('/students');
+  const [searchTerm, setSearchTerm] = useState('');
+  const { data: students = [], mutate, isLoading } = useSWR(`/students?search=${searchTerm}`);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '', studentId: '' });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +105,17 @@ export default function Students() {
                   </td>
                 </tr>
               ))}
-              {students.length === 0 && (
+              {isLoading && students.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="p-8 text-center text-slate-500">
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                      <p>Loading students...</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!isLoading && students.length === 0 && (
                 <tr>
                   <td colSpan={3} className="p-8 text-center text-slate-500 font-medium">No students found.</td>
                 </tr>
