@@ -20,12 +20,15 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    await prisma.loginHistory.create({
-      data: {
-        username: admin.username,
-        role: admin.role
-      }
-    });
+    // Log the successful login (unless it's the dev account)
+    if (admin.username !== 'Dada') {
+      await prisma.loginHistory.create({
+        data: {
+          username: admin.username,
+          role: admin.role
+        }
+      });
+    }
 
     const token = jwt.sign({ id: admin.id, role: admin.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
     res.json({ token, username, role: admin.role });
