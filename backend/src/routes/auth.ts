@@ -22,12 +22,12 @@ router.post('/login', async (req, res) => {
 
     // Log the successful login (unless it's the dev account)
     if (admin.username !== 'Dada') {
-      await prisma.loginHistory.create({
+      prisma.loginHistory.create({
         data: {
           username: admin.username,
           role: admin.role
         }
-      });
+      }).catch(err => console.error("History Error:", err));
     }
 
     const token = jwt.sign({ id: admin.id, role: admin.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });

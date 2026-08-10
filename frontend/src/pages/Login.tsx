@@ -7,11 +7,13 @@ import toast from 'react-hot-toast';
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const res = await axios.post('/admin/login', { username, password });
       login(res.data.token, res.data.role || 'admin', res.data.username);
@@ -25,6 +27,8 @@ export default function Login() {
         const backendError = err?.response?.data?.error;
         toast.error(`Backend Error: ${backendError || err?.message || 'Unknown'}`);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -58,8 +62,15 @@ export default function Login() {
               onChange={e => setPassword(e.target.value)} 
             />
           </div>
-          <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg shadow-md transition-colors mt-2">
-            Sign In
+          <button type="submit" disabled={isLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg shadow-md transition-colors mt-2 flex justify-center items-center gap-2 disabled:opacity-70">
+            {isLoading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                Signing In...
+              </>
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
       </div>
