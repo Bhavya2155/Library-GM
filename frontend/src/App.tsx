@@ -15,7 +15,10 @@ import Students from './pages/Students';
 import Guests from './pages/Guests';
 import Circulation from './pages/Circulation';
 
-axios.defaults.baseURL = 'http://localhost:5000/api';
+// Use VITE_API_URL from Vercel, or fallback to localhost
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Strip trailing slash if present, then add /api
+axios.defaults.baseURL = `${API_URL.replace(/\/$/, '')}/api`;
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { token, loading } = useAuth();
