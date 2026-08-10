@@ -157,74 +157,87 @@ export default function Circulation() {
     return sortConfig.direction === 'asc' ? <ArrowUp size={14} className="text-indigo-500" /> : <ArrowDown size={14} className="text-indigo-500" />;
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleIssue = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const payload: any = { bookId };
-      if (issueType === 'student') payload.studentId = studentId;
-      if (issueType === 'guest') payload.guestId = guestId;
+    setIsSubmitting(true);
+    const payload: any = { bookId };
+    if (issueType === 'student') payload.studentId = studentId;
+    if (issueType === 'guest') payload.guestId = guestId;
 
-      await axios.post('/circulation/issue', payload);
-      toast.success('Book issued successfully');
-      closeModal();
-      fetchData();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to issue book');
-    }
+    const promise = axios.post('/circulation/issue', payload);
+    closeModal(); // Close modal instantly
+
+    toast.promise(promise, {
+      loading: 'Issuing book...',
+      success: () => {
+        fetchData();
+        return 'Book issued successfully';
+      },
+      error: (err) => err.response?.data?.error || 'Failed to issue book'
+    });
+    setIsSubmitting(false);
   };
 
-  const handleRenew = async (id: string) => {
+  const handleRenew = (id: string) => {
     if(!confirm('Renew this book for another 7 days?')) return;
-    try {
-      await axios.post(`/circulation/renew/${id}`);
-      toast.success('Book renewed successfully');
-      fetchData();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to renew book');
-    }
+    toast.promise(axios.post(`/circulation/renew/${id}`), {
+      loading: 'Renewing...',
+      success: () => {
+        fetchData();
+        return 'Book renewed successfully';
+      },
+      error: (err) => err.response?.data?.error || 'Failed to renew book'
+    });
   };
-  const handleUndoRenew = async (id: string) => {
+
+  const handleUndoRenew = (id: string) => {
     if(!confirm('Undo the renewal?')) return;
-    try {
-      await axios.post(`/circulation/undo-renew/${id}`);
-      toast.success('Renew undone');
-      fetchData();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to undo renew');
-    }
+    toast.promise(axios.post(`/circulation/undo-renew/${id}`), {
+      loading: 'Undoing renewal...',
+      success: () => {
+        fetchData();
+        return 'Renew undone';
+      },
+      error: (err) => err.response?.data?.error || 'Failed to undo renew'
+    });
   };
 
-  const handleReturn = async (id: string) => {
+  const handleReturn = (id: string) => {
     if(!confirm('Mark this book as returned?')) return;
-    try {
-      await axios.post(`/circulation/return/${id}`);
-      toast.success('Book returned');
-      fetchData();
-    } catch (err) {
-      toast.error('Failed to process return');
-    }
+    toast.promise(axios.post(`/circulation/return/${id}`), {
+      loading: 'Processing return...',
+      success: () => {
+        fetchData();
+        return 'Book returned';
+      },
+      error: (err) => err.response?.data?.error || 'Failed to process return'
+    });
   };
 
-  const handleUndoReturn = async (id: string) => {
+  const handleUndoReturn = (id: string) => {
     if(!confirm('Undo the return?')) return;
-    try {
-      await axios.post(`/circulation/undo-return/${id}`);
-      toast.success('Return undone');
-      fetchData();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to undo return');
-    }
+    toast.promise(axios.post(`/circulation/undo-return/${id}`), {
+      loading: 'Undoing return...',
+      success: () => {
+        fetchData();
+        return 'Return undone';
+      },
+      error: (err) => err.response?.data?.error || 'Failed to undo return'
+    });
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if(!confirm('Are you sure you want to permanently delete this circulation record?')) return;
-    try {
-      await axios.delete(`/circulation/${id}`);
-      toast.success('Record deleted');
-      fetchData();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to delete record');
-    }
+    toast.promise(axios.delete(`/circulation/${id}`), {
+      loading: 'Deleting record...',
+      success: () => {
+        fetchData();
+        return 'Record deleted';
+      },
+      error: (err) => err.response?.data?.error || 'Failed to delete record'
+    });
   };
 
   const exportToExcel = () => {
@@ -649,14 +662,14 @@ export default function Circulation() {
                 <button type="button" onClick={closeModal} className="flex-1 py-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 font-medium transition-colors bg-white/50 backdrop-blur-sm">Cancel</button>
                 <button 
                   type="submit" 
-                  disabled={!bookId || (!studentId && !guestId)}
+                  disabled={!bookId || (!studentId && !guestId) || isSubmitting}
                   className={`flex-1 py-2.5 rounded-xl font-medium shadow-md transition-all ${
-                    bookId && (studentId || guestId) 
+                    bookId && (studentId || guestId) && !isSubmitting
                       ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white hover:from-indigo-600 hover:to-indigo-700 shadow-indigo-200 hover:-translate-y-0.5' 
                       : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
                   }`}
                 >
-                  Issue Book
+                  {isSubmitting ? 'Issuing...' : 'Issue Book'}
                 </button>
               </div>
             </form>
