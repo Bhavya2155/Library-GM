@@ -1,28 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { Plus, Search, Trash2, Pencil } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Books() {
-  const [books, setBooks] = useState<any[]>([]);
   const [search, setSearch] = useState('');
+  const { data: books = [], mutate } = useSWR(`/books?search=${search}`);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: '', author: '', isbn: '', category: '', quantity: 1 });
   const [editingId, setEditingId] = useState<string | null>(null);
-
-  const fetchBooks = async () => {
-    try {
-      const res = await axios.get(`/books?search=${search}`);
-      setBooks(res.data);
-    } catch (err) {
-      toast.error('Failed to fetch books');
-    }
-  };
-
-  useEffect(() => {
-    fetchBooks();
-  }, [search]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +25,7 @@ export default function Books() {
       setShowModal(false);
       setForm({ title: '', author: '', isbn: '', category: '', quantity: 1 });
       setEditingId(null);
-      fetchBooks();
+      mutate();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to save book');
     }
@@ -60,7 +48,7 @@ export default function Books() {
     try {
       await axios.delete(`/books/${id}`);
       toast.success('Book deleted');
-      fetchBooks();
+      mutate();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to delete book');
     }

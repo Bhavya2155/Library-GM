@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { BookmarkPlus, CheckCircle, Trash2, RotateCcw, Download, Search, ChevronDown, ArrowUp, ArrowDown, Calendar, X } from 'lucide-react';
@@ -69,10 +70,32 @@ const SearchableSelect = ({ options, value, onChange, placeholder }: { options: 
 
 export default function Circulation() {
   const { role, username } = useAuth();
+  
+  const { data: initialRecords } = useSWR('/circulation');
+  const { data: initialBooks } = useSWR('/books');
+  const { data: initialStudents } = useSWR('/students');
+  const { data: initialGuests } = useSWR('/guests');
+
   const [records, setRecords] = useState<any[]>([]);
   const [books, setBooks] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [guests, setGuests] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (initialRecords) setRecords(initialRecords);
+  }, [initialRecords]);
+
+  useEffect(() => {
+    if (initialBooks) setBooks(initialBooks.filter((b: any) => b.availableCopies > 0));
+  }, [initialBooks]);
+
+  useEffect(() => {
+    if (initialStudents) setStudents(initialStudents);
+  }, [initialStudents]);
+
+  useEffect(() => {
+    if (initialGuests) setGuests(initialGuests);
+  }, [initialGuests]);
   
   const [showModal, setShowModal] = useState(false);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
@@ -92,20 +115,7 @@ export default function Circulation() {
   });
 
   const fetchData = async () => {
-    try {
-      const [recRes, bookRes, studRes, guestRes] = await Promise.all([
-        axios.get('/circulation'),
-        axios.get('/books'),
-        axios.get('/students'),
-        axios.get('/guests')
-      ]);
-      setRecords(recRes.data);
-      setBooks(bookRes.data.filter((b: any) => b.availableCopies > 0));
-      setStudents(studRes.data);
-      setGuests(guestRes.data);
-    } catch (err) {
-      toast.error('Failed to load data');
-    }
+    // SWR handles fetching automatically
   };
 
   const refreshCirculation = async () => {

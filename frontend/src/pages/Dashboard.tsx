@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import useSWR from 'swr';
 import axios from 'axios';
 import { Book, Users, CheckCircle, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -6,17 +7,10 @@ import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/dateFormatter';
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({ totalBooks: 0, totalStudents: 0, issuedBooks: 0, availableBooks: 0 });
-  const [logins, setLogins] = useState<any[]>([]);
   const { role } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    axios.get('/dashboard/stats').then(res => setStats(res.data)).catch(console.error);
-    if (role === 'admin') {
-      axios.get('/dashboard/logins').then(res => setLogins(res.data)).catch(console.error);
-    }
-  }, [role]);
+  const { data: stats = { totalBooks: 0, totalStudents: 0, issuedBooks: 0, availableBooks: 0 } } = useSWR('/dashboard/stats');
+  const { data: logins = [] } = useSWR(role === 'admin' ? '/dashboard/logins' : null);
 
   const cards = [
     { title: 'Total Books', value: stats.totalBooks, icon: Book, color: 'text-indigo-600', bg: 'bg-indigo-100', link: '/books' },

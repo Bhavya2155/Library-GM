@@ -1,21 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { Users, Trash2, ArrowUp, ArrowDown, Pencil, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Students() {
-  const [students, setStudents] = useState<any[]>([]);
+  const { data: students = [], mutate } = useSWR('/students');
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '', studentId: '' });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const fetchStudents = () => {
-    axios.get('/students').then(res => setStudents(res.data)).catch(console.error);
-  };
-  useEffect(() => { fetchStudents(); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +26,7 @@ export default function Students() {
       setShowModal(false);
       setForm({ name: '', studentId: '' });
       setEditingId(null);
-      fetchStudents();
+      mutate();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to save student');
     }
@@ -41,7 +37,7 @@ export default function Students() {
       try {
         await axios.delete(`/students/${id}`);
         toast.success('Student deleted');
-        fetchStudents();
+        mutate();
       } catch (err: any) {
         toast.error('Failed to delete student. They might have issued books.');
       }

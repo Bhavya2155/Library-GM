@@ -51,20 +51,28 @@ const AdminOrLeaderRoute = ({ children }: { children: ReactNode }) => {
   return <>{children}</>;
 };
 
+import { SWRConfig } from 'swr';
+
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Toaster position="top-right" containerStyle={{ zIndex: 99999 }} />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/books" element={<ProtectedRoute><AdminOrLeaderRoute><Books /></AdminOrLeaderRoute></ProtectedRoute>} />
-          <Route path="/students" element={<ProtectedRoute><AdminRoute><Students /></AdminRoute></ProtectedRoute>} />
-          <Route path="/guests" element={<ProtectedRoute><AdminRoute><Guests /></AdminRoute></ProtectedRoute>} />
-          <Route path="/circulation" element={<ProtectedRoute><Circulation /></ProtectedRoute>} />
-        </Routes>
-      </Router>
+      <SWRConfig value={{ 
+        fetcher: (url: string) => axios.get(url).then(res => res.data),
+        revalidateOnFocus: false, // Prevents excessive refetching
+        dedupingInterval: 5000 // Deduplicate requests within 5 seconds
+      }}>
+        <Router>
+          <Toaster position="top-right" containerStyle={{ zIndex: 99999 }} />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/books" element={<ProtectedRoute><AdminOrLeaderRoute><Books /></AdminOrLeaderRoute></ProtectedRoute>} />
+            <Route path="/students" element={<ProtectedRoute><AdminRoute><Students /></AdminRoute></ProtectedRoute>} />
+            <Route path="/guests" element={<ProtectedRoute><AdminRoute><Guests /></AdminRoute></ProtectedRoute>} />
+            <Route path="/circulation" element={<ProtectedRoute><Circulation /></ProtectedRoute>} />
+          </Routes>
+        </Router>
+      </SWRConfig>
     </AuthProvider>
   );
 }

@@ -1,28 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { UserCircle, Trash2, Pencil, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Guests() {
-  const [guests, setGuests] = useState<any[]>([]);
+  const { data: guests = [], mutate } = useSWR('/guests');
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '' });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const fetchGuests = async () => {
-    try {
-      const res = await axios.get('/guests');
-      setGuests(res.data);
-    } catch (err) {
-      toast.error('Failed to fetch guests');
-    }
-  };
-
-  useEffect(() => {
-    fetchGuests();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +25,7 @@ export default function Guests() {
       setShowModal(false);
       setForm({ name: '' });
       setEditingId(null);
-      fetchGuests();
+      mutate();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to save guest');
     }
@@ -48,7 +36,7 @@ export default function Guests() {
     try {
       await axios.delete(`/guests/${id}`);
       toast.success('Guest deleted');
-      fetchGuests();
+      mutate();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to delete guest');
     }
