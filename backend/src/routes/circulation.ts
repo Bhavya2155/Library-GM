@@ -180,19 +180,17 @@ router.post('/undo-return/:id', isAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     
-    // 1. Fetch concurrently
-    const [record, book] = await Promise.all([
-      prisma.issuedBook.findUnique({ where: { id } }),
-      prisma.book.findFirst({
-        where: { issues: { some: { id } } }
-      })
-    ]);
+    // 1. Fetch record with book included (1 network round trip)
+    const record = await prisma.issuedBook.findUnique({ 
+      where: { id },
+      include: { book: true }
+    });
 
     if (!record || record.status === 'issued') {
       throw new Error('Invalid record or not returned yet');
     }
 
-    if (!book || book.availableCopies < 1) {
+    if (!record.book || record.book.availableCopies < 1) {
       throw new Error('Cannot undo return. The book has already been issued to someone else and no copies are left.');
     }
 
