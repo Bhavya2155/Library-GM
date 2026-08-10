@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/server.ts",
     "build": "node migrate_columns.js && npx prisma generate && tsc",
-    "start": "node dist/server.js"
+    "start": "tsx src/server.ts"
   },
   "keywords": [],
   "author": "",
