@@ -74,7 +74,7 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-600">
-                        {formatDate(login.loginTime + 'Z')}
+                        {formatDate(login.loginTime)}
                       </td>
                     </tr>
                   ))}
