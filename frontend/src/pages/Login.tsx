@@ -17,8 +17,12 @@ export default function Login() {
       login(res.data.token, res.data.role || 'admin', res.data.username);
       toast.success('Logged in successfully');
       navigate('/');
-    } catch (err) {
-      toast.error('Invalid credentials');
+    } catch (err: any) {
+      if (err.response && err.response.status === 401) {
+        toast.error('Invalid username or password');
+      } else {
+        toast.error(`Connection Error: ${err.message}`);
+      }
     }
   };
 
