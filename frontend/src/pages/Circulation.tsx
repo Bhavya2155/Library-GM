@@ -108,6 +108,15 @@ export default function Circulation() {
     }
   };
 
+  const refreshCirculation = async () => {
+    try {
+      const recRes = await axios.get('/circulation');
+      setRecords(recRes.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -172,7 +181,9 @@ export default function Circulation() {
     toast.promise(promise, {
       loading: 'Issuing book...',
       success: () => {
-        fetchData();
+        refreshCirculation(); // ONLY fetch circulation, not everything
+        // Optimistically remove a copy from the local state
+        setBooks(prev => prev.map(b => b._id === bookId ? { ...b, availableCopies: b.availableCopies - 1 } : b).filter(b => b.availableCopies > 0));
         return 'Book issued successfully';
       },
       error: (err) => err.response?.data?.error || 'Failed to issue book'
@@ -185,7 +196,7 @@ export default function Circulation() {
     toast.promise(axios.post(`/circulation/renew/${id}`), {
       loading: 'Renewing...',
       success: () => {
-        fetchData();
+        refreshCirculation();
         return 'Book renewed successfully';
       },
       error: (err) => err.response?.data?.error || 'Failed to renew book'
@@ -197,7 +208,7 @@ export default function Circulation() {
     toast.promise(axios.post(`/circulation/undo-renew/${id}`), {
       loading: 'Undoing renewal...',
       success: () => {
-        fetchData();
+        refreshCirculation();
         return 'Renew undone';
       },
       error: (err) => err.response?.data?.error || 'Failed to undo renew'
@@ -209,7 +220,7 @@ export default function Circulation() {
     toast.promise(axios.post(`/circulation/return/${id}`), {
       loading: 'Processing return...',
       success: () => {
-        fetchData();
+        refreshCirculation();
         return 'Book returned';
       },
       error: (err) => err.response?.data?.error || 'Failed to process return'
@@ -221,7 +232,7 @@ export default function Circulation() {
     toast.promise(axios.post(`/circulation/undo-return/${id}`), {
       loading: 'Undoing return...',
       success: () => {
-        fetchData();
+        refreshCirculation();
         return 'Return undone';
       },
       error: (err) => err.response?.data?.error || 'Failed to undo return'
@@ -233,7 +244,7 @@ export default function Circulation() {
     toast.promise(axios.delete(`/circulation/${id}`), {
       loading: 'Deleting record...',
       success: () => {
-        fetchData();
+        refreshCirculation();
         return 'Record deleted';
       },
       error: (err) => err.response?.data?.error || 'Failed to delete record'
