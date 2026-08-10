@@ -44,59 +44,44 @@ router.post('/issue', async (req, res) => {
       throw new Error('Must provide either a student or a guest.');
     }
 
-    await prisma.$transaction(async (tx) => {
-      const book = await tx.book.findUnique({ where: { id: parseInt(bookId) } });
-      if (!book || book.availableCopies <= 0) {
-        throw new Error('Book not available');
-      }
+    // 1. Fetch all required data concurrently to save network round trips
+    const [book, admin, existingIssue] = await Promise.all([
+      prisma.book.findUnique({ where: { id: parseInt(bookId) } }),
+      prisma.admin.findUnique({ where: { id: (req as any).adminId } }),
+      studentId 
+        ? prisma.issuedBook.findFirst({ where: { studentId: parseInt(studentId), status: 'issued' } })
+        : prisma.issuedBook.findFirst({ where: { guestId: parseInt(guestId), status: 'issued' } })
+    ]);
 
-      const admin = await tx.admin.findUnique({ where: { id: (req as any).adminId } });
-      const issuedBy = admin ? admin.username : 'Unknown';
+    if (!book || book.availableCopies <= 0) {
+      throw new Error('Book not available');
+    }
 
-      const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 7);
+    if (existingIssue) {
+      throw new Error(studentId ? 'Student already has a book issued. They must return it first.' : 'Guest already has a book issued. They must return it first.');
+    }
 
-      if (studentId) {
-        const existingIssue = await tx.issuedBook.findFirst({
-          where: { studentId: parseInt(studentId), status: 'issued' }
-        });
-        if (existingIssue) {
-          throw new Error('Student already has a book issued. They must return it first.');
+    const issuedBy = admin ? admin.username : 'Unknown';
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7);
+
+    // 2. Perform writes in a single batch transaction (1 network round trip)
+    await prisma.$transaction([
+      prisma.issuedBook.create({
+        data: {
+          bookId: parseInt(bookId),
+          studentId: studentId ? parseInt(studentId) : null,
+          guestId: guestId ? parseInt(guestId) : null,
+          dueDate,
+          renewals: 0,
+          issuedBy
         }
-
-        await tx.issuedBook.create({
-          data: {
-            bookId: parseInt(bookId),
-            studentId: parseInt(studentId),
-            dueDate,
-            renewals: 0,
-            issuedBy
-          }
-        });
-      } else if (guestId) {
-        const existingIssue = await tx.issuedBook.findFirst({
-          where: { guestId: parseInt(guestId), status: 'issued' }
-        });
-        if (existingIssue) {
-          throw new Error('Guest already has a book issued. They must return it first.');
-        }
-
-        await tx.issuedBook.create({
-          data: {
-            bookId: parseInt(bookId),
-            guestId: parseInt(guestId),
-            dueDate,
-            renewals: 0,
-            issuedBy
-          }
-        });
-      }
-
-      await tx.book.update({
+      }),
+      prisma.book.update({
         where: { id: parseInt(bookId) },
         data: { availableCopies: { decrement: 1 } }
-      });
-    });
+      })
+    ]);
 
     res.status(201).json({ message: 'Issued successfully' });
   } catch (err: any) {
@@ -166,22 +151,24 @@ router.post('/undo-renew/:id', isAdmin, async (req, res) => {
 router.post('/return/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    await prisma.$transaction(async (tx) => {
-      const record = await tx.issuedBook.findUnique({ where: { id } });
-      if (!record || record.status === 'returned') {
-        throw new Error('Invalid record or already returned');
-      }
+    
+    // 1. Fetch record first
+    const record = await prisma.issuedBook.findUnique({ where: { id } });
+    if (!record || record.status === 'returned') {
+      throw new Error('Invalid record or already returned');
+    }
 
-      await tx.issuedBook.update({
+    // 2. Perform writes in a single batch transaction
+    await prisma.$transaction([
+      prisma.issuedBook.update({
         where: { id },
         data: { status: 'returned', returnDate: new Date() }
-      });
-
-      await tx.book.update({
+      }),
+      prisma.book.update({
         where: { id: record.bookId },
         data: { availableCopies: { increment: 1 } }
-      });
-    });
+      })
+    ]);
 
     res.json({ message: 'Returned successfully' });
   } catch (err: any) {
@@ -192,27 +179,34 @@ router.post('/return/:id', async (req, res) => {
 router.post('/undo-return/:id', isAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    await prisma.$transaction(async (tx) => {
-      const record = await tx.issuedBook.findUnique({ where: { id } });
-      if (!record || record.status === 'issued') {
-        throw new Error('Invalid record or not returned yet');
-      }
+    
+    // 1. Fetch concurrently
+    const [record, book] = await Promise.all([
+      prisma.issuedBook.findUnique({ where: { id } }),
+      prisma.book.findFirst({
+        where: { issues: { some: { id } } }
+      })
+    ]);
 
-      const book = await tx.book.findUnique({ where: { id: record.bookId } });
-      if (!book || book.availableCopies < 1) {
-        throw new Error('Cannot undo return. The book has already been issued to someone else and no copies are left.');
-      }
+    if (!record || record.status === 'issued') {
+      throw new Error('Invalid record or not returned yet');
+    }
 
-      await tx.issuedBook.update({
+    if (!book || book.availableCopies < 1) {
+      throw new Error('Cannot undo return. The book has already been issued to someone else and no copies are left.');
+    }
+
+    // 2. Perform writes in a single batch transaction
+    await prisma.$transaction([
+      prisma.issuedBook.update({
         where: { id },
         data: { status: 'issued', returnDate: null }
-      });
-
-      await tx.book.update({
+      }),
+      prisma.book.update({
         where: { id: record.bookId },
         data: { availableCopies: { decrement: 1 } }
-      });
-    });
+      })
+    ]);
 
     res.json({ message: 'Return undone successfully' });
   } catch (err: any) {
@@ -223,19 +217,24 @@ router.post('/undo-return/:id', isAdmin, async (req, res) => {
 router.delete('/:id', isAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    await prisma.$transaction(async (tx) => {
-      const record = await tx.issuedBook.findUnique({ where: { id } });
-      if (!record) throw new Error('Record not found');
-      
-      if (record.status === 'issued') {
-        await tx.book.update({
+    
+    // 1. Fetch record first
+    const record = await prisma.issuedBook.findUnique({ where: { id } });
+    if (!record) throw new Error('Record not found');
+    
+    // 2. Perform writes in a single batch transaction
+    const operations: any[] = [];
+    if (record.status === 'issued') {
+      operations.push(
+        prisma.book.update({
           where: { id: record.bookId },
           data: { availableCopies: { increment: 1 } }
-        });
-      }
-      
-      await tx.issuedBook.delete({ where: { id } });
-    });
+        })
+      );
+    }
+    operations.push(prisma.issuedBook.delete({ where: { id } }));
+
+    await prisma.$transaction(operations);
     
     res.json({ message: 'Deleted successfully' });
   } catch (err: any) {
