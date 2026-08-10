@@ -4,13 +4,18 @@ import { auth, isAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
-router.get('/stats', auth, (req, res) => {
+router.get('/stats', auth, async (req, res) => {
   try {
-    const totalStudents = (db.prepare('SELECT COUNT(*) as count FROM students').get() as any).count;
-    const booksAggr = db.prepare('SELECT SUM(quantity) as totalQty, SUM(availableCopies) as totalAvail FROM books').get() as any;
+    const totalStudents = await db.student.count();
+    const booksAggr = await db.book.aggregate({
+      _sum: {
+        quantity: true,
+        availableCopies: true
+      }
+    });
     
-    const totalCopies = booksAggr.totalQty || 0;
-    const availableCopies = booksAggr.totalAvail || 0;
+    const totalCopies = booksAggr._sum.quantity || 0;
+    const availableCopies = booksAggr._sum.availableCopies || 0;
     const issuedCopies = totalCopies - availableCopies;
 
     res.json({
@@ -24,9 +29,12 @@ router.get('/stats', auth, (req, res) => {
   }
 });
 
-router.get('/logins', auth, isAdmin, (req, res) => {
+router.get('/logins', auth, isAdmin, async (req, res) => {
   try {
-    const logins = db.prepare('SELECT * FROM login_history ORDER BY loginTime DESC LIMIT 10').all();
+    const logins = await db.loginHistory.findMany({
+      orderBy: { loginTime: 'desc' },
+      take: 10
+    });
     res.json(logins);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

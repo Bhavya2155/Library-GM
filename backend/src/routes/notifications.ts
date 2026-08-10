@@ -5,9 +5,9 @@ import { auth } from '../middleware/auth';
 const router = express.Router();
 router.use(auth);
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const records = db.prepare(`
+    const records = await db.$queryRaw`
       SELECT 
         ib.id as _id, ib.dueDate,
         b.title as "bookTitle",
@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
       WHERE ib.status = 'issued' 
       AND ib.dueDate <= datetime('now', '+1 day')
       ORDER BY ib.dueDate ASC
-    `).all();
+    `;
 
     res.json(records);
   } catch (err: any) {
