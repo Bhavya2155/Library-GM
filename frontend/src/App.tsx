@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ReactNode } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import axios from 'axios';
@@ -16,7 +17,7 @@ import Circulation from './pages/Circulation';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { token, loading } = useAuth();
   if (loading) return <div>Loading...</div>;
   if (!token) return <Navigate to="/login" replace />;
@@ -35,13 +36,13 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   );
 };
 
-const AdminRoute = ({ children }: { children: JSX.Element }) => {
+const AdminRoute = ({ children }: { children: ReactNode }) => {
   const { role } = useAuth();
   if (role !== 'admin') return <Navigate to="/circulation" replace />;
   return <>{children}</>;
 };
 
-const AdminOrLeaderRoute = ({ children }: { children: JSX.Element }) => {
+const AdminOrLeaderRoute = ({ children }: { children: ReactNode }) => {
   const { role } = useAuth();
   if (role !== 'admin' && role !== 'leader') return <Navigate to="/circulation" replace />;
   return <>{children}</>;

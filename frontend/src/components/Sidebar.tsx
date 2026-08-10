@@ -252,7 +252,7 @@ const Sidebar = () => {
                 return;
               }
               try {
-                const res = await axios.put('/admin/update', { currentPassword, newUsername, newPassword }, {
+                await axios.put('/admin/update', { currentPassword, newUsername, newPassword }, {
                   headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success('Credentials updated successfully!');
