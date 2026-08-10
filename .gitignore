@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backend/node_modules/
+frontend/node_modules/
+backend/library.db
+backend/scratch/
+backend/library.db-wal
+backend/library.db-shm
+dist/
+build/

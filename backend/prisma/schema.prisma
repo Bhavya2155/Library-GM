@@ -1,0 +1,83 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  role     String @default("admin")
+
+  @@map("admins")
+}
+
+model Book {
+  id              Int      @id @default(autoincrement())
+  title           String
+  author          String
+  isbn            String   @unique
+  category        String
+  quantity        Int
+  availableCopies Int
+  createdAt       DateTime @default(now())
+  issuedBooks     IssuedBook[]
+
+  @@map("books")
+}
+
+model Student {
+  id        Int      @id @default(autoincrement())
+  name      String
+  studentId String?  @unique
+  email     String
+  phone     String
+  createdAt DateTime @default(now())
+  issuedBooks IssuedBook[]
+
+  @@map("students")
+}
+
+model Guest {
+  id   Int    @id @default(autoincrement())
+  name String
+  issuedBooks IssuedBook[]
+
+  @@map("guests")
+}
+
+model IssuedBook {
+  id         Int       @id @default(autoincrement())
+  bookId     Int
+  studentId  Int?
+  guestId    Int?
+  issueDate  DateTime  @default(now())
+  dueDate    DateTime?
+  returnDate DateTime?
+  renewDate  DateTime?
+  status     String    @default("issued")
+  renewals   Int       @default(0)
+  issuedBy   String?
+
+  book       Book      @relation(fields: [bookId], references: [id])
+  student    Student?  @relation(fields: [studentId], references: [id])
+  guest      Guest?    @relation(fields: [guestId], references: [id])
+
+  @@map("issued_books")
+}
+
+model LoginHistory {
+  id        Int      @id @default(autoincrement())
+  username  String
+  role      String
+  loginTime DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+
+  @@map("login_history")
+}

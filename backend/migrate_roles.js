@@ -1,0 +1,1 @@
+﻿const Database = require('better-sqlite3'); const db = new Database('./library.db'); console.log('Updated rows:', db.prepare(UPDATE admins SET role = ''student'' WHERE role = ''staff'').run().changes);
