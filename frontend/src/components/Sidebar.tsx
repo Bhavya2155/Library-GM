@@ -28,7 +28,7 @@ const Sidebar = () => {
   const [staffAccounts, setStaffAccounts] = useState<any[]>([]);
   const [newStaffUsername, setNewStaffUsername] = useState('');
   const [newStaffPassword, setNewStaffPassword] = useState('');
-  const [newStaffRole, setNewStaffRole] = useState('student');
+  const [newStaffRole, setNewStaffRole] = useState('coordinator');
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showStaffPassword, setShowStaffPassword] = useState(false);
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
@@ -68,7 +68,7 @@ const Sidebar = () => {
       }
       setNewStaffUsername('');
       setNewStaffPassword('');
-      setNewStaffRole('student');
+      setNewStaffRole('coordinator');
       fetchStaffAccounts();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to save account');
@@ -86,7 +86,7 @@ const Sidebar = () => {
     setEditingStaffId(null);
     setNewStaffUsername('');
     setNewStaffPassword('');
-    setNewStaffRole('student');
+    setNewStaffRole('coordinator');
   };
 
   const handleDeleteStaff = async (id: string) => {
@@ -151,17 +151,20 @@ const Sidebar = () => {
             <X size={20} />
           </button>
         <img src="/logo.png" alt="Gnan Mandir Logo" className="h-10 w-auto object-contain drop-shadow-sm" />
-        <span className="text-[10px] font-bold tracking-wider text-indigo-600 uppercase text-center whitespace-nowrap">
-          {role === 'admin' ? 'Coordinator Library Dashboard' : role === 'leader' ? 'Leader Library Dashboard' : 'Student Library Dashboard'}
+        <span className="text-[10px] font-bold tracking-wider text-indigo-600 uppercase text-center whitespace-nowrap flex items-center gap-1">
+          {role === 'admin' && (
+            <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm">S</span>
+          )}
+          {role === 'admin' || role === 'coordinator' ? 'Coordinator Library Dashboard' : role === 'leader' ? 'Leader Library Dashboard' : 'Student Library Dashboard'}
         </span>
       </div>
       
       <nav className="flex-1 p-4 flex flex-col gap-2">
         <NavLink onClick={() => setIsMobileOpen(false)} to="/" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`} end><LayoutDashboard size={20} /> Dashboard</NavLink>
-        {(role === 'admin' || role === 'leader') && (
+        {(role === 'admin' || role === 'coordinator' || role === 'leader') && (
           <NavLink onClick={() => setIsMobileOpen(false)} to="/books" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><BookOpen size={20} /> Books</NavLink>
         )}
-        {role === 'admin' && (
+        {(role === 'admin' || role === 'coordinator') && (
           <>
             <NavLink onClick={() => setIsMobileOpen(false)} to="/students" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Users size={20} /> Students</NavLink>
             <NavLink onClick={() => setIsMobileOpen(false)} to="/guests" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><UserCircle size={20} /> Guests</NavLink>
@@ -217,6 +220,7 @@ const Sidebar = () => {
           
           {showSettingsDropdown && (
             <div className="absolute left-0 bottom-full mb-2 w-full bg-white/90 backdrop-blur-xl rounded-xl shadow-xl border border-white/50 overflow-hidden z-50">
+              {/* Only SUPER coordinator (admin role) can manage accounts */}
               {role === 'admin' && (
                 <>
                   <div 
@@ -237,9 +241,18 @@ const Sidebar = () => {
                   </div>
                 </>
               )}
+              {/* Regular coordinator, leader, student only see Change Password */}
+              {role !== 'admin' && (
+                <div 
+                  onClick={() => { setShowSettingsDropdown(false); setShowSettingsModal(true); }} 
+                  className="px-4 py-3 hover:bg-slate-50/50 cursor-pointer transition-colors text-sm font-medium text-slate-700 flex items-center gap-3"
+                >
+                  <Settings size={16} /> Change Password
+                </div>
+              )}
               <div 
                 onClick={logout} 
-                className={`px-4 py-3 hover:bg-rose-50/50 cursor-pointer transition-colors text-sm font-medium text-rose-600 flex items-center gap-3 ${role === 'admin' ? 'border-t border-slate-100' : ''}`}
+                className="px-4 py-3 hover:bg-rose-50/50 cursor-pointer transition-colors text-sm font-medium text-rose-600 flex items-center gap-3 border-t border-slate-100"
               >
                 <LogOut size={16} /> Logout
               </div>
@@ -361,16 +374,22 @@ const Sidebar = () => {
                       {showRoleDropdown && (
                         <div className="absolute top-full left-0 mt-2 w-full bg-white border border-slate-100 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] overflow-hidden z-[100] py-1 animate-in fade-in zoom-in-95 duration-200">
                           <div 
-                            className={`px-3 py-2.5 text-sm cursor-pointer transition-colors flex items-center ${newStaffRole === 'student' ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
-                            onMouseDown={(e) => { e.preventDefault(); setNewStaffRole('student'); setShowRoleDropdown(false); }}
+                            className={`px-3 py-2.5 text-sm cursor-pointer transition-colors flex items-center ${newStaffRole === 'coordinator' ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
+                            onMouseDown={(e) => { e.preventDefault(); setNewStaffRole('coordinator'); setShowRoleDropdown(false); }}
                           >
-                            Student
+                            Coordinator
                           </div>
                           <div 
                             className={`px-3 py-2.5 text-sm cursor-pointer transition-colors flex items-center ${newStaffRole === 'leader' ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
                             onMouseDown={(e) => { e.preventDefault(); setNewStaffRole('leader'); setShowRoleDropdown(false); }}
                           >
                             Leader
+                          </div>
+                          <div 
+                            className={`px-3 py-2.5 text-sm cursor-pointer transition-colors flex items-center ${newStaffRole === 'student' ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
+                            onMouseDown={(e) => { e.preventDefault(); setNewStaffRole('student'); setShowRoleDropdown(false); }}
+                          >
+                            Student
                           </div>
                         </div>
                       )}
@@ -418,7 +437,11 @@ const Sidebar = () => {
                         <div className="flex items-center gap-3">
                           <div className="bg-blue-100 text-blue-700 p-1.5 rounded-lg"><UserCircle size={18} /></div>
                           <span className="font-medium text-slate-700 text-sm">{staff.username}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${staff.role === 'leader' ? 'bg-purple-100 text-purple-700' : staff.role === 'admin' ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'}`}>{staff.role || 'student'}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                            staff.role === 'coordinator' ? 'bg-indigo-100 text-indigo-700' :
+                            staff.role === 'leader' ? 'bg-purple-100 text-purple-700' :
+                            'bg-slate-100 text-slate-600'
+                          }`}>{staff.role || 'student'}</span>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={() => startEditStaff(staff)} className="text-indigo-500 hover:text-indigo-700 text-sm font-medium px-2 py-1 rounded hover:bg-indigo-50 transition-colors">Edit</button>

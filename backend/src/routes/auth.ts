@@ -122,9 +122,8 @@ router.get('/staff', auth, isAdmin, async (req, res) => {
   try {
     const staff = await prisma.admin.findMany({
       where: {
-        id: { not: req.adminId },
-        username: { not: 'Dada' }, // Prevent modifying the master developer account
-        role: { in: ['student', 'leader'] } // Only show student and leader accounts
+        username: { not: 'Dada' }, // Protect master developer
+        role: { in: ['coordinator', 'leader', 'student'] } // Never expose admin/super accounts
       },
       select: {
         id: true,
@@ -142,7 +141,7 @@ router.post('/staff', auth, isAdmin, async (req, res) => {
   try {
     const { username, password, role } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
-    if (role !== 'student' && role !== 'leader') return res.status(400).json({ error: 'Invalid role. Only student or leader allowed.' });
+    if (!['coordinator', 'leader', 'student'].includes(role)) return res.status(400).json({ error: 'Invalid role. Allowed: coordinator, leader, student.' });
     
     const existing = await prisma.admin.findUnique({ where: { username } });
     if (existing) return res.status(400).json({ error: 'Username already exists' });
@@ -162,16 +161,17 @@ router.put('/staff/:id', auth, isAdmin, async (req, res) => {
   try {
     const { username, password, role } = req.body;
     if (!username) return res.status(400).json({ error: 'Username is required' });
-    if (role !== 'student' && role !== 'leader') return res.status(400).json({ error: 'Invalid role. Only student or leader allowed.' });
+    if (!['coordinator', 'leader', 'student'].includes(role)) return res.status(400).json({ error: 'Invalid role. Allowed: coordinator, leader, student.' });
     
+    // Only allow editing coordinator/leader/student — never admin/super
     const record = await prisma.admin.findFirst({
       where: {
         id: parseInt(req.params.id),
-        username: { not: 'Dada' }, // Protect master developer
-        role: { in: ['student', 'leader'] } // Prevent editing admin accounts
+        username: { not: 'Dada' },
+        role: { in: ['coordinator', 'leader', 'student'] }
       }
     });
-    if (!record) return res.status(404).json({ error: 'Account not found' });
+    if (!record) return res.status(404).json({ error: 'Account not found or protected' });
 
     const data: any = { username, role };
     if (password) {
@@ -192,13 +192,15 @@ router.put('/staff/:id', auth, isAdmin, async (req, res) => {
 
 router.delete('/staff/:id', auth, isAdmin, async (req, res) => {
   try {
+    // Only allow deleting coordinator/leader/student — never admin/super
     const record = await prisma.admin.findFirst({
       where: {
         id: parseInt(req.params.id),
-        username: { not: 'Dada' } // Protect master developer
+        username: { not: 'Dada' },
+        role: { in: ['coordinator', 'leader', 'student'] }
       }
     });
-    if (!record) return res.status(404).json({ error: 'Account not found' });
+    if (!record) return res.status(404).json({ error: 'Account not found or protected' });
     
     await prisma.admin.delete({
       where: { id: parseInt(req.params.id) }

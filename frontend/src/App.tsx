@@ -41,13 +41,13 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 
 const AdminRoute = ({ children }: { children: ReactNode }) => {
   const { role } = useAuth();
-  if (role !== 'admin') return <Navigate to="/circulation" replace />;
+  if (role !== 'admin' && role !== 'coordinator') return <Navigate to="/circulation" replace />;
   return <>{children}</>;
 };
 
 const AdminOrLeaderRoute = ({ children }: { children: ReactNode }) => {
   const { role } = useAuth();
-  if (role !== 'admin' && role !== 'leader') return <Navigate to="/circulation" replace />;
+  if (role !== 'admin' && role !== 'coordinator' && role !== 'leader') return <Navigate to="/circulation" replace />;
   return <>{children}</>;
 };
 
