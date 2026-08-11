@@ -28,7 +28,7 @@ const Sidebar = () => {
   const [staffAccounts, setStaffAccounts] = useState<any[]>([]);
   const [newStaffUsername, setNewStaffUsername] = useState('');
   const [newStaffPassword, setNewStaffPassword] = useState('');
-  const [newStaffRole, setNewStaffRole] = useState('coordinator');
+  const [newStaffRole, setNewStaffRole] = useState('student');
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showStaffPassword, setShowStaffPassword] = useState(false);
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
@@ -75,7 +75,7 @@ const Sidebar = () => {
       }
       setNewStaffUsername('');
       setNewStaffPassword('');
-      setNewStaffRole('coordinator');
+      setNewStaffRole('student');
       fetchStaffAccounts();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to save account');
@@ -93,7 +93,7 @@ const Sidebar = () => {
     setEditingStaffId(null);
     setNewStaffUsername('');
     setNewStaffPassword('');
-    setNewStaffRole('coordinator');
+    setNewStaffRole('student');
   };
 
   const handleDeleteStaff = async (id: string) => {
