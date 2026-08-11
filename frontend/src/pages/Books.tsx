@@ -84,31 +84,31 @@ export default function Books() {
             <table className="w-full text-left border-collapse table-auto md:table-fixed">
               <thead>
                 <tr className="bg-white/40 text-slate-600 text-xs uppercase tracking-wider border-b border-white/50 backdrop-blur-md">
-                  <th className="p-4 font-semibold w-[90px] md:w-[10%]">ISBN / ID</th>
-                  <th className="p-4 font-semibold w-[150px] md:w-[35%]">Title</th>
-                  <th className="p-4 font-semibold w-[120px] md:w-[20%]">Author</th>
-                  <th className="p-4 font-semibold w-[110px] md:w-[15%]">Category</th>
-                  <th className="p-4 font-semibold w-[90px] md:w-[10%]">Availability</th>
-                  <th className="p-4 font-semibold w-[75px] md:w-[10%]">Actions</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%]">ISBN / ID</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[35%]">Title</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[20%]">Author</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[15%]">Category</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%]">Availability</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/40 text-sm">
                 {books.map((book: any) => (
                   <tr key={book._id} className="hover:bg-white/60 transition-colors duration-200">
-                    <td className="p-4 text-slate-500 font-mono text-xs truncate overflow-hidden">{book.isbn}</td>
-                    <td className="p-4 text-slate-900 font-medium truncate overflow-hidden">{book.title}</td>
-                    <td className="p-4 text-slate-600 truncate overflow-hidden">{book.author}</td>
-                    <td className="p-4">
-                      <span className="inline-block bg-indigo-50/80 text-indigo-700 px-2.5 py-1 rounded-full text-[11px] font-bold border border-indigo-100/50 shadow-sm truncate overflow-hidden max-w-[100px] md:max-w-none">
+                    <td className="px-3 py-3 md:p-4 text-slate-500 font-mono text-xs truncate max-w-[80px] md:max-w-none">{book.isbn}</td>
+                    <td className="px-3 py-3 md:p-4 text-slate-900 font-medium truncate max-w-[120px] md:max-w-none" title={book.title}>{book.title}</td>
+                    <td className="px-3 py-3 md:p-4 text-slate-600 truncate max-w-[100px] md:max-w-none" title={book.author}>{book.author}</td>
+                    <td className="px-3 py-3 md:p-4">
+                      <span className="inline-block bg-indigo-50/80 text-indigo-700 px-2.5 py-1 rounded-full text-[11px] font-bold border border-indigo-100/50 shadow-sm truncate max-w-[90px] md:max-w-none" title={book.category}>
                         {book.category}
                       </span>
                     </td>
-                    <td className="p-4">
+                    <td className="px-3 py-3 md:p-4 whitespace-nowrap">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${book.availableCopies > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                         {Math.max(0, book.availableCopies)} / {book.quantity}
                       </span>
                     </td>
-                    <td className="p-4 flex gap-2">
+                    <td className="px-3 py-3 md:p-4 flex gap-2 justify-end">
                       <button onClick={() => handleEdit(book)} className="text-indigo-500 hover:text-indigo-700 transition-colors p-1" title="Edit Book">
                         <Pencil size={18} />
                       </button>
