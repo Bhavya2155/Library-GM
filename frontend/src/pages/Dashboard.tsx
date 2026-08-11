@@ -56,7 +56,7 @@ export default function Dashboard() {
               <div className="p-8 text-center text-slate-500">No login history found.</div>
             ) : (
               <div className="overflow-x-auto w-full">
-              <table className="w-full text-left border-collapse min-w-max md:min-w-full md:table-fixed">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                   <tr className="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider border-b border-white">
                     <th className="px-6 py-4 font-semibold w-1/3">Username</th>

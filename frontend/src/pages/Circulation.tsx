@@ -430,26 +430,26 @@ export default function Circulation() {
 
         <div className="bg-white rounded-t-2xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col min-h-0 mb-0">
           <div className="overflow-x-auto overflow-y-auto flex-1 relative">
-            <table className="w-full text-left border-collapse min-w-max md:min-w-full md:table-fixed">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead className="sticky top-0 z-10 bg-slate-50 shadow-sm">
               <tr className="text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                <th className="px-3 py-3 font-semibold w-[8%] cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('gmNo')}>
+                <th className="px-3 py-3 font-semibold  cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('gmNo')}>
                   <div className="flex items-center gap-1">GM No. {renderSortIcon('gmNo')}</div>
                 </th>
-                <th className="px-3 py-3 font-semibold w-[16%] cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('name')}>
+                <th className="px-3 py-3 font-semibold  cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('name')}>
                   <div className="flex items-center gap-1">Name {renderSortIcon('name')}</div>
                 </th>
-                <th className="px-3 py-3 font-semibold w-[22%] cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('bookTitle')}>
+                <th className="px-3 py-3 font-semibold  cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('bookTitle')}>
                   <div className="flex items-center gap-1">Book Title {renderSortIcon('bookTitle')}</div>
                 </th>
-                <th className="px-3 py-3 font-semibold w-[20%] cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('issueDate')}>
+                <th className="px-3 py-3 font-semibold  cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('issueDate')}>
                   <div className="flex items-center gap-1">Dates {renderSortIcon('issueDate')}</div>
                 </th>
-                <th className="px-3 py-3 font-semibold w-[10%] cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('status')}>
+                <th className="px-3 py-3 font-semibold  cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('status')}>
                   <div className="flex items-center gap-1">Status {renderSortIcon('status')}</div>
                 </th>
-                <th className="px-3 py-3 font-semibold w-[15%]">Actions</th>
-                {role === 'admin' && <th className="px-3 py-3 font-semibold w-[9%]">Delete</th>}
+                <th className="px-3 py-3 font-semibold ">Actions</th>
+                {role === 'admin' && <th className="px-3 py-3 font-semibold ">Delete</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
