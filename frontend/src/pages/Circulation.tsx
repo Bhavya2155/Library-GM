@@ -362,9 +362,9 @@ export default function Circulation() {
   return (
     <div className="h-full w-full flex flex-col px-8 pt-8 pb-0">
       <div className="max-w-7xl mx-auto w-full h-full flex flex-col relative z-10 min-h-0">
-        <div className="flex justify-between items-center mb-6 shrink-0">
-        <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Circulation Desk</h1>
-        <div className="flex gap-4">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 shrink-0">
+          <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Circulation Desk</h1>
+          <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
           <div className="relative min-w-[140px]">
             <button 
               onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
@@ -410,7 +410,7 @@ export default function Circulation() {
             <BookmarkPlus size={20} /> Issue Book
           </button>
         </div>
-      </div>
+        </div>
 
       <div className="flex gap-4 mb-6 border-b border-slate-200 shrink-0">
         <button 
@@ -428,9 +428,9 @@ export default function Circulation() {
       </div>
 
 
-      <div className="bg-white rounded-t-2xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col min-h-0 mb-0">
-        <div className="overflow-x-auto overflow-y-auto flex-1 relative">
-          <table className="w-full text-left border-collapse table-fixed">
+        <div className="bg-white rounded-t-2xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col min-h-0 mb-0">
+          <div className="overflow-x-auto overflow-y-auto flex-1 relative">
+            <table className="min-w-max w-full text-left border-collapse">
             <thead className="sticky top-0 z-10 bg-slate-50 shadow-sm">
               <tr className="text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                 <th className="px-3 py-3 font-semibold w-[8%] cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('gmNo')}>
