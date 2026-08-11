@@ -78,15 +78,15 @@ export default function Books() {
 
       <div className="bg-white/60 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
         <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse whitespace-nowrap">
+              <table className="w-full text-left border-collapse whitespace-nowrap md:table-fixed">
             <thead>
               <tr className="bg-white/40 text-slate-600 text-xs uppercase tracking-wider border-b border-white/50 backdrop-blur-md">
-                <th className="p-4 font-semibold ">ISBN / ID</th>
-                <th className="p-4 font-semibold ">Title</th>
-                <th className="p-4 font-semibold ">Author</th>
-                <th className="p-4 font-semibold ">Category</th>
-                <th className="p-4 font-semibold ">Availability</th>
-                <th className="p-4 font-semibold ">Actions</th>
+                <th className="p-4 font-semibold md:w-[10%]">ISBN / ID</th>
+                <th className="p-4 font-semibold md:w-[35%]">Title</th>
+                <th className="p-4 font-semibold md:w-[20%]">Author</th>
+                <th className="p-4 font-semibold md:w-[15%]">Category</th>
+                <th className="p-4 font-semibold md:w-[10%]">Availability</th>
+                <th className="p-4 font-semibold md:w-[10%]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/40 text-sm">
