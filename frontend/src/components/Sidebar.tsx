@@ -365,8 +365,8 @@ const Sidebar = () => {
                   {editingStaffId ? 'Edit Account' : 'Add New Account'}
                 </h4>
                 <form onSubmit={handleCreateStaff} className="flex flex-col gap-3">
-                  <div className="flex gap-2 items-start">
-                    <div className="w-1/4 relative role-dropdown-container">
+                  <div className="flex flex-wrap sm:flex-nowrap gap-2 items-start">
+                    <div className="w-full sm:w-[130px] shrink-0 relative role-dropdown-container">
                       <label className="block text-xs font-medium text-slate-500 mb-1">Role</label>
                       <div 
                         className={`w-full px-3 py-2 bg-white/60 backdrop-blur-md border ${showRoleDropdown ? 'border-indigo-400 ring-2 ring-indigo-500/50' : 'border-slate-200'} rounded-lg cursor-pointer flex justify-between items-center text-sm transition-all`}
