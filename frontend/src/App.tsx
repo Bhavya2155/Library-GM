@@ -32,7 +32,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
       <div className="absolute -bottom-40 left-20 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob pointer-events-none" style={{ animationDelay: '4000ms' }}></div>
       
       <Sidebar />
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col pt-16 md:pt-0">
         {children}
       </div>
     </div>
