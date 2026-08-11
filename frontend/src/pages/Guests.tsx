@@ -66,7 +66,8 @@ export default function Guests() {
 
       <div className="bg-white/60 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto w-full">
+              <table min-w-max className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-white/40 text-slate-600 text-xs uppercase tracking-wider border-b border-white/50 backdrop-blur-md">
                 <th className="p-4 font-semibold">Guest Name</th>
@@ -104,6 +105,7 @@ export default function Guests() {
               )}
             </tbody>
           </table>
+            </div>
         </div>
       </div>
 

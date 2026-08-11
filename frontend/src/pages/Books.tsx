@@ -78,7 +78,8 @@ export default function Books() {
 
       <div className="bg-white/60 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse table-fixed">
+          <div className="overflow-x-auto w-full">
+              <table min-w-max className="w-full text-left border-collapse table-fixed">
             <thead>
               <tr className="bg-white/40 text-slate-600 text-xs uppercase tracking-wider border-b border-white/50 backdrop-blur-md">
                 <th className="p-4 font-semibold w-[10%]">ISBN / ID</th>
@@ -132,6 +133,7 @@ export default function Books() {
               )}
             </tbody>
           </table>
+            </div>
         </div>
       </div>
 
