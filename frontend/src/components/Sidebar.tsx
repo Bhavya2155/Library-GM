@@ -41,10 +41,12 @@ const Sidebar = () => {
       const res = await axios.get('/admin/staff', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      const roleOrder: Record<string, number> = { admin: 1, coordinator: 2, leader: 3, student: 4 };
       const sortedStaff = res.data.sort((a: any, b: any) => {
-        if (a.role === 'admin' && b.role !== 'admin') return -1;
-        if (a.role !== 'admin' && b.role === 'admin') return 1;
-        return 0;
+        const rankA = roleOrder[a.role] || 99;
+        const rankB = roleOrder[b.role] || 99;
+        if (rankA !== rankB) return rankA - rankB;
+        return a.username.localeCompare(b.username);
       });
       setStaffAccounts(sortedStaff);
     } catch (err) {
