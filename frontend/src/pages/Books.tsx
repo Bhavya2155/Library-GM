@@ -92,9 +92,9 @@ export default function Books() {
             <tbody className="divide-y divide-white/40 text-sm">
               {books.map((book: any) => (
                 <tr key={book._id} className="hover:bg-white/60 transition-colors duration-200">
-                  <td className="p-4 text-slate-500 font-mono text-xs truncate">{book.isbn}</td>
-                  <td className="p-4 text-slate-900 font-medium truncate">{book.title}</td>
-                  <td className="p-4 text-slate-600 truncate">{book.author}</td>
+                  <td className="p-4 text-slate-500 font-mono text-xs truncate max-w-[120px] md:max-w-none">{book.isbn}</td>
+                  <td className="p-4 text-slate-900 font-medium truncate max-w-[180px] md:max-w-none">{book.title}</td>
+                  <td className="p-4 text-slate-600 truncate max-w-[150px] md:max-w-none">{book.author}</td>
                   <td className="p-4">
                     <span className="inline-block whitespace-nowrap bg-indigo-50/80 text-indigo-700 px-2.5 py-1 rounded-full text-[11px] font-bold border border-indigo-100/50 shadow-sm">
                       {book.category}
