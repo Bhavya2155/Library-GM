@@ -50,7 +50,7 @@ export default function Guests() {
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-8">
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm">Guest Directory</h1>
         <div className="flex flex-col sm:flex-row gap-4">
