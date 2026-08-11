@@ -145,7 +145,7 @@ const Sidebar = () => {
         <div className="md:hidden fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsMobileOpen(false)}></div>
       )}
 
-      <div className={`${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed inset-y-0 left-0 md:relative z-50 w-64 bg-white/70 backdrop-blur-2xl border-r border-white/50 flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-transform duration-300 ease-in-out`}>
+      <div className={`${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed inset-y-0 left-0 md:relative z-50 w-56 bg-white/70 backdrop-blur-2xl border-r border-white/50 flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-transform duration-300 ease-in-out`}>
         <div className="p-6 border-b border-white/50 flex flex-col items-center gap-2 relative">
           <button onClick={() => setIsMobileOpen(false)} className="md:hidden absolute top-4 right-4 text-slate-400 hover:text-slate-600">
             <X size={20} />
