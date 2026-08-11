@@ -41,7 +41,12 @@ const Sidebar = () => {
       const res = await axios.get('/admin/staff', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setStaffAccounts(res.data);
+      const sortedStaff = res.data.sort((a: any, b: any) => {
+        if (a.role === 'admin' && b.role !== 'admin') return -1;
+        if (a.role !== 'admin' && b.role === 'admin') return 1;
+        return 0;
+      });
+      setStaffAccounts(sortedStaff);
     } catch (err) {
       toast.error('Failed to load staff accounts');
     }
