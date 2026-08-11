@@ -74,7 +74,7 @@ export default function Guests() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/40 text-sm">
-              {guests.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase())).map((guest) => (
+              {guests.filter((g: any) => g.name.toLowerCase().includes(searchTerm.toLowerCase())).map((guest: any) => (
                 <tr key={guest._id} className="hover:bg-white/60 transition-colors duration-200">
                   <td className="p-4 font-medium text-slate-900">{guest.name}</td>
                   <td className="p-4 flex gap-2">

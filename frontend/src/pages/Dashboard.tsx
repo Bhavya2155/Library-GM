@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React from 'react';
 import useSWR from 'swr';
 import axios from 'axios';
 import { Book, Users, CheckCircle, Clock } from 'lucide-react';
@@ -64,7 +64,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/50 text-sm">
-                  {logins.map(login => (
+                  {logins.map((login: any) => (
                     <tr key={login.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4 text-slate-900 font-medium">{login.username}</td>
                       <td className="px-6 py-4">

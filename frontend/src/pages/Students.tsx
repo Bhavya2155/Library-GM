@@ -44,7 +44,7 @@ export default function Students() {
     }
   };
 
-  const filteredStudents = students.filter(s => {
+  const filteredStudents = students.filter((s: any) => {
     const term = searchTerm.toLowerCase();
     return s.name.toLowerCase().includes(term) || s.studentId.toLowerCase().includes(term);
   });

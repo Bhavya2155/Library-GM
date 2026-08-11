@@ -142,7 +142,7 @@ export default function Circulation() {
     const searchCodeNoHyphen = `${prefix}${num}`;
     const searchCodeNumOnly = num;
     
-    const found = books.find(b => {
+    const found = books.find((b: any) => {
       const isbn = b.isbn.toUpperCase();
       return isbn === searchCode || isbn === searchCodeNoHyphen || (prefix === '' && isbn === searchCodeNumOnly);
     });
@@ -193,7 +193,7 @@ export default function Circulation() {
       success: () => {
         refreshCirculation(); // ONLY fetch circulation, not everything
         // Optimistically remove a copy from the local state
-        setBooks(prev => prev.map(b => b._id === bookId ? { ...b, availableCopies: b.availableCopies - 1 } : b).filter(b => b.availableCopies > 0));
+        setBooks(prev => prev.map((b: any) => b._id === bookId ? { ...b, availableCopies: b.availableCopies - 1 } : b).filter((b: any) => b.availableCopies > 0));
         return 'Book issued successfully';
       },
       error: (err) => err.response?.data?.error || 'Failed to issue book'
@@ -248,7 +248,7 @@ export default function Circulation() {
     
     // Instant Reflect
     setRecords(prev => prev.map(r => r._id === id ? { ...r, status: 'returned', returnDate: new Date().toISOString() } : r));
-    setBooks(prev => prev.map(b => b._id === records.find(r => r._id === id)?.bookId?._id ? { ...b, availableCopies: b.availableCopies + 1 } : b));
+    setBooks(prev => prev.map((b: any) => b._id === records.find(r => r._id === id)?.bookId?._id ? { ...b, availableCopies: b.availableCopies + 1 } : b));
 
     axios.post(`/circulation/return/${id}`)
       .then(() => toast.success('Book returned'))
@@ -263,7 +263,7 @@ export default function Circulation() {
     
     // Instant Reflect
     setRecords(prev => prev.map(r => r._id === id ? { ...r, status: 'issued', returnDate: null } : r));
-    setBooks(prev => prev.map(b => b._id === records.find(r => r._id === id)?.bookId?._id ? { ...b, availableCopies: b.availableCopies - 1 } : b));
+    setBooks(prev => prev.map((b: any) => b._id === records.find(r => r._id === id)?.bookId?._id ? { ...b, availableCopies: b.availableCopies - 1 } : b));
 
     axios.post(`/circulation/undo-return/${id}`)
       .then(() => toast.success('Return undone'))
@@ -280,7 +280,7 @@ export default function Circulation() {
     const record = records.find(r => r._id === id);
     setRecords(prev => prev.filter(r => r._id !== id));
     if (record?.status === 'issued') {
-       setBooks(prev => prev.map(b => b._id === record.bookId?._id ? { ...b, availableCopies: b.availableCopies + 1 } : b));
+       setBooks(prev => prev.map((b: any) => b._id === record.bookId?._id ? { ...b, availableCopies: b.availableCopies + 1 } : b));
     }
 
     axios.delete(`/circulation/${id}`)
@@ -333,7 +333,7 @@ export default function Circulation() {
 
   const prefixVal = bookPrefix.trim().toUpperCase();
   const numVal = bookNumber.trim();
-  const searchSuggestions = books.filter(b => {
+  const searchSuggestions = books.filter((b: any) => {
     if (!prefixVal && !numVal) return false;
     const isbn = b.isbn.toUpperCase();
     if (prefixVal && numVal) {
@@ -344,7 +344,7 @@ export default function Circulation() {
       return isbn.includes(numVal);
     }
     return false;
-  }).filter(b => b._id !== bookId).slice(0, 5);
+  }).filter((b: any) => b._id !== bookId).slice(0, 5);
 
   const handleSelectBook = (book: any) => {
     setBookId(book._id);
@@ -638,7 +638,7 @@ export default function Circulation() {
                   {bookPrefix || bookNumber ? (
                     bookId ? (
                       <p className="text-emerald-600 text-sm mt-12 font-semibold flex items-center gap-1.5">
-                        <CheckCircle size={16} /> Book found: <span className="font-bold ml-1">{books.find(b => b._id === bookId)?.title}</span>
+                        <CheckCircle size={16} /> Book found: <span className="font-bold ml-1">{books.find((b: any) => b._id === bookId)?.title}</span>
                       </p>
                     ) : (
                       <p className="text-rose-500 text-sm mt-12 font-semibold flex items-center gap-1.5">
@@ -649,7 +649,7 @@ export default function Circulation() {
 
                   {isBookDropdownOpen && searchSuggestions.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 border border-slate-200 rounded-lg overflow-hidden bg-white shadow-xl z-50">
-                      {searchSuggestions.map(b => (
+                      {searchSuggestions.map((b: any) => (
                         <div 
                           key={b._id} 
                           onMouseDown={() => handleSelectBook(b)}
@@ -672,14 +672,14 @@ export default function Circulation() {
                       value={studentId} 
                       onChange={setStudentId} 
                       placeholder="Choose a student..."
-                      options={students.map(s => ({ value: s._id, label: `${s.name} (${s.studentId})` }))}
+                      options={students.map((s: any) => ({ value: s._id, label: `${s.name} (${s.studentId})` }))}
                     />
                   ) : (
                     <SearchableSelect 
                       value={guestId} 
                       onChange={setGuestId} 
                       placeholder="Choose a guest..."
-                      options={guests.map(g => ({ value: g._id, label: g.name }))}
+                      options={guests.map((g: any) => ({ value: g._id, label: g.name }))}
                     />
                   )}
                 </div>
@@ -691,19 +691,19 @@ export default function Circulation() {
                   <div className="grid grid-cols-2 gap-4 text-sm text-indigo-800">
                     <div>
                       <span className="text-indigo-600 block text-xs uppercase tracking-wider mb-0.5">Book</span>
-                      <strong>{books.find(b => b._id === bookId)?.title}</strong>
-                      <div className="text-indigo-500/80 text-xs mt-0.5">ISBN: {books.find(b => b._id === bookId)?.isbn}</div>
+                      <strong>{books.find((b: any) => b._id === bookId)?.title}</strong>
+                      <div className="text-indigo-500/80 text-xs mt-0.5">ISBN: {books.find((b: any) => b._id === bookId)?.isbn}</div>
                     </div>
                     <div>
                       <span className="text-indigo-600 block text-xs uppercase tracking-wider mb-0.5">Recipient</span>
                       {issueType === 'student' ? (
                         <>
-                          <strong>{students.find(s => s._id === studentId)?.name}</strong>
-                          <div className="text-indigo-500/80 text-xs mt-0.5">GM No: {students.find(s => s._id === studentId)?.studentId}</div>
+                          <strong>{students.find((s: any) => s._id === studentId)?.name}</strong>
+                          <div className="text-indigo-500/80 text-xs mt-0.5">GM No: {students.find((s: any) => s._id === studentId)?.studentId}</div>
                         </>
                       ) : (
                         <>
-                          <strong>{guests.find(g => g._id === guestId)?.name}</strong>
+                          <strong>{guests.find((g: any) => g._id === guestId)?.name}</strong>
                           <div className="text-indigo-500/80 text-xs mt-0.5">Guest Account</div>
                         </>
                       )}

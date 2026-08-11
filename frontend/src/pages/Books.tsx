@@ -90,7 +90,7 @@ export default function Books() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/40 text-sm">
-              {books.map(book => (
+              {books.map((book: any) => (
                 <tr key={book._id} className="hover:bg-white/60 transition-colors duration-200">
                   <td className="p-4 text-slate-500 font-mono text-xs truncate">{book.isbn}</td>
                   <td className="p-4 text-slate-900 font-medium truncate">{book.title}</td>
