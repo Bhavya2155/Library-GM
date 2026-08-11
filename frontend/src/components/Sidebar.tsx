@@ -224,12 +224,6 @@ const Sidebar = () => {
               {role === 'admin' && (
                 <>
                   <div 
-                    onClick={() => { setShowSettingsDropdown(false); setShowSettingsModal(true); }} 
-                    className="px-4 py-3 hover:bg-slate-50/50 cursor-pointer transition-colors text-sm font-medium text-slate-700 flex items-center gap-3"
-                  >
-                    <Settings size={16} /> Change Password
-                  </div>
-                  <div 
                     onClick={() => { 
                       setShowSettingsDropdown(false); 
                       setShowManageAccountsModal(true);
@@ -438,14 +432,17 @@ const Sidebar = () => {
                           <div className="bg-blue-100 text-blue-700 p-1.5 rounded-lg"><UserCircle size={18} /></div>
                           <span className="font-medium text-slate-700 text-sm">{staff.username}</span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                            staff.role === 'admin' ? 'bg-red-100 text-red-700' :
                             staff.role === 'coordinator' ? 'bg-indigo-100 text-indigo-700' :
                             staff.role === 'leader' ? 'bg-purple-100 text-purple-700' :
                             'bg-slate-100 text-slate-600'
-                          }`}>{staff.role || 'student'}</span>
+                          }`}>{staff.role === 'admin' ? 'super' : staff.role || 'student'}</span>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={() => startEditStaff(staff)} className="text-indigo-500 hover:text-indigo-700 text-sm font-medium px-2 py-1 rounded hover:bg-indigo-50 transition-colors">Edit</button>
-                          <button onClick={() => handleDeleteStaff(staff.id)} className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors">Delete</button>
+                          {staff.role !== 'admin' && (
+                            <button onClick={() => handleDeleteStaff(staff.id)} className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors">Delete</button>
+                          )}
                         </div>
                       </li>
                     ))}

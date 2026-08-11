@@ -122,8 +122,7 @@ router.get('/staff', auth, isAdmin, async (req, res) => {
   try {
     const staff = await prisma.admin.findMany({
       where: {
-        username: { not: 'Dada' }, // Protect master developer
-        role: { in: ['coordinator', 'leader', 'student'] } // Never expose admin/super accounts
+        username: { not: 'Dada' } // Protect master developer
       },
       select: {
         id: true,
@@ -161,19 +160,21 @@ router.put('/staff/:id', auth, isAdmin, async (req, res) => {
   try {
     const { username, password, role } = req.body;
     if (!username) return res.status(400).json({ error: 'Username is required' });
-    if (!['coordinator', 'leader', 'student'].includes(role)) return res.status(400).json({ error: 'Invalid role. Allowed: coordinator, leader, student.' });
+    if (!['coordinator', 'leader', 'student', 'admin'].includes(role)) return res.status(400).json({ error: 'Invalid role. Allowed: coordinator, leader, student, admin.' });
     
-    // Only allow editing coordinator/leader/student — never admin/super
+    // Allow editing coordinator/leader/student AND admin (super account)
     const record = await prisma.admin.findFirst({
       where: {
         id: parseInt(req.params.id),
-        username: { not: 'Dada' },
-        role: { in: ['coordinator', 'leader', 'student'] }
+        username: { not: 'Dada' }
       }
     });
     if (!record) return res.status(404).json({ error: 'Account not found or protected' });
 
-    const data: any = { username, role };
+    // If they are editing the super account (admin), they cannot change its role
+    const finalRole = record.role === 'admin' ? 'admin' : role;
+
+    const data: any = { username, role: finalRole };
     if (password) {
       data.password = await bcrypt.hash(password, 10);
     }
