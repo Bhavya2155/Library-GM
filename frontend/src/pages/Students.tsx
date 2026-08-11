@@ -62,7 +62,7 @@ export default function Students() {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-8">
+    <div className="h-full overflow-y-auto p-4 md:p-8">
       <div className="max-w-7xl mx-auto relative z-10">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm">Student Directory</h1>
@@ -79,7 +79,7 @@ export default function Students() {
 
       <div className="bg-white/60 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
         <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[800px] xl:min-w-full xl:table-fixed">
+              <table className="w-full text-left border-collapse min-w-max md:min-w-full md:table-fixed">
             <thead>
               <tr className="bg-white/40 text-slate-600 text-xs uppercase tracking-wider border-b border-white/50 backdrop-blur-md">
                 <th className="p-4 font-semibold cursor-pointer hover:bg-white/50 transition-colors flex items-center gap-1 select-none w-[15%]" onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>

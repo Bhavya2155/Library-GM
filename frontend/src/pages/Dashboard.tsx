@@ -20,7 +20,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="h-full overflow-y-auto p-8">
+    <div className="h-full overflow-y-auto p-4 md:p-8">
       <div className="max-w-7xl mx-auto relative z-10">
       <h1 className="text-3xl font-bold text-slate-900 mb-8 drop-shadow-sm">Dashboard Overview</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -56,7 +56,7 @@ export default function Dashboard() {
               <div className="p-8 text-center text-slate-500">No login history found.</div>
             ) : (
               <div className="overflow-x-auto w-full">
-              <table className="w-full text-left border-collapse min-w-[800px] xl:min-w-full xl:table-fixed">
+              <table className="w-full text-left border-collapse min-w-max md:min-w-full md:table-fixed">
                 <thead>
                   <tr className="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider border-b border-white">
                     <th className="px-6 py-4 font-semibold w-1/3">Username</th>

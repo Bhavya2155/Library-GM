@@ -360,7 +360,7 @@ export default function Circulation() {
   };
 
   return (
-    <div className="h-full w-full flex flex-col px-8 pt-8 pb-0">
+    <div className="h-full w-full flex flex-col px-4 pt-4 md:px-8 md:pt-8 pb-0">
       <div className="max-w-7xl mx-auto w-full h-full flex flex-col relative z-10 min-h-0">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8 shrink-0">
           <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Circulation Desk</h1>
@@ -430,7 +430,7 @@ export default function Circulation() {
 
         <div className="bg-white rounded-t-2xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col min-h-0 mb-0">
           <div className="overflow-x-auto overflow-y-auto flex-1 relative">
-            <table className="w-full text-left border-collapse min-w-[800px] xl:min-w-full xl:table-fixed">
+            <table className="w-full text-left border-collapse min-w-max md:min-w-full md:table-fixed">
             <thead className="sticky top-0 z-10 bg-slate-50 shadow-sm">
               <tr className="text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                 <th className="px-3 py-3 font-semibold w-[8%] cursor-pointer hover:bg-slate-100 transition-colors group" onClick={() => handleSort('gmNo')}>
