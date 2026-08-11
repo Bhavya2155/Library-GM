@@ -66,7 +66,6 @@ export default function Guests() {
 
       <div className="bg-white/60 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
         <div className="overflow-x-auto">
-          <div className="overflow-x-auto w-full">
               <table className="w-full text-left border-collapse min-w-[800px] xl:min-w-full xl:table-fixed">
             <thead>
               <tr className="bg-white/40 text-slate-600 text-xs uppercase tracking-wider border-b border-white/50 backdrop-blur-md">
@@ -105,8 +104,7 @@ export default function Guests() {
               )}
             </tbody>
           </table>
-            </div>
-        </div>
+          </div>
       </div>
 
       {showModal && createPortal(
