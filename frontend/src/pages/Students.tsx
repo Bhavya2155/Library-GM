@@ -64,12 +64,12 @@ export default function Students() {
   return (
     <div className="h-full overflow-y-auto p-8">
       <div className="max-w-7xl mx-auto relative z-10">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm">Student Directory</h1>
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full sm:w-64 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400" />
+            <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full sm:w-full sm:w-64 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400" />
           </div>
           <button onClick={() => { setEditingId(null); setForm({ name: '', studentId: '' }); setShowModal(true); }} className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5 whitespace-nowrap">
             <Users size={20} /> Register Student

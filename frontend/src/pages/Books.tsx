@@ -57,15 +57,15 @@ export default function Books() {
   return (
     <div className="h-full overflow-y-auto p-8">
       <div className="max-w-7xl mx-auto relative z-10">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm">Library Books</h1>
-        <div className="flex gap-4">
-          <div className="relative">
+        <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+          <div className="relative w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
             <input 
               type="text" 
               placeholder="Search by title, author, or ISBN..." 
-              className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-72 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400"
+              className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full sm:w-72 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
