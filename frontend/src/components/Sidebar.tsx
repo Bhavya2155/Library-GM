@@ -372,12 +372,6 @@ const Sidebar = () => {
                           >
                             Leader
                           </div>
-                          <div 
-                            className={`px-3 py-2.5 text-sm cursor-pointer transition-colors flex items-center ${newStaffRole === 'admin' ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
-                            onMouseDown={(e) => { e.preventDefault(); setNewStaffRole('admin'); setShowRoleDropdown(false); }}
-                          >
-                            Admin
-                          </div>
                         </div>
                       )}
                     </div>

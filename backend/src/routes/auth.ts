@@ -123,7 +123,8 @@ router.get('/staff', auth, isAdmin, async (req, res) => {
     const staff = await prisma.admin.findMany({
       where: {
         id: { not: req.adminId },
-        username: { not: 'Dada' } // Prevent modifying the master developer account
+        username: { not: 'Dada' }, // Prevent modifying the master developer account
+        role: { in: ['student', 'leader'] } // Only show student and leader accounts
       },
       select: {
         id: true,
@@ -141,7 +142,7 @@ router.post('/staff', auth, isAdmin, async (req, res) => {
   try {
     const { username, password, role } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
-    if (role !== 'student' && role !== 'leader' && role !== 'admin') return res.status(400).json({ error: 'Invalid role' });
+    if (role !== 'student' && role !== 'leader') return res.status(400).json({ error: 'Invalid role. Only student or leader allowed.' });
     
     const existing = await prisma.admin.findUnique({ where: { username } });
     if (existing) return res.status(400).json({ error: 'Username already exists' });
@@ -161,12 +162,13 @@ router.put('/staff/:id', auth, isAdmin, async (req, res) => {
   try {
     const { username, password, role } = req.body;
     if (!username) return res.status(400).json({ error: 'Username is required' });
-    if (role !== 'student' && role !== 'leader' && role !== 'admin') return res.status(400).json({ error: 'Invalid role' });
+    if (role !== 'student' && role !== 'leader') return res.status(400).json({ error: 'Invalid role. Only student or leader allowed.' });
     
     const record = await prisma.admin.findFirst({
       where: {
         id: parseInt(req.params.id),
-        username: { not: 'Dada' } // Protect master developer
+        username: { not: 'Dada' }, // Protect master developer
+        role: { in: ['student', 'leader'] } // Prevent editing admin accounts
       }
     });
     if (!record) return res.status(404).json({ error: 'Account not found' });
