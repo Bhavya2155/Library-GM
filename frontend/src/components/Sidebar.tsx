@@ -158,12 +158,16 @@ const Sidebar = () => {
             <X size={20} />
           </button>
         <img src="/logo.png" alt="Gnan Mandir Logo" className="h-10 w-auto object-contain drop-shadow-sm" />
-        <span className="text-[10px] font-bold tracking-wider text-indigo-600 uppercase text-center whitespace-nowrap flex items-center gap-1">
+        <div className="flex flex-col items-center gap-0.5">
+          <span className="text-[10px] font-bold tracking-wider text-indigo-600 uppercase text-center whitespace-nowrap">
+            {role === 'admin' || role === 'coordinator' ? 'Coordinator Library Dashboard' : role === 'leader' ? 'Leader Library Dashboard' : 'Student Library Dashboard'}
+          </span>
           {role === 'admin' && (
-            <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm">S</span>
+            <span className="text-[9px] font-bold tracking-wider text-rose-500 uppercase text-center">
+              (Super)
+            </span>
           )}
-          {role === 'admin' || role === 'coordinator' ? 'Coordinator Library Dashboard' : role === 'leader' ? 'Leader Library Dashboard' : 'Student Library Dashboard'}
-        </span>
+        </div>
       </div>
       
       <nav className="flex-1 p-4 flex flex-col gap-2">
