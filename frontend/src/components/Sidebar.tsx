@@ -270,11 +270,17 @@ const Sidebar = () => {
                     <div className="w-full sm:w-[130px] shrink-0 relative role-dropdown-container">
                       <label className="block text-xs font-medium text-slate-500 mb-1">Role</label>
                       <div 
-                        className={`w-full px-3 py-2 bg-white/60 backdrop-blur-md border ${showRoleDropdown ? 'border-indigo-400 ring-2 ring-indigo-500/50' : 'border-slate-200'} rounded-lg cursor-pointer flex justify-between items-center text-sm transition-all`}
-                        onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+                        className={`w-full px-3 py-2 backdrop-blur-md border rounded-lg flex justify-between items-center text-sm transition-all ${
+                          newStaffRole === 'admin' 
+                            ? 'bg-slate-50 border-slate-200 cursor-not-allowed text-slate-500' 
+                            : `bg-white/60 cursor-pointer ${showRoleDropdown ? 'border-indigo-400 ring-2 ring-indigo-500/50' : 'border-slate-200'}`
+                        }`}
+                        onClick={() => { if (newStaffRole !== 'admin') setShowRoleDropdown(!showRoleDropdown); }}
                       >
-                        <span className="capitalize">{newStaffRole}</span>
-                        <ChevronDown size={16} className={`text-slate-400 transition-transform ${showRoleDropdown ? 'rotate-180' : ''}`} />
+                        <span className="capitalize font-medium">{newStaffRole === 'admin' ? 'Boss' : newStaffRole}</span>
+                        {newStaffRole !== 'admin' && (
+                          <ChevronDown size={16} className={`text-slate-400 transition-transform ${showRoleDropdown ? 'rotate-180' : ''}`} />
+                        )}
                       </div>
                       
                       {showRoleDropdown && (
