@@ -110,6 +110,7 @@ export default function Circulation() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [activeTab, setActiveTab] = useState<'students' | 'guests'>('students');
   const [dateFilter, setDateFilter] = useState('');
+  const dateInputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState(() => {
     return new URLSearchParams(window.location.search).get('search') || '';
   });
@@ -384,14 +385,26 @@ export default function Circulation() {
             )}
           </div>
           <div className="relative group flex items-center">
-            <div className={`flex items-center justify-center px-3 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl shadow-sm hover:bg-white/80 transition-all text-sm cursor-pointer h-10 w-10 ${dateFilter ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-500'}`}>
+            <div 
+              className={`flex items-center justify-center px-3 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl shadow-sm hover:bg-white/80 transition-all text-sm cursor-pointer h-10 w-10 ${dateFilter ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-500'}`}
+              onClick={() => {
+                if (dateInputRef.current) {
+                  try {
+                    dateInputRef.current.showPicker();
+                  } catch (e) {
+                    dateInputRef.current.focus();
+                  }
+                }
+              }}
+            >
               <Calendar size={18} className="shrink-0" />
             </div>
             <input 
+              ref={dateInputRef}
               type="date" 
               value={dateFilter} 
               onChange={(e) => setDateFilter(e.target.value)} 
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 pointer-events-none" 
             />
             {dateFilter && (
               <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDateFilter(''); }} className="absolute -top-1.5 -right-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full bg-white shadow border border-slate-100 w-4 h-4 flex items-center justify-center transition-colors z-20" title="Clear Date">
