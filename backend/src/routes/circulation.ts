@@ -64,7 +64,8 @@ router.post('/issue', async (req, res) => {
     let issuerPrefix = 'Sevak';
     if (admin) {
       if (admin.role === 'coordinator') issuerPrefix = 'Coordinator';
-      else if (admin.role === 'admin' || admin.role === 'super') issuerPrefix = 'Admin';
+      else if (admin.role === 'admin' || admin.role === 'super') issuerPrefix = 'Coordinator';
+      else issuerPrefix = 'Sevak';
     }
     const issuedBy = admin ? `${issuerPrefix}: ${admin.username}` : 'Unknown';
     const dueDate = new Date();

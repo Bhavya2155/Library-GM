@@ -520,7 +520,7 @@ export default function Circulation() {
                       <div className="text-red-600 mb-1">
                         {record.issuedBy.includes(':') ? (
                           <>
-                            <span className="font-semibold">{record.issuedBy.split(':')[0]}:</span> {record.issuedBy.split(':')[1].trim()}
+                            <span className="font-semibold">{record.issuedBy.split(':')[0] === 'Admin' ? 'Coordinator' : record.issuedBy.split(':')[0]}:</span> {record.issuedBy.split(':')[1].trim()}
                           </>
                         ) : (
                           <>
