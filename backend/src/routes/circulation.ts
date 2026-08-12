@@ -61,7 +61,12 @@ router.post('/issue', async (req, res) => {
       throw new Error(studentId ? 'Student already has a book issued. They must return it first.' : 'Guest already has a book issued. They must return it first.');
     }
 
-    const issuedBy = admin ? admin.username : 'Unknown';
+    let issuerPrefix = 'Sevak';
+    if (admin) {
+      if (admin.role === 'coordinator') issuerPrefix = 'Coordinator';
+      else if (admin.role === 'admin' || admin.role === 'super') issuerPrefix = 'Admin';
+    }
+    const issuedBy = admin ? `${issuerPrefix}: ${admin.username}` : 'Unknown';
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + 7);
 

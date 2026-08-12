@@ -516,7 +516,19 @@ export default function Circulation() {
                     <span className="text-xs text-slate-500 font-normal">{record.bookId?.isbn}</span>
                   </td>
                   <td className="px-3 py-3 text-slate-600 text-xs whitespace-nowrap">
-                    {record.issuedBy && <div className="text-red-600 mb-1"><span className="font-semibold">Sevak:</span> {record.issuedBy}</div>}
+                    {record.issuedBy && (
+                      <div className="text-red-600 mb-1">
+                        {record.issuedBy.includes(':') ? (
+                          <>
+                            <span className="font-semibold">{record.issuedBy.split(':')[0]}:</span> {record.issuedBy.split(':')[1].trim()}
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-semibold">Sevak:</span> {record.issuedBy}
+                          </>
+                        )}
+                      </div>
+                    )}
                     <div><span className="font-semibold">Issued:</span> {formatDate(record.issueDate)}</div>
                     {record.renewDate && <div className="text-blue-600 mt-1"><span className="font-semibold">Renewed:</span> {formatDate(record.renewDate)}</div>}
                     {record.dueDate && <div className="text-amber-600 mt-1"><span className="font-semibold">Due:</span> {formatDate(record.dueDate)}</div>}
