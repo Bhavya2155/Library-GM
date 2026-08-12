@@ -224,46 +224,44 @@ const Sidebar = () => {
           )}
         </div>
 
-        <div className="relative" ref={settingsDropdownRef}>
-          <button onClick={() => setShowSettingsDropdown(!showSettingsDropdown)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${showSettingsDropdown ? 'bg-white/80 text-indigo-600 shadow-sm' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}>
-            <Settings size={20} /> Settings
-          </button>
-          
-          {showSettingsDropdown && (
-            <div className="absolute left-0 bottom-full mb-2 w-full bg-white/90 backdrop-blur-xl rounded-xl shadow-xl border border-white/50 overflow-hidden z-50">
-              {/* Only SUPER coordinator (admin role) can manage accounts */}
-              {role === 'admin' && (
-                <>
-                  <div 
-                    onClick={() => { 
-                      setShowSettingsDropdown(false); 
-                      setShowManageAccountsModal(true);
-                      fetchStaffAccounts();
-                    }} 
-                    className="px-4 py-3 hover:bg-slate-50/50 cursor-pointer transition-colors text-sm font-medium text-slate-700 flex items-center gap-3"
-                  >
-                    <Users size={16} /> Manage Accounts
-                  </div>
-                </>
-              )}
-              {/* Regular coordinator, leader, student only see Change Password */}
-              {role !== 'admin' && (
+        {role === 'admin' ? (
+          <div className="relative" ref={settingsDropdownRef}>
+            <button onClick={() => setShowSettingsDropdown(!showSettingsDropdown)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${showSettingsDropdown ? 'bg-white/80 text-indigo-600 shadow-sm' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}>
+              <Settings size={20} /> Settings
+            </button>
+            
+            {showSettingsDropdown && (
+              <div className="absolute left-0 bottom-full mb-2 w-full bg-white/90 backdrop-blur-xl rounded-xl shadow-xl border border-white/50 overflow-hidden z-50">
+                <div 
+                  onClick={() => { 
+                    setShowSettingsDropdown(false); 
+                    setShowManageAccountsModal(true);
+                    fetchStaffAccounts();
+                  }} 
+                  className="px-4 py-3 hover:bg-slate-50/50 cursor-pointer transition-colors text-sm font-medium text-slate-700 flex items-center gap-3"
+                >
+                  <Users size={16} /> Manage Accounts
+                </div>
                 <div 
                   onClick={() => { setShowSettingsDropdown(false); setShowSettingsModal(true); }} 
                   className="px-4 py-3 hover:bg-slate-50/50 cursor-pointer transition-colors text-sm font-medium text-slate-700 flex items-center gap-3"
                 >
                   <Settings size={16} /> Change Password
                 </div>
-              )}
-              <div 
-                onClick={logout} 
-                className="px-4 py-3 hover:bg-rose-50/50 cursor-pointer transition-colors text-sm font-medium text-rose-600 flex items-center gap-3 border-t border-slate-100"
-              >
-                <LogOut size={16} /> Logout
+                <div 
+                  onClick={logout} 
+                  className="px-4 py-3 hover:bg-rose-50/50 cursor-pointer transition-colors text-sm font-medium text-rose-600 flex items-center gap-3 border-t border-slate-100"
+                >
+                  <LogOut size={16} /> Logout
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        ) : (
+          <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-rose-600 hover:bg-rose-50/50 hover:shadow-sm">
+            <LogOut size={20} /> Logout
+          </button>
+        )}
       </div>
 
       {showSettingsModal && createPortal(
