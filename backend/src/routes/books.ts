@@ -7,22 +7,35 @@ router.use(auth);
 
 router.get('/', async (req, res) => {
   try {
-    const { search } = req.query;
-    let books;
+    const { search, category, language, sortBy, sortOrder } = req.query;
+    let whereClause: any = {};
+    
     if (search) {
-      books = await prisma.book.findMany({
-        where: {
-          OR: [
-            { title: { contains: String(search), mode: 'insensitive' } },
-            { author: { contains: String(search), mode: 'insensitive' } },
-            { isbn: { contains: String(search), mode: 'insensitive' } },
-          ]
-        },
-        orderBy: { createdAt: 'desc' }
-      });
-    } else {
-      books = await prisma.book.findMany({ orderBy: { createdAt: 'desc' } });
+      whereClause.OR = [
+        { title: { contains: String(search), mode: 'insensitive' } },
+        { author: { contains: String(search), mode: 'insensitive' } },
+        { isbn: { contains: String(search), mode: 'insensitive' } },
+      ];
     }
+    
+    if (category && category !== 'All') {
+      whereClause.category = String(category);
+    }
+    
+    if (language && language !== 'All') {
+      whereClause.language = String(language);
+    }
+
+    let orderByClause: any = { createdAt: 'desc' };
+    if (sortBy) {
+      const order = sortOrder === 'asc' ? 'asc' : 'desc';
+      orderByClause = { [String(sortBy)]: order };
+    }
+
+    const books = await prisma.book.findMany({
+      where: whereClause,
+      orderBy: orderByClause
+    });
     
     res.json(books.map(b => ({ ...b, _id: b.id })));
   } catch (err: any) {
@@ -32,10 +45,10 @@ router.get('/', async (req, res) => {
 
 router.post('/', isAdmin, async (req, res) => {
   try {
-    const { title, author, isbn, category, quantity } = req.body;
+    const { title, author, isbn, category, language, quantity } = req.body;
     const book = await prisma.book.create({
       data: {
-        title, author, isbn, category, quantity: parseInt(quantity), availableCopies: parseInt(quantity)
+        title, author, isbn, category, language: language || 'English', quantity: parseInt(quantity), availableCopies: parseInt(quantity)
       }
     });
     res.status(201).json({ ...book, _id: book.id });
@@ -47,7 +60,7 @@ router.post('/', isAdmin, async (req, res) => {
 
 router.put('/:id', isAdmin, async (req, res) => {
   try {
-    const { title, author, isbn, category, quantity } = req.body;
+    const { title, author, isbn, category, language, quantity } = req.body;
     const bookId = parseInt(req.params.id);
     const book = await prisma.book.findUnique({ where: { id: bookId } });
     
@@ -58,7 +71,8 @@ router.put('/:id', isAdmin, async (req, res) => {
     const updated = await prisma.book.update({
       where: { id: bookId },
       data: {
-        title, author, isbn, category, quantity: parseInt(quantity),
+        title, author, isbn, category, language: language || 'English',
+        quantity: parseInt(quantity),
         availableCopies: book.availableCopies + qtyDiff
       }
     });

@@ -7,9 +7,14 @@ import toast from 'react-hot-toast';
 
 export default function Books() {
   const [search, setSearch] = useState('');
-  const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${search}`);
+  const [sortBy, setSortBy] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [filterCategory, setFilterCategory] = useState('All');
+  const [filterLanguage, setFilterLanguage] = useState('All');
+  
+  const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&category=${filterCategory}&language=${filterLanguage}`);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ title: '', author: '', isbn: '', category: '', quantity: 1 });
+  const [form, setForm] = useState({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 });
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +28,7 @@ export default function Books() {
         toast.success('Book added');
       }
       setShowModal(false);
-      setForm({ title: '', author: '', isbn: '', category: '', quantity: 1 });
+      setForm({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 });
       setEditingId(null);
       mutate();
     } catch (err: any) {
@@ -37,6 +42,7 @@ export default function Books() {
       author: book.author,
       isbn: book.isbn,
       category: book.category,
+      language: book.language || 'English',
       quantity: book.quantity
     });
     setEditingId(book._id);
@@ -59,23 +65,70 @@ export default function Books() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
           <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm">Library Books</h1>
-          <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-            <div className="relative w-full sm:w-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search by title, author, or ISBN..."
-                className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full sm:w-72 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+          <div className="flex flex-col gap-4 w-full lg:w-auto">
+            <div className="flex flex-wrap items-center gap-4 w-full justify-end">
+              <div className="relative w-full sm:w-auto">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search by title, author, or ISBN..."
+                  className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full sm:w-72 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <button
+                onClick={() => { setEditingId(null); setForm({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 }); setShowModal(true); }}
+                className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-5 py-2 rounded-xl font-medium flex items-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5"
+              >
+                <Plus size={20} /> Add Book
+              </button>
             </div>
-            <button
-              onClick={() => { setEditingId(null); setForm({ title: '', author: '', isbn: '', category: '', quantity: 1 }); setShowModal(true); }}
-              className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-5 py-2 rounded-xl font-medium flex items-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5"
-            >
-              <Plus size={20} /> Add Book
-            </button>
+            
+            <div className="flex flex-wrap items-center gap-3 w-full justify-end text-sm">
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
+                <span className="text-slate-500 font-medium">Sort by:</span>
+                <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium">
+                  <option value="">Default</option>
+                  <option value="title">Title</option>
+                  <option value="author">Author</option>
+                  <option value="category">Category</option>
+                  <option value="language">Language</option>
+                </select>
+                {sortBy && (
+                  <select value={sortOrder} onChange={e => setSortOrder(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer border-l border-slate-300 pl-2 ml-1">
+                    <option value="asc">A-Z</option>
+                    <option value="desc">Z-A</option>
+                  </select>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
+                <span className="text-slate-500 font-medium">Category:</span>
+                <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium max-w-[120px]">
+                  <option value="All">All</option>
+                  {/* Ideally these would be dynamically populated from books, but hardcoding some common ones for now as fallback or allowing any */}
+                  <option value="Fiction">Fiction</option>
+                  <option value="Non-Fiction">Non-Fiction</option>
+                  <option value="Science">Science</option>
+                  <option value="History">History</option>
+                  <option value="Biography">Biography</option>
+                  <option value="Children">Children</option>
+                  <option value="Spiritual">Spiritual</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
+                <span className="text-slate-500 font-medium">Language:</span>
+                <select value={filterLanguage} onChange={e => setFilterLanguage(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium">
+                  <option value="All">All</option>
+                  <option value="English">English</option>
+                  <option value="Hindi">Hindi</option>
+                  <option value="Gujarati">Gujarati</option>
+                  <option value="Sanskrit">Sanskrit</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -85,9 +138,10 @@ export default function Books() {
               <thead>
                 <tr className="bg-white/40 text-slate-600 text-xs uppercase tracking-wider border-b border-white/50 backdrop-blur-md">
                   <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%]">ISBN / ID</th>
-                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[35%]">Title</th>
-                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[20%]">Author</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[25%]">Title</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[15%]">Author</th>
                   <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[15%]">Category</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%]">Language</th>
                   <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%]">Availability</th>
                   <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%] text-right">Actions</th>
                 </tr>
@@ -102,6 +156,9 @@ export default function Books() {
                       <span className="inline-block bg-indigo-50/80 text-indigo-700 px-2.5 py-1 rounded-full text-[11px] font-bold border border-indigo-100/50 shadow-sm truncate max-w-[90px] md:max-w-none" title={book.category}>
                         {book.category}
                       </span>
+                    </td>
+                    <td className="px-3 py-3 md:p-4 text-slate-600 text-sm">
+                      {book.language || 'English'}
                     </td>
                     <td className="px-3 py-3 md:p-4 whitespace-nowrap">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${book.availableCopies > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
@@ -150,6 +207,7 @@ export default function Books() {
                 <input required placeholder="Author" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500" value={form.author} onChange={e => setForm({...form, author: e.target.value})} />
                 <input required placeholder="ISBN" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500" value={form.isbn} onChange={e => setForm({...form, isbn: e.target.value})} />
                 <input required placeholder="Category" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500" value={form.category} onChange={e => setForm({...form, category: e.target.value})} />
+                <input required placeholder="Language (e.g. English, Hindi)" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500" value={form.language} onChange={e => setForm({...form, language: e.target.value})} />
                 <input required type="number" min="1" placeholder="Quantity" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500" value={form.quantity} onChange={e => setForm({...form, quantity: parseInt(e.target.value)})} />
                 <div className="mt-4 flex gap-3">
                   <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2 border rounded-lg hover:bg-slate-50 transition-colors font-medium">Cancel</button>

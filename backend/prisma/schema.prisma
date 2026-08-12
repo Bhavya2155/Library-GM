@@ -23,6 +23,7 @@ model Book {
   author          String
   isbn            String   @unique
   category        String
+  language        String   @default("English")
   quantity        Int
   availableCopies Int
   createdAt       DateTime @default(now())
