@@ -14,8 +14,7 @@ const Sidebar = () => {
   
   // Settings Dropdown & Modal State
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [showManageAccountsModal, setShowManageAccountsModal] = useState(false);
+    const [showManageAccountsModal, setShowManageAccountsModal] = useState(false);
   
   // Settings Form State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -242,12 +241,7 @@ const Sidebar = () => {
                 >
                   <Users size={16} /> Manage Accounts
                 </div>
-                <div 
-                  onClick={() => { setShowSettingsDropdown(false); setShowSettingsModal(true); }} 
-                  className="px-4 py-3 hover:bg-slate-50/50 cursor-pointer transition-colors text-sm font-medium text-slate-700 flex items-center gap-3"
-                >
-                  <Settings size={16} /> Change Password
-                </div>
+
                 <div 
                   onClick={logout} 
                   className="px-4 py-3 hover:bg-rose-50/50 cursor-pointer transition-colors text-sm font-medium text-rose-600 flex items-center gap-3 border-t border-slate-100"
