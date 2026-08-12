@@ -122,22 +122,22 @@ export default function Books() {
             </div>
             
             <div className="flex flex-wrap items-center gap-3 w-full justify-end text-sm">
-              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm relative z-40">
                 <span className="text-slate-500 font-medium">Sort by:</span>
                 <Dropdown options={sortOptions} value={sortBy} onChange={setSortBy} align="center" />
                 {sortBy && (
-                  <div className="border-l border-slate-300 pl-2 ml-1">
+                  <div className="border-l border-slate-300 pl-2 ml-1 relative z-30">
                     <Dropdown options={orderOptions} value={sortOrder} onChange={setSortOrder} align="center" />
                   </div>
                 )}
               </div>
               
-              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm relative z-20">
                 <span className="text-slate-500 font-medium">Category:</span>
                 <Dropdown options={categoryOptions} value={filterCategory} onChange={setFilterCategory} align="center" />
               </div>
 
-              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm relative z-10">
                 <span className="text-slate-500 font-medium">Language:</span>
                 <Dropdown options={languageOptions} value={filterLanguage} onChange={setFilterLanguage} align="right" />
               </div>
