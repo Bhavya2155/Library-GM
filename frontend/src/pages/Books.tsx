@@ -138,27 +138,27 @@ export default function Books() {
         </div>
 
         <div className="bg-white/60 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse table-auto md:table-fixed">
+          <div className="overflow-x-auto pb-4">
+            <table className="w-full text-left border-collapse table-auto min-w-[900px]">
               <thead>
                 <tr className="bg-white/40 text-slate-600 text-xs uppercase tracking-wider border-b border-white/50 backdrop-blur-md">
-                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%]">ISBN / ID</th>
-                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[25%]">Title</th>
-                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[15%]">Author</th>
-                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[15%]">Category</th>
-                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%]">Language</th>
-                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%]">Availability</th>
-                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap md:w-[10%] text-right">Actions</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap w-[10%]">ISBN / ID</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap w-[25%] min-w-[200px]">Title</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap w-[15%] min-w-[150px]">Author</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap w-[15%] min-w-[180px]">Category</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap w-[10%] min-w-[100px]">Language</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap w-[10%] min-w-[120px]">Availability</th>
+                  <th className="px-3 py-3 md:p-4 font-semibold whitespace-nowrap w-[10%] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/40 text-sm">
                 {books.map((book: any) => (
                   <tr key={book._id} className="hover:bg-white/60 transition-colors duration-200">
-                    <td className="px-3 py-3 md:p-4 text-slate-500 font-mono text-xs truncate max-w-[80px] md:max-w-none">{book.isbn}</td>
-                    <td className="px-3 py-3 md:p-4 text-slate-900 font-medium truncate max-w-[120px] md:max-w-none" title={book.title}>{book.title}</td>
-                    <td className="px-3 py-3 md:p-4 text-slate-600 truncate max-w-[100px] md:max-w-none" title={book.author}>{book.author}</td>
+                    <td className="px-3 py-3 md:p-4 text-slate-500 font-mono text-xs">{book.isbn}</td>
+                    <td className="px-3 py-3 md:p-4 text-slate-900 font-medium">{book.title}</td>
+                    <td className="px-3 py-3 md:p-4 text-slate-600">{book.author}</td>
                     <td className="px-3 py-3 md:p-4">
-                      <span className="inline-block bg-indigo-50/80 text-indigo-700 px-2.5 py-1 rounded-full text-[11px] font-bold border border-indigo-100/50 shadow-sm truncate max-w-[90px] md:max-w-none" title={book.category}>
+                      <span className="inline-block bg-indigo-50/80 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-bold border border-indigo-100/50 shadow-sm whitespace-normal text-center break-words max-w-[200px]" title={book.category}>
                         {book.category}
                       </span>
                     </td>
