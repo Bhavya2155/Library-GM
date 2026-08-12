@@ -164,7 +164,7 @@ const Sidebar = () => {
           </span>
           {role === 'admin' && (
             <span className="text-[9px] font-bold tracking-wider text-rose-500 uppercase text-center">
-              (Super)
+              (Super Account)
             </span>
           )}
         </div>
@@ -447,7 +447,7 @@ const Sidebar = () => {
                             staff.role === 'coordinator' ? 'bg-indigo-100 text-indigo-700' :
                             staff.role === 'leader' ? 'bg-purple-100 text-purple-700' :
                             'bg-slate-100 text-slate-600'
-                          }`}>{staff.role === 'admin' ? 'super' : staff.role || 'student'}</span>
+                          }`}>{staff.role === 'admin' ? 'super account' : staff.role || 'student'}</span>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={() => startEditStaff(staff)} className="text-indigo-500 hover:text-indigo-700 text-sm font-medium px-2 py-1 rounded hover:bg-indigo-50 transition-colors">Edit</button>
