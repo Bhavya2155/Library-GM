@@ -154,11 +154,11 @@ export default function Books() {
               <tbody className="divide-y divide-white/40 text-sm">
                 {books.map((book: any) => (
                   <tr key={book._id} className="hover:bg-white/60 transition-colors duration-200">
-                    <td className="px-3 py-3 md:p-4 text-slate-500 font-mono text-xs">{book.isbn}</td>
-                    <td className="px-3 py-3 md:p-4 text-slate-900 font-medium">{book.title}</td>
-                    <td className="px-3 py-3 md:p-4 text-slate-600">{book.author}</td>
+                    <td className="px-3 py-3 md:p-4 text-slate-500 font-mono text-xs truncate max-w-[80px] md:max-w-[120px]">{book.isbn}</td>
+                    <td className="px-3 py-3 md:p-4 text-slate-900 font-medium truncate max-w-[150px] md:max-w-[250px]" title={book.title}>{book.title}</td>
+                    <td className="px-3 py-3 md:p-4 text-slate-600 truncate max-w-[120px] md:max-w-[180px]" title={book.author}>{book.author}</td>
                     <td className="px-3 py-3 md:p-4">
-                      <span className="inline-block bg-indigo-50/80 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-bold border border-indigo-100/50 shadow-sm whitespace-normal text-center break-words max-w-[200px]" title={book.category}>
+                      <span className="inline-block bg-indigo-50/80 text-indigo-700 px-3 py-1 rounded-full text-[11px] font-bold border border-indigo-100/50 shadow-sm truncate max-w-[120px] md:max-w-[160px]" title={book.category}>
                         {book.category}
                       </span>
                     </td>
