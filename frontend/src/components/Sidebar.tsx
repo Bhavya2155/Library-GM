@@ -267,11 +267,11 @@ const Sidebar = () => {
       </div>
 
       {showSettingsModal && createPortal(
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl w-full max-w-sm">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4" onClick={() => setShowSettingsModal(false)}>
+          <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-white/50 flex justify-between items-center bg-white/50 rounded-t-2xl">
               <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2"><Settings size={20} className="text-indigo-600" /> Change Password</h3>
-              <button onClick={() => setShowSettingsModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">&times;</button>
+              <button type="button" onClick={() => setShowSettingsModal(false)} className="text-slate-400 hover:text-slate-700 transition-colors bg-white/80 hover:bg-white p-1.5 rounded-full"><X size={20} /></button>
             </div>
             <form onSubmit={async (e) => {
               e.preventDefault();
@@ -352,11 +352,11 @@ const Sidebar = () => {
       )}
 
       {showManageAccountsModal && createPortal(
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4" onClick={() => setShowManageAccountsModal(false)}>
+          <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-white/50 flex justify-between items-center bg-white/50">
               <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2"><Users size={20} className="text-indigo-600" /> Manage Accounts</h3>
-              <button onClick={() => setShowManageAccountsModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">&times;</button>
+              <button onClick={() => setShowManageAccountsModal(false)} className="text-slate-400 hover:text-slate-700 transition-colors bg-slate-100 hover:bg-slate-200 p-1.5 rounded-full"><X size={20} /></button>
             </div>
             
             <div className="p-6 overflow-y-auto flex flex-col gap-6">

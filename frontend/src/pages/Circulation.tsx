@@ -605,11 +605,11 @@ export default function Circulation() {
       </div>
 
       {showModal && createPortal(
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl w-full max-w-3xl">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4" onClick={closeModal}>
+          <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-white/50 flex justify-between items-center bg-white/50 rounded-t-2xl">
               <h3 className="text-lg font-bold text-slate-900">Issue Book</h3>
-              <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 transition-colors">&times;</button>
+              <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-700 transition-colors bg-white/80 hover:bg-white p-1.5 rounded-full"><X size={20} /></button>
             </div>
             <form onSubmit={handleIssue} className="p-6 flex flex-col gap-6 relative">
               <div className="flex gap-6 mb-1 items-center bg-slate-50 p-3 rounded-lg border border-slate-100">

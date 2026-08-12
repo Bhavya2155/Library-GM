@@ -2,7 +2,7 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
-import { UserCircle, Trash2, Pencil, Search } from 'lucide-react';
+import { UserCircle, Trash2, Pencil, Search } , X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Guests() {
@@ -108,11 +108,11 @@ export default function Guests() {
       </div>
 
       {showModal && createPortal(
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4" onClick={() => setShowModal(false)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
               <h3 className="text-lg font-bold text-slate-900">{editingId ? 'Edit Guest' : 'Register Guest'}</h3>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">&times;</button>
+              <button type="button" onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-700 transition-colors bg-slate-100 hover:bg-slate-200 p-1.5 rounded-full"><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
               <input required placeholder="Guest Name" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-100" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
