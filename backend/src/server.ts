@@ -9,8 +9,12 @@ import circulationRoutes from './routes/circulation';
 import notificationRoutes from './routes/notifications';
 import guestsRoutes from './routes/guests';
 import './lib/db'; // Initialize DB
+import { initCronJobs } from './jobs/cron';
 
 dotenv.config();
+
+// Initialize background jobs
+initCronJobs();
 
 const app = express();
 app.use(cors());
