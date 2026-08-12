@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { Plus, Search, Trash2, Pencil, X } from 'lucide-react';
+import Dropdown from '../components/Dropdown';
 import toast from 'react-hot-toast';
 
 export default function Books() {
@@ -11,13 +12,44 @@ export default function Books() {
   const [sortOrder, setSortOrder] = useState('asc');
   const [filterCategory, setFilterCategory] = useState('All');
   const [filterLanguage, setFilterLanguage] = useState('All');
-  const sortRef = useRef<HTMLSelectElement>(null);
-  const orderRef = useRef<HTMLSelectElement>(null);
-  const categoryRef = useRef<HTMLSelectElement>(null);
-  const languageRef = useRef<HTMLSelectElement>(null);
+
   
   const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&category=${filterCategory}&language=${filterLanguage}`);
   const [showModal, setShowModal] = useState(false);
+  const sortOptions = [
+    { value: '', label: 'Default' },
+    { value: 'title', label: 'Title' },
+    { value: 'author', label: 'Author' },
+    { value: 'category', label: 'Category' },
+    { value: 'language', label: 'Language' },
+  ];
+  const orderOptions = [
+    { value: 'asc', label: 'A-Z' },
+    { value: 'desc', label: 'Z-A' },
+  ];
+  const categoryOptions = [
+    { value: 'All', label: 'All' },
+    { value: 'Fiction', label: 'Fiction' },
+    { value: 'Non-Fiction', label: 'Non-Fiction' },
+    { value: 'Literature', label: 'Literature' },
+    { value: 'Science', label: 'Science' },
+    { value: 'History', label: 'History' },
+    { value: 'Biography', label: 'Biography' },
+    { value: 'Children', label: 'Children' },
+    { value: 'Spiritual', label: 'Spiritual' },
+    { value: 'Mythology', label: 'Mythology' },
+    { value: 'Self-Help', label: 'Self-Help' },
+    { value: 'Motivation', label: 'Motivation' },
+    { value: 'Management', label: 'Management' },
+    { value: 'Business', label: 'Business' },
+  ];
+  const languageOptions = [
+    { value: 'All', label: 'All' },
+    { value: 'English', label: 'English' },
+    { value: 'Hindi', label: 'Hindi' },
+    { value: 'Gujarati', label: 'Gujarati' },
+    { value: 'Sanskrit', label: 'Sanskrit' },
+  ];
   const [form, setForm] = useState({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 });
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -90,52 +122,24 @@ export default function Books() {
             </div>
             
             <div className="flex flex-wrap items-center gap-3 w-full justify-end text-sm">
-              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm cursor-pointer" onClick={(e) => { e.preventDefault(); try { sortRef.current?.showPicker() } catch(err) { sortRef.current?.focus() } }}>
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
                 <span className="text-slate-500 font-medium">Sort by:</span>
-                <select ref={sortRef} onClick={e => e.stopPropagation()} value={sortBy} onChange={e => setSortBy(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium">
-                  <option value="">Default</option>
-                  <option value="title">Title</option>
-                  <option value="author">Author</option>
-                  <option value="category">Category</option>
-                  <option value="language">Language</option>
-                </select>
+                <Dropdown options={sortOptions} value={sortBy} onChange={setSortBy} align="center" />
                 {sortBy && (
-                  <select ref={orderRef} onClick={e => e.stopPropagation()} value={sortOrder} onChange={e => setSortOrder(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer border-l border-slate-300 pl-2 ml-1">
-                    <option value="asc">A-Z</option>
-                    <option value="desc">Z-A</option>
-                  </select>
+                  <div className="border-l border-slate-300 pl-2 ml-1">
+                    <Dropdown options={orderOptions} value={sortOrder} onChange={setSortOrder} align="center" />
+                  </div>
                 )}
               </div>
               
-              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm cursor-pointer" onClick={(e) => { e.preventDefault(); try { categoryRef.current?.showPicker() } catch(err) { categoryRef.current?.focus() } }}>
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
                 <span className="text-slate-500 font-medium">Category:</span>
-                <select ref={categoryRef} onClick={e => e.stopPropagation()} value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium max-w-[120px]">
-                  <option value="All">All</option>
-                  <option value="Fiction">Fiction</option>
-                  <option value="Non-Fiction">Non-Fiction</option>
-                  <option value="Literature">Literature</option>
-                  <option value="Science">Science</option>
-                  <option value="History">History</option>
-                  <option value="Biography">Biography</option>
-                  <option value="Children">Children</option>
-                  <option value="Spiritual">Spiritual</option>
-                  <option value="Mythology">Mythology</option>
-                  <option value="Self-Help">Self-Help</option>
-                  <option value="Motivation">Motivation</option>
-                  <option value="Management">Management</option>
-                  <option value="Business">Business</option>
-                </select>
+                <Dropdown options={categoryOptions} value={filterCategory} onChange={setFilterCategory} align="center" />
               </div>
 
-              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm cursor-pointer" onClick={(e) => { e.preventDefault(); try { languageRef.current?.showPicker() } catch(err) { languageRef.current?.focus() } }}>
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
                 <span className="text-slate-500 font-medium">Language:</span>
-                <select ref={languageRef} onClick={e => e.stopPropagation()} value={filterLanguage} onChange={e => setFilterLanguage(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium">
-                  <option value="All">All</option>
-                  <option value="English">English</option>
-                  <option value="Hindi">Hindi</option>
-                  <option value="Gujarati">Gujarati</option>
-                  <option value="Sanskrit">Sanskrit</option>
-                </select>
+                <Dropdown options={languageOptions} value={filterLanguage} onChange={setFilterLanguage} align="right" />
               </div>
             </div>
           </div>
