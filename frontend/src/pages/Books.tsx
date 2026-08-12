@@ -107,14 +107,19 @@ export default function Books() {
                 <span className="text-slate-500 font-medium">Category:</span>
                 <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium max-w-[120px]">
                   <option value="All">All</option>
-                  {/* Ideally these would be dynamically populated from books, but hardcoding some common ones for now as fallback or allowing any */}
                   <option value="Fiction">Fiction</option>
                   <option value="Non-Fiction">Non-Fiction</option>
+                  <option value="Literature">Literature</option>
                   <option value="Science">Science</option>
                   <option value="History">History</option>
                   <option value="Biography">Biography</option>
                   <option value="Children">Children</option>
                   <option value="Spiritual">Spiritual</option>
+                  <option value="Mythology">Mythology</option>
+                  <option value="Self-Help">Self-Help</option>
+                  <option value="Motivation">Motivation</option>
+                  <option value="Management">Management</option>
+                  <option value="Business">Business</option>
                 </select>
               </div>
 

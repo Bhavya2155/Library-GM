@@ -19,11 +19,11 @@ router.get('/', async (req, res) => {
     }
     
     if (category && category !== 'All') {
-      whereClause.category = String(category);
+      whereClause.category = { contains: String(category), mode: 'insensitive' };
     }
     
     if (language && language !== 'All') {
-      whereClause.language = String(language);
+      whereClause.language = { contains: String(language), mode: 'insensitive' };
     }
 
     let orderByClause: any = { createdAt: 'desc' };
