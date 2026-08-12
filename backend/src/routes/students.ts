@@ -7,7 +7,13 @@ router.use(auth);
 
 router.get('/', async (req, res) => {
   try {
-    const students = await prisma.student.findMany({ orderBy: { createdAt: 'desc' } });
+    const students = await prisma.student.findMany();
+    students.sort((a, b) => {
+      const numA = parseInt(a.studentId || '0', 10);
+      const numB = parseInt(b.studentId || '0', 10);
+      if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+      return (a.studentId || '').localeCompare(b.studentId || '');
+    });
     res.json(students.map(s => ({ ...s, _id: s.id })));
   } catch (err: any) {
     res.status(500).json({ error: err.message });
