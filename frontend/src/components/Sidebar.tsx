@@ -16,12 +16,6 @@ const Sidebar = () => {
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
     const [showManageAccountsModal, setShowManageAccountsModal] = useState(false);
   
-  // Settings Form State
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newUsername, setNewUsername] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showSettingsPassword, setShowSettingsPassword] = useState(false);
 
   // Manage Accounts State
   const [staffAccounts, setStaffAccounts] = useState<any[]>([]);
