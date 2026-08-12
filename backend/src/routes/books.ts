@@ -12,18 +12,18 @@ router.get('/', async (req, res) => {
     
     if (search) {
       whereClause.OR = [
-        { title: { contains: String(search), mode: 'insensitive' } },
-        { author: { contains: String(search), mode: 'insensitive' } },
-        { isbn: { contains: String(search), mode: 'insensitive' } },
+        { title: { contains: String(search) } },
+        { author: { contains: String(search) } },
+        { isbn: { contains: String(search) } },
       ];
     }
     
     if (category && category !== 'All') {
-      whereClause.category = { contains: String(category), mode: 'insensitive' };
+      whereClause.category = { contains: String(category) };
     }
     
     if (language && language !== 'All') {
-      whereClause.language = { contains: String(language), mode: 'insensitive' };
+      whereClause.language = { contains: String(language) };
     }
 
     let orderByClause: any = { createdAt: 'desc' };
