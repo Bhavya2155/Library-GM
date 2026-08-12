@@ -99,7 +99,7 @@ export default function Books() {
   return (
     <div className="h-full overflow-y-auto p-4 md:p-8">
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8 relative z-20">
           <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm">Library Books</h1>
           <div className="flex flex-col gap-4 w-full lg:w-auto">
             <div className="flex flex-wrap items-center gap-4 w-full justify-end">
