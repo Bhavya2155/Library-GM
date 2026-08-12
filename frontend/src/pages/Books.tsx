@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -11,6 +11,10 @@ export default function Books() {
   const [sortOrder, setSortOrder] = useState('asc');
   const [filterCategory, setFilterCategory] = useState('All');
   const [filterLanguage, setFilterLanguage] = useState('All');
+  const sortRef = useRef<HTMLSelectElement>(null);
+  const orderRef = useRef<HTMLSelectElement>(null);
+  const categoryRef = useRef<HTMLSelectElement>(null);
+  const languageRef = useRef<HTMLSelectElement>(null);
   
   const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&category=${filterCategory}&language=${filterLanguage}`);
   const [showModal, setShowModal] = useState(false);
@@ -86,9 +90,9 @@ export default function Books() {
             </div>
             
             <div className="flex flex-wrap items-center gap-3 w-full justify-end text-sm">
-              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm cursor-pointer" onClick={(e) => { e.preventDefault(); try { sortRef.current?.showPicker() } catch(err) { sortRef.current?.focus() } }}>
                 <span className="text-slate-500 font-medium">Sort by:</span>
-                <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium">
+                <select ref={sortRef} onClick={e => e.stopPropagation()} value={sortBy} onChange={e => setSortBy(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium">
                   <option value="">Default</option>
                   <option value="title">Title</option>
                   <option value="author">Author</option>
@@ -96,16 +100,16 @@ export default function Books() {
                   <option value="language">Language</option>
                 </select>
                 {sortBy && (
-                  <select value={sortOrder} onChange={e => setSortOrder(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer border-l border-slate-300 pl-2 ml-1">
+                  <select ref={orderRef} onClick={e => e.stopPropagation()} value={sortOrder} onChange={e => setSortOrder(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer border-l border-slate-300 pl-2 ml-1">
                     <option value="asc">A-Z</option>
                     <option value="desc">Z-A</option>
                   </select>
                 )}
               </div>
               
-              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm cursor-pointer" onClick={(e) => { e.preventDefault(); try { categoryRef.current?.showPicker() } catch(err) { categoryRef.current?.focus() } }}>
                 <span className="text-slate-500 font-medium">Category:</span>
-                <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium max-w-[120px]">
+                <select ref={categoryRef} onClick={e => e.stopPropagation()} value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium max-w-[120px]">
                   <option value="All">All</option>
                   <option value="Fiction">Fiction</option>
                   <option value="Non-Fiction">Non-Fiction</option>
@@ -123,9 +127,9 @@ export default function Books() {
                 </select>
               </div>
 
-              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm">
+              <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/60 shadow-sm cursor-pointer" onClick={(e) => { e.preventDefault(); try { languageRef.current?.showPicker() } catch(err) { languageRef.current?.focus() } }}>
                 <span className="text-slate-500 font-medium">Language:</span>
-                <select value={filterLanguage} onChange={e => setFilterLanguage(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium">
+                <select ref={languageRef} onClick={e => e.stopPropagation()} value={filterLanguage} onChange={e => setFilterLanguage(e.target.value)} className="bg-transparent text-slate-700 outline-none cursor-pointer font-medium">
                   <option value="All">All</option>
                   <option value="English">English</option>
                   <option value="Hindi">Hindi</option>
