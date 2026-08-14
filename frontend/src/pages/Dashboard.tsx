@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import useSWR from 'swr';
-import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, Filter, ChevronDown } from 'lucide-react';
+import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, Filter, ChevronDown, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/dateFormatter';
@@ -77,6 +77,28 @@ export default function Dashboard() {
 
   const maxReadersCount = Math.max(...(analytics?.topReaders?.map((r: any) => r.count) || [0]), 1);
   const maxBooksCount = Math.max(...(analytics?.popularBooks?.map((b: any) => b.count) || [0]), 1);
+
+  const downloadCSV = (data: any[], filename: string, titleKey: string, valKey: string) => {
+    // Only take top 10 as requested
+    const top10 = data.slice(0, 10);
+    const headers = [titleKey.charAt(0).toUpperCase() + titleKey.slice(1), 'Count'];
+    const rows = top10.map(item => [
+      `"${item[titleKey]}"`,
+      item[valKey]
+    ]);
+    
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(",") + "\n" 
+      + rows.map(e => e.join(",")).join("\n");
+      
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${filename}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-8">
@@ -164,10 +186,19 @@ export default function Dashboard() {
       {/* Analytics Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
         <div className="bg-white/70 backdrop-blur-2xl rounded-2xl shadow-xl shadow-slate-200/40 border border-white/60 p-6 flex flex-col">
-          <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-            <Trophy size={22} className="text-amber-500" /> 
-            Top Readers
-          </h2>
+          <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <Trophy size={22} className="text-amber-500" /> 
+              Top Readers
+            </h2>
+            <button
+              onClick={() => downloadCSV(analytics?.topReaders || [], 'top_10_readers', 'name', 'count')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-100"
+              title="Download Top 10 as CSV"
+            >
+              <Download size={14} /> Export
+            </button>
+          </div>
           {isLoadingAnalytics ? (
             <div className="flex-1 flex justify-center items-center py-10">
               <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -178,10 +209,19 @@ export default function Dashboard() {
         </div>
 
         <div className="bg-white/70 backdrop-blur-2xl rounded-2xl shadow-xl shadow-slate-200/40 border border-white/60 p-6 flex flex-col">
-          <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-            <TrendingUp size={22} className="text-emerald-500" /> 
-            Most Popular Books
-          </h2>
+          <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <TrendingUp size={22} className="text-emerald-500" /> 
+              Most Popular Books
+            </h2>
+            <button
+              onClick={() => downloadCSV(analytics?.popularBooks || [], 'top_10_books', 'title', 'count')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-100"
+              title="Download Top 10 as CSV"
+            >
+              <Download size={14} /> Export
+            </button>
+          </div>
           {isLoadingAnalytics ? (
             <div className="flex-1 flex justify-center items-center py-10">
               <div className="w-6 h-6 border-2 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
