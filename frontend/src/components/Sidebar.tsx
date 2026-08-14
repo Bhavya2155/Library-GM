@@ -344,23 +344,25 @@ const Sidebar = () => {
                   <p className="text-sm text-slate-500 italic">No accounts found.</p>
                 ) : (
                   <div className="bg-white border border-slate-100 rounded-xl overflow-x-auto shadow-sm">
-                    <ul className="divide-y divide-slate-100 min-w-[320px]">
+                    <ul className="divide-y divide-slate-100 min-w-max w-full">
                       {staffAccounts.map(staff => (
-                        <li key={staff.id} className="flex justify-between items-center px-4 py-3 hover:bg-slate-50 transition-colors">
+                        <li key={staff.id} className="grid grid-cols-[minmax(120px,1fr)_auto_auto] gap-4 items-center px-4 py-3 hover:bg-slate-50 transition-colors">
                           <div className="flex items-center gap-3">
                             <div className="bg-blue-100 text-blue-700 p-1.5 rounded-lg shrink-0"><UserCircle size={18} /></div>
-                            <span className="font-medium text-slate-700 text-sm whitespace-nowrap">{staff.username}</span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap shrink-0 ${
-                              staff.role === 'admin' ? 'bg-red-100 text-red-700' :
-                              staff.role === 'coordinator' ? 'bg-indigo-100 text-indigo-700' :
-                              staff.role === 'leader' ? 'bg-purple-100 text-purple-700' :
-                              'bg-slate-100 text-slate-600'
-                            }`}>{staff.role === 'admin' ? 'super account' : staff.role || 'student'}</span>
+                            <span className="font-medium text-slate-700 text-sm whitespace-nowrap overflow-hidden text-ellipsis">{staff.username}</span>
                           </div>
-                          <div className="flex gap-2 shrink-0 ml-4">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap justify-self-start shrink-0 ${
+                            staff.role === 'admin' ? 'bg-red-100 text-red-700' :
+                            staff.role === 'coordinator' ? 'bg-indigo-100 text-indigo-700' :
+                            staff.role === 'leader' ? 'bg-purple-100 text-purple-700' :
+                            'bg-slate-100 text-slate-600'
+                          }`}>{staff.role === 'admin' ? 'super account' : staff.role || 'student'}</span>
+                          <div className="flex gap-2 shrink-0 justify-end">
                             <button onClick={() => startEditStaff(staff)} className="text-indigo-500 hover:text-indigo-700 text-sm font-medium px-2 py-1 rounded hover:bg-indigo-50 transition-colors">Edit</button>
-                            {staff.role !== 'admin' && (
+                            {staff.role !== 'admin' ? (
                               <button onClick={() => handleDeleteStaff(staff.id)} className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors">Delete</button>
+                            ) : (
+                              <div className="w-[50px]"></div> /* Placeholder to keep grid aligned */
                             )}
                           </div>
                         </li>
