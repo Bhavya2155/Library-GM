@@ -20,6 +20,18 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 // Strip trailing slash if present, then add /api
 axios.defaults.baseURL = `${API_URL.replace(/\/$/, '')}/api`;
 
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { token, loading } = useAuth();
   if (loading) return <div>Loading...</div>;
