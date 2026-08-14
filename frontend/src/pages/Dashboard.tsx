@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import useSWR from 'swr';
-import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, Filter } from 'lucide-react';
+import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, Filter, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/dateFormatter';
@@ -12,6 +12,14 @@ export default function Dashboard() {
   const [dateRange, setDateRange] = useState('all-time');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const options = [
+    { value: 'all-time', label: 'All Time' },
+    { value: 'this-month', label: 'This Month' },
+    { value: 'last-7-days', label: 'Last 7 Days' },
+    { value: 'custom', label: 'Custom Range' },
+  ];
   
   const { data: stats = { totalBooks: 0, totalStudents: 0, issuedBooks: 0, availableBooks: 0 } } = useSWR('/dashboard/stats');
   const { data: logins = [], isLoading: isLoadingLogins } = useSWR(role === 'admin' ? '/dashboard/logins' : null);
@@ -80,31 +88,54 @@ export default function Dashboard() {
         {/* Date Filter */}
         <div className="flex flex-wrap items-center gap-3 bg-white/70 backdrop-blur-md p-2 rounded-xl shadow-sm border border-white">
           <Filter size={18} className="text-slate-400 ml-2" />
-          <select 
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="bg-transparent border-none text-sm font-medium text-slate-700 focus:ring-0 cursor-pointer p-0"
-          >
-            <option value="all-time">All Time</option>
-            <option value="this-month">This Month</option>
-            <option value="last-7-days">Last 7 Days</option>
-            <option value="custom">Custom Range</option>
-          </select>
+          
+          <div className="relative">
+            <button 
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2 bg-transparent border-none text-sm font-bold text-slate-700 hover:text-indigo-600 focus:outline-none transition-colors"
+            >
+              {options.find(o => o.value === dateRange)?.label}
+              <ChevronDown size={16} className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {isDropdownOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsDropdownOpen(false)}
+                ></div>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white/90 backdrop-blur-xl rounded-xl shadow-xl border border-white/60 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  {options.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        setDateRange(opt.value);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm font-bold transition-colors hover:bg-indigo-50/80 ${dateRange === opt.value ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-600'}`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           
           {dateRange === 'custom' && (
-            <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
+            <div className="flex items-center gap-2 border-l border-slate-200 pl-3 ml-1">
               <input 
                 type="date" 
                 value={customStart}
                 onChange={(e) => setCustomStart(e.target.value)}
-                className="text-xs border border-slate-200 p-1 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                className="text-xs font-bold text-slate-600 border border-slate-200/60 bg-white/50 backdrop-blur-sm p-1.5 rounded-md focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all outline-none"
               />
-              <span className="text-slate-400 text-xs">to</span>
+              <span className="text-slate-400 text-xs font-bold">to</span>
               <input 
                 type="date" 
                 value={customEnd}
                 onChange={(e) => setCustomEnd(e.target.value)}
-                className="text-xs border border-slate-200 p-1 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                className="text-xs font-bold text-slate-600 border border-slate-200/60 bg-white/50 backdrop-blur-sm p-1.5 rounded-md focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all outline-none"
               />
             </div>
           )}
