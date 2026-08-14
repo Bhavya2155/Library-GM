@@ -30,7 +30,8 @@ router.post('/login', async (req, res) => {
       }).catch(err => console.error("History Error:", err));
     }
 
-    const token = jwt.sign({ id: admin.id, role: admin.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+    // Generate JWT token valid for 1 year so user stays logged in
+    const token = jwt.sign({ id: admin.id, role: admin.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '365d' });
     res.json({ token, username, role: admin.role });
   } catch (err: any) {
     console.error("LOGIN ERROR:", err);
