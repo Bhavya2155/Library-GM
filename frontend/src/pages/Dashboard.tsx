@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
 import useSWR from 'swr';
-import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, Filter, ChevronDown, Download, BarChart2, PieChart as PieChartIcon, Image as ImageIcon, FileSpreadsheet } from 'lucide-react';
+import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, Filter, ChevronDown, Download, BarChart2, PieChart as PieChartIcon, Image as ImageIcon, FileSpreadsheet, Activity, List } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/dateFormatter';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
 import html2canvas from 'html2canvas';
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#84cc16', '#10b981', '#14b8a6', '#06b6d4'];
@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'bar' | 'pie'>('bar');
+  const [viewMode, setViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('list');
   
   const [exportMenuOpen, setExportMenuOpen] = useState<'readers'|'books'|null>(null);
   
@@ -130,6 +130,63 @@ export default function Dashboard() {
     );
   };
 
+  const renderVerticalBarChart = (data: any[], titleKey: string, valKey: string, color: string) => {
+    if (data.length === 0) return <div className="text-slate-400 p-4 text-center">No data available.</div>;
+    const top10 = data.slice(0, 10);
+    return (
+      <div className="h-80 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+            <XAxis 
+              dataKey={titleKey} 
+              tick={{ fontSize: 11, fill: '#64748b' }} 
+              angle={-45} 
+              textAnchor="end"
+              axisLine={false}
+              tickLine={false}
+              interval={0}
+            />
+            <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+            <Tooltip 
+              cursor={{ fill: 'transparent' }}
+              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
+            />
+            <Bar dataKey={valKey} fill={color} radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  };
+
+  const renderLineChart = (data: any[], titleKey: string, valKey: string, color: string) => {
+    if (data.length === 0) return <div className="text-slate-400 p-4 text-center">No data available.</div>;
+    const top10 = data.slice(0, 10);
+    return (
+      <div className="h-80 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+            <XAxis 
+              dataKey={titleKey} 
+              tick={{ fontSize: 11, fill: '#64748b' }} 
+              angle={-45} 
+              textAnchor="end"
+              axisLine={false}
+              tickLine={false}
+              interval={0}
+            />
+            <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+            <Tooltip 
+              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
+            />
+            <Line type="monotone" dataKey={valKey} stroke={color} strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  };
+
   const maxReadersCount = Math.max(...(analytics?.topReaders?.map((r: any) => r.count) || [0]), 1);
   const maxBooksCount = Math.max(...(analytics?.popularBooks?.map((b: any) => b.count) || [0]), 1);
 
@@ -181,8 +238,15 @@ export default function Dashboard() {
           {/* View Toggle */}
           <div className="flex bg-white/70 backdrop-blur-md p-1 rounded-xl shadow-sm border border-white">
             <button
-              onClick={() => setViewMode('bar')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'bar' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
+              title="List View"
+            >
+              <List size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode('vbar')}
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'vbar' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
               title="Bar Chart View"
             >
               <BarChart2 size={18} />
@@ -193,6 +257,13 @@ export default function Dashboard() {
               title="Pie Chart View"
             >
               <PieChartIcon size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode('line')}
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'line' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
+              title="Line Chart View"
+            >
+              <Activity size={18} />
             </button>
           </div>
 
@@ -309,6 +380,10 @@ export default function Dashboard() {
             </div>
           ) : viewMode === 'pie' ? (
             renderPieChart(analytics?.topReaders || [], 'name', 'count')
+          ) : viewMode === 'vbar' ? (
+            renderVerticalBarChart(analytics?.topReaders || [], 'name', 'count', '#6366f1')
+          ) : viewMode === 'line' ? (
+            renderLineChart(analytics?.topReaders || [], 'name', 'count', '#6366f1')
           ) : (
             renderBarChart(analytics?.topReaders || [], maxReadersCount, 'name', 'count', 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]')
           )}
@@ -348,6 +423,10 @@ export default function Dashboard() {
             </div>
           ) : viewMode === 'pie' ? (
             renderPieChart(analytics?.popularBooks || [], 'title', 'count')
+          ) : viewMode === 'vbar' ? (
+            renderVerticalBarChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
+          ) : viewMode === 'line' ? (
+            renderLineChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
           ) : (
             renderBarChart(analytics?.popularBooks || [], maxBooksCount, 'title', 'count', 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]')
           )}
