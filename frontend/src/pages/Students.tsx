@@ -86,6 +86,28 @@ export default function Students() {
 
       <div className="bg-white/60 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
         <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
+            <thead>
+              <tr className="bg-white/40 text-slate-600 text-xs uppercase tracking-wider border-b border-white/50 backdrop-blur-md">
+                <th className="p-4 font-semibold cursor-pointer hover:bg-white/50 transition-colors flex items-center gap-1 select-none " onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+                  GM No.
+                  {sortOrder === 'asc' ? <ArrowUp size={14} className="text-slate-400" /> : <ArrowDown size={14} className="text-slate-400" />}
+                </th>
+                <th className="p-4 font-semibold ">Student Name</th>
+                <th className="p-4 font-semibold ">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/40 text-sm">
+              {sortedStudents.map(student => (
+                <tr key={student._id} className="hover:bg-white/60 transition-colors duration-200">
+                  <td className="p-4 font-medium text-slate-900">{student.studentId}</td>
+                  <td className="p-4 font-medium text-slate-900">{formatName(student.name)}</td>
+                  <td className="p-4 flex gap-2">
+                    <button onClick={() => handleEdit(student)} className="text-indigo-500 hover:text-indigo-700 transition-colors p-1" title="Edit Student">
+                      <Pencil size={18} />
+                    </button>
+                    <button onClick={() => handleDelete(student._id)} className="text-red-500 hover:text-red-700 transition-colors p-1" title="Delete Student">
+                      <Trash2 size={18} />
                     </button>
                   </td>
                 </tr>
