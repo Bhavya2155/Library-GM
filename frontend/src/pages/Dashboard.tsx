@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/dateFormatter';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
-import html2canvas from 'html2canvas';
+import * as htmlToImage from 'html-to-image';
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#84cc16', '#10b981', '#14b8a6', '#06b6d4'];
 
@@ -98,20 +98,28 @@ export default function Dashboard() {
               data={top10}
               cx="50%"
               cy="50%"
-              innerRadius={70}
-              outerRadius={110}
+              innerRadius={50}
+              outerRadius={80}
               paddingAngle={4}
               dataKey={valKey}
               nameKey={titleKey}
-              labelLine={false}
-              label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-                const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-                const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
-                const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
-                if (percent < 0.05) return null;
+              labelLine={{ stroke: '#94a3b8', strokeWidth: 1 }}
+              label={({ cx, cy, midAngle, outerRadius, value, name }: any) => {
+                const RADIAN = Math.PI / 180;
+                const radius = outerRadius + 20; 
+                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                const y = cy + radius * Math.sin(-midAngle * RADIAN);
                 return (
-                  <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="bold">
-                    {`${(percent * 100).toFixed(0)}%`}
+                  <text 
+                    x={x} 
+                    y={y} 
+                    fill="#64748b" 
+                    textAnchor={x > cx ? 'start' : 'end'} 
+                    dominantBaseline="central" 
+                    fontSize={11}
+                    fontWeight="bold"
+                  >
+                    {name.length > 15 ? name.substring(0, 15) + '...' : name} ({value})
                   </text>
                 );
               }}
@@ -215,11 +223,10 @@ export default function Dashboard() {
   const downloadImage = async (ref: React.RefObject<HTMLDivElement | null>, filename: string) => {
     if (!ref.current) return;
     try {
-      const canvas = await html2canvas(ref.current, { backgroundColor: '#ffffff', scale: 2 });
-      const image = canvas.toDataURL("image/png", 1.0);
+      const dataUrl = await htmlToImage.toPng(ref.current, { backgroundColor: '#ffffff', pixelRatio: 2 });
       const link = document.createElement("a");
       link.download = `${filename}.png`;
-      link.href = image;
+      link.href = dataUrl;
       link.click();
     } catch (error) {
       console.error("Error generating image", error);
