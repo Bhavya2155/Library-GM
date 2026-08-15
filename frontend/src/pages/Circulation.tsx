@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/dateFormatter';
+import { formatName } from '../utils/nameFormatter';
 
 const SearchableSelect = ({ options, value, onChange, placeholder }: { options: {value: string, label: string}[], value: string, onChange: (val: string) => void, placeholder: string }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -303,7 +304,7 @@ export default function Circulation() {
       const gmNo = r.studentId?.studentId || '';
       const title = r.bookId?.title || '';
       const isbn = r.bookId?.isbn || '';
-      const name = r.studentId?.name || r.guestId?.name || '';
+      const name = formatName(r.studentId?.name) || formatName(r.guestId?.name) || '';
       return (
         gmNo.toLowerCase().includes(term) ||
         title.toLowerCase().includes(term) ||
@@ -314,7 +315,7 @@ export default function Circulation() {
 
     const data = filteredRecords.map(r => ({
       'GM No / Guest': r.studentId ? r.studentId.studentId : 'Guest',
-      'Name': r.studentId ? r.studentId.name : r.guestId?.name,
+      'Name': r.studentId ? formatName(r.studentId.name) : formatName(r.guestId?.name),
       'Book Title': r.bookId?.title,
       'Book ISBN': r.bookId?.isbn,
       'Issue Date': formatDate(r.issueDate),
@@ -476,7 +477,7 @@ export default function Circulation() {
                 const gmNo = r.studentId?.studentId || '';
                 const title = r.bookId?.title || '';
                 const isbn = r.bookId?.isbn || '';
-                const name = r.studentId?.name || r.guestId?.name || '';
+                const name = formatName(r.studentId?.name) || formatName(r.guestId?.name) || '';
                 return (
                   gmNo.toLowerCase().includes(term) ||
                   title.toLowerCase().includes(term) ||
@@ -493,8 +494,8 @@ export default function Circulation() {
                     bValue = b.studentId ? parseInt(b.studentId.studentId) || 0 : 0;
                     break;
                   case 'name':
-                    aValue = (a.studentId?.name || a.guestId?.name || '').toLowerCase();
-                    bValue = (b.studentId?.name || b.guestId?.name || '').toLowerCase();
+                    aValue = (formatName(a.studentId?.name) || formatName(a.guestId?.name) || '').toLowerCase();
+                    bValue = (formatName(b.studentId?.name) || formatName(b.guestId?.name) || '').toLowerCase();
                     break;
                   case 'bookTitle':
                     aValue = (a.bookId?.title || '').toLowerCase();
@@ -520,7 +521,7 @@ export default function Circulation() {
                   </td>
                   <td className="px-3 py-3 text-slate-600 font-medium align-middle">
                     <div className="flex flex-wrap items-center gap-2">
-                      {record.studentId ? record.studentId.name : record.guestId?.name}
+                      {record.studentId ? formatName(record.studentId.name) : formatName(record.guestId?.name)}
                       {record.guestId && <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-bold">GUEST</span>}
                     </div>
                   </td>
@@ -697,14 +698,14 @@ export default function Circulation() {
                       value={studentId} 
                       onChange={setStudentId} 
                       placeholder="Choose a student..."
-                      options={students.map((s: any) => ({ value: s._id, label: `${s.name} (${s.studentId})` }))}
+                      options={students.map((s: any) => ({ value: s._id, label: `${formatName(s.name)} (${s.studentId})` }))}
                     />
                   ) : (
                     <SearchableSelect 
                       value={guestId} 
                       onChange={setGuestId} 
                       placeholder="Choose a guest..."
-                      options={guests.map((g: any) => ({ value: g._id, label: g.name }))}
+                      options={guests.map((g: any) => ({ value: g._id, label: formatName(g.name) }))}
                     />
                   )}
                 </div>
@@ -723,12 +724,12 @@ export default function Circulation() {
                       <span className="text-indigo-600 block text-xs uppercase tracking-wider mb-0.5">Recipient</span>
                       {issueType === 'student' ? (
                         <>
-                          <strong>{students.find((s: any) => s._id === studentId)?.name}</strong>
+                          <strong>{formatName(students.find((s: any) => s._id === studentId)?.name)}</strong>
                           <div className="text-indigo-500/80 text-xs mt-0.5">GM No: {students.find((s: any) => s._id === studentId)?.studentId}</div>
                         </>
                       ) : (
                         <>
-                          <strong>{guests.find((g: any) => g._id === guestId)?.name}</strong>
+                          <strong>{formatName(guests.find((g: any) => g._id === guestId)?.name)}</strong>
                           <div className="text-indigo-500/80 text-xs mt-0.5">Guest Account</div>
                         </>
                       )}

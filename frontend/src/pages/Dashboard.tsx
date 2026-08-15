@@ -4,6 +4,7 @@ import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, Filter, ChevronDow
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/dateFormatter';
+import { formatName } from '../utils/nameFormatter';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
 import * as htmlToImage from 'html-to-image';
 
@@ -198,6 +199,8 @@ export default function Dashboard() {
   const maxReadersCount = Math.max(...(analytics?.topReaders?.map((r: any) => r.count) || [0]), 1);
   const maxBooksCount = Math.max(...(analytics?.popularBooks?.map((b: any) => b.count) || [0]), 1);
 
+  const topReadersFormatted = (analytics?.topReaders || []).map((r: any) => ({ ...r, name: formatName(r.name) }));
+
   const downloadCSV = (data: any[], filename: string, titleKey: string, valKey: string) => {
     const top10 = data.slice(0, 10);
     const headers = [titleKey.charAt(0).toUpperCase() + titleKey.slice(1), 'Count'];
@@ -370,7 +373,7 @@ export default function Dashboard() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(null)}></div>
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow-xl rounded-xl border border-slate-100 z-50 overflow-hidden text-sm">
-                    <button onClick={() => downloadCSV(analytics?.topReaders || [], 'top_10_readers', 'name', 'count')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium">
+                    <button onClick={() => downloadCSV(topReadersFormatted, 'top_10_readers', 'name', 'count')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium">
                       <FileSpreadsheet size={16} className="text-emerald-500" /> CSV Data
                     </button>
                     <button onClick={() => downloadImage(readersChartRef, 'top_readers_chart')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium border-t border-slate-50">
@@ -386,13 +389,13 @@ export default function Dashboard() {
               <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
             </div>
           ) : viewMode === 'pie' ? (
-            renderPieChart(analytics?.topReaders || [], 'name', 'count')
+            renderPieChart(topReadersFormatted, 'name', 'count')
           ) : viewMode === 'vbar' ? (
-            renderVerticalBarChart(analytics?.topReaders || [], 'name', 'count', '#6366f1')
+            renderVerticalBarChart(topReadersFormatted, 'name', 'count', '#6366f1')
           ) : viewMode === 'line' ? (
-            renderLineChart(analytics?.topReaders || [], 'name', 'count', '#6366f1')
+            renderLineChart(topReadersFormatted, 'name', 'count', '#6366f1')
           ) : (
-            renderBarChart(analytics?.topReaders || [], maxReadersCount, 'name', 'count', 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]')
+            renderBarChart(topReadersFormatted, maxReadersCount, 'name', 'count', 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]')
           )}
         </div>
 
