@@ -231,7 +231,7 @@ export default function Dashboard() {
     <div className="h-full overflow-y-auto p-4 md:p-8">
       <div className="max-w-7xl mx-auto relative z-10">
       
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 relative z-50">
         <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm">Dashboard Overview</h1>
         
         <div className="flex flex-wrap items-center gap-3">
