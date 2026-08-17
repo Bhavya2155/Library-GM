@@ -38,9 +38,10 @@ export default function AIChat() {
       const res = await axios.post('/assistant/chat', { message: userMessage.content });
       const botMessage: Message = { id: Date.now().toString() + 'bot', role: 'assistant', content: res.data.reply };
       setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to send message:', error);
-      const errorMessage: Message = { id: Date.now().toString() + 'err', role: 'assistant', content: 'Sorry, I encountered an error. Please try again later.' };
+      const errDetail = error.response?.data?.error || error.response?.data?.details || error.message || 'Unknown error';
+      const errorMessage: Message = { id: Date.now().toString() + 'err', role: 'assistant', content: `Error: ${errDetail}` };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
