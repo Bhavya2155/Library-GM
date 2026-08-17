@@ -66,6 +66,9 @@ const executeTool = async (call: any) => {
 export const chatWithAI = async (req: Request, res: Response) => {
   try {
     const { message, messages } = req.body;
+    console.log('--- Incoming Request ---');
+    console.log('message:', message);
+    console.log('messages:', messages);
     
     // Fallback to message if messages array is not provided
     const userMessage = message || (messages && messages.length > 0 ? messages[messages.length - 1].content : '');
@@ -95,30 +98,35 @@ export const chatWithAI = async (req: Request, res: Response) => {
        }));
     }
 
-    const chat = model.startChat({
-      history: [
-        { role: 'user', parts: [{ text: systemPrompt }] },
-        { role: 'model', parts: [{ text: 'Understood.' }] },
-        ...history
-      ]
-    });
+    let contents: any[] = [
+      { role: 'user', parts: [{ text: systemPrompt }] },
+      { role: 'model', parts: [{ text: 'Understood.' }] },
+      ...history,
+      { role: 'user', parts: [{ text: userMessage }] }
+    ];
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
-    let result = await chat.sendMessageStream(userMessage);
+    let result = await model.generateContentStream({ contents });
 
     // Loop to handle potential function calls
     while (true) {
       let functionCallFound = false;
-      let functionCallsToExecute = [];
+      let functionCallsToExecute: any[] = [];
+      let modelParts: any[] = [];
 
       for await (const chunk of result.stream) {
-        if (chunk.functionCalls && chunk.functionCalls.length > 0) {
+        if (chunk.candidates && chunk.candidates.length > 0 && chunk.candidates[0].content) {
+            modelParts.push(...chunk.candidates[0].content.parts);
+        }
+
+        const calls = chunk.functionCalls();
+        if (calls && calls.length > 0) {
           functionCallFound = true;
-          functionCallsToExecute.push(...chunk.functionCalls);
+          functionCallsToExecute.push(...calls);
         } else {
            try {
              const text = chunk.text();
@@ -132,18 +140,25 @@ export const chatWithAI = async (req: Request, res: Response) => {
       }
 
       if (functionCallFound) {
+        // Append the exact model parts (including thoughtSignature) to history
+        contents.push({ role: 'model', parts: modelParts });
+
         const functionResponses = [];
         for (const call of functionCallsToExecute) {
            const toolResult = await executeTool(call);
            functionResponses.push({
              functionResponse: {
                name: call.name,
-               response: toolResult
+               response: { result: toolResult }
              }
            });
         }
-        // Send the function response back to the model
-        result = await chat.sendMessageStream(functionResponses);
+        
+        // Append function response as 'user' role
+        contents.push({ role: 'user', parts: functionResponses });
+        
+        // Continue generation
+        result = await model.generateContentStream({ contents });
       } else {
         break; // No more function calls, generation is done
       }
