@@ -14,7 +14,7 @@ export const chatWithAI = async (req: Request, res: Response) => {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
     const systemPrompt = `You are a helpful AI assistant for the Gnan Mandir Library Portal. Keep your answers relatively short and helpful.`;
     const fullMessage = `${systemPrompt}\n\nUser: ${message}`;
