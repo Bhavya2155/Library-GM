@@ -54,31 +54,40 @@ export default function AIChat() {
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
+      let buffer = '';
 
       if (reader) {
         while (true) {
           const { value, done } = await reader.read();
           if (done) break;
           
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
+          buffer += decoder.decode(value, { stream: true });
           
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const dataStr = line.slice(6);
-              if (dataStr === '[DONE]') break;
-              
-              try {
-                const data = JSON.parse(dataStr);
-                if (data.error) {
-                  throw new Error(data.error);
-                }
-                setMessages(prev => prev.map(msg => 
-                  msg.id === botMessageId ? { ...msg, content: msg.content + data.text } : msg
-                ));
-              } catch (e) {
-                if (e instanceof Error && e.message !== 'Unexpected end of JSON input') {
-                   throw e;
+          let newlineIndex;
+          while ((newlineIndex = buffer.indexOf('\n\n')) !== -1) {
+            const sseMessage = buffer.slice(0, newlineIndex);
+            buffer = buffer.slice(newlineIndex + 2);
+            
+            const lines = sseMessage.split('\n');
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const dataStr = line.slice(6);
+                if (dataStr === '[DONE]') break;
+                
+                try {
+                  const data = JSON.parse(dataStr);
+                  if (data.error) {
+                    throw new Error(data.error);
+                  }
+                  if (data.text) {
+                    setMessages(prev => prev.map(msg => 
+                      msg.id === botMessageId ? { ...msg, content: msg.content + data.text } : msg
+                    ));
+                  }
+                } catch (e) {
+                  if (e instanceof Error && !e.message.includes('JSON')) {
+                     throw e;
+                  }
                 }
               }
             }
