@@ -64,9 +64,10 @@ export default function Dashboard() {
     if (data.length === 0) {
       return <div className="text-slate-400 p-4 text-center">No data available for this period.</div>;
     }
+    const top10 = data.slice(0, 10);
     return (
       <div className="space-y-4 h-80 overflow-y-auto pr-2 custom-scrollbar">
-        {data.map((item, idx) => {
+        {top10.map((item, idx) => {
           const percentage = maxVal === 0 ? 0 : (item[valKey] / maxVal) * 100;
           return (
             <div key={idx} className="relative group">
