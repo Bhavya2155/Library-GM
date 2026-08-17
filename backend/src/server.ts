@@ -28,7 +28,7 @@ app.use('/api/students', studentRoutes);
 app.use('/api/guests', guestsRoutes);
 app.use('/api/circulation', circulationRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/ai', aiRoutes);
+app.use('/api/assistant', aiRoutes);
 
 const PORT = process.env.PORT || 5000;
 

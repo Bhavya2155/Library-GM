@@ -35,7 +35,7 @@ export default function AIChat() {
     setIsLoading(true);
 
     try {
-      const res = await axios.post('/ai/chat', { message: userMessage.content });
+      const res = await axios.post('/assistant/chat', { message: userMessage.content });
       const botMessage: Message = { id: Date.now().toString() + 'bot', role: 'assistant', content: res.data.reply };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
