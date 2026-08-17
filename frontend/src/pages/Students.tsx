@@ -4,13 +4,7 @@ import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { Users, Trash2, ArrowUp, ArrowDown, Pencil, Search, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-const formatName = (fullName: string) => {
-  if (!fullName) return '';
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length <= 1) return fullName;
-  return `${parts[0]} ${parts[parts.length - 1]}`;
-};
+import { formatName } from '../utils/nameFormatter';
 
 export default function Students() {
   const [searchTerm, setSearchTerm] = useState('');

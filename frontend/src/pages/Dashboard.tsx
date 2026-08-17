@@ -18,7 +18,8 @@ export default function Dashboard() {
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('list');
+  const [readersViewMode, setReadersViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('list');
+  const [booksViewMode, setBooksViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('list');
   
   const [exportMenuOpen, setExportMenuOpen] = useState<'readers'|'books'|null>(null);
   
@@ -245,38 +246,6 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm">Dashboard Overview</h1>
         
         <div className="flex flex-wrap items-center gap-3">
-          {/* View Toggle */}
-          <div className="flex bg-white/70 backdrop-blur-md p-1 rounded-xl shadow-sm border border-white">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
-              title="List View"
-            >
-              <List size={18} />
-            </button>
-            <button
-              onClick={() => setViewMode('vbar')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'vbar' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
-              title="Bar Chart View"
-            >
-              <BarChart2 size={18} />
-            </button>
-            <button
-              onClick={() => setViewMode('pie')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'pie' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
-              title="Pie Chart View"
-            >
-              <PieChartIcon size={18} />
-            </button>
-            <button
-              onClick={() => setViewMode('line')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'line' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
-              title="Line Chart View"
-            >
-              <Activity size={18} />
-            </button>
-          </div>
-
           {/* Date Filter */}
           <div className="flex flex-wrap items-center gap-3 bg-white/70 backdrop-blur-md p-2 rounded-xl shadow-sm border border-white">
             <Filter size={18} className="text-slate-400 ml-2" />
@@ -362,13 +331,20 @@ export default function Dashboard() {
               <Trophy size={22} className="text-amber-500" /> 
               Top Readers
             </h2>
-            <div className="relative">
-              <button
-                onClick={() => setExportMenuOpen(exportMenuOpen === 'readers' ? null : 'readers')}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-100"
-              >
-                <Download size={14} /> Export <ChevronDown size={12} />
-              </button>
+            <div className="flex items-center gap-2">
+              <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60 hidden sm:flex">
+                <button onClick={() => setReadersViewMode('list')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><List size={16} /></button>
+                <button onClick={() => setReadersViewMode('vbar')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'vbar' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><BarChart2 size={16} /></button>
+                <button onClick={() => setReadersViewMode('pie')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'pie' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><PieChartIcon size={16} /></button>
+                <button onClick={() => setReadersViewMode('line')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'line' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><Activity size={16} /></button>
+              </div>
+              <div className="relative">
+                <button
+                  onClick={() => setExportMenuOpen(exportMenuOpen === 'readers' ? null : 'readers')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-100"
+                >
+                  <Download size={14} /> Export <ChevronDown size={12} />
+                </button>
               {exportMenuOpen === 'readers' && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(null)}></div>
@@ -383,16 +359,17 @@ export default function Dashboard() {
                 </>
               )}
             </div>
+            </div>
           </div>
           {isLoadingAnalytics ? (
             <div className="h-80 flex justify-center items-center">
               <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
             </div>
-          ) : viewMode === 'pie' ? (
+          ) : readersViewMode === 'pie' ? (
             renderPieChart(topReadersFormatted, 'name', 'count')
-          ) : viewMode === 'vbar' ? (
+          ) : readersViewMode === 'vbar' ? (
             renderVerticalBarChart(topReadersFormatted, 'name', 'count', '#6366f1')
-          ) : viewMode === 'line' ? (
+          ) : readersViewMode === 'line' ? (
             renderLineChart(topReadersFormatted, 'name', 'count', '#6366f1')
           ) : (
             renderBarChart(topReadersFormatted, maxReadersCount, 'name', 'count', 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]')
@@ -405,13 +382,20 @@ export default function Dashboard() {
               <TrendingUp size={22} className="text-emerald-500" /> 
               Most Popular Books
             </h2>
-            <div className="relative">
-              <button
-                onClick={() => setExportMenuOpen(exportMenuOpen === 'books' ? null : 'books')}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-100"
-              >
-                <Download size={14} /> Export <ChevronDown size={12} />
-              </button>
+            <div className="flex items-center gap-2">
+              <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60 hidden sm:flex">
+                <button onClick={() => setBooksViewMode('list')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'list' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><List size={16} /></button>
+                <button onClick={() => setBooksViewMode('vbar')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'vbar' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><BarChart2 size={16} /></button>
+                <button onClick={() => setBooksViewMode('pie')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'pie' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><PieChartIcon size={16} /></button>
+                <button onClick={() => setBooksViewMode('line')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'line' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><Activity size={16} /></button>
+              </div>
+              <div className="relative">
+                <button
+                  onClick={() => setExportMenuOpen(exportMenuOpen === 'books' ? null : 'books')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-100"
+                >
+                  <Download size={14} /> Export <ChevronDown size={12} />
+                </button>
               {exportMenuOpen === 'books' && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(null)}></div>
@@ -426,16 +410,17 @@ export default function Dashboard() {
                 </>
               )}
             </div>
+            </div>
           </div>
           {isLoadingAnalytics ? (
             <div className="h-80 flex justify-center items-center">
               <div className="w-6 h-6 border-2 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
             </div>
-          ) : viewMode === 'pie' ? (
+          ) : booksViewMode === 'pie' ? (
             renderPieChart(analytics?.popularBooks || [], 'title', 'count')
-          ) : viewMode === 'vbar' ? (
+          ) : booksViewMode === 'vbar' ? (
             renderVerticalBarChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
-          ) : viewMode === 'line' ? (
+          ) : booksViewMode === 'line' ? (
             renderLineChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
           ) : (
             renderBarChart(analytics?.popularBooks || [], maxBooksCount, 'title', 'count', 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]')
