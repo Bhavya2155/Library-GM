@@ -8,6 +8,7 @@ import studentRoutes from './routes/students';
 import circulationRoutes from './routes/circulation';
 import notificationRoutes from './routes/notifications';
 import guestsRoutes from './routes/guests';
+import aiRoutes from './routes/ai';
 import './lib/db'; // Initialize DB
 import { initCronJobs } from './jobs/cron';
 
@@ -27,6 +28,7 @@ app.use('/api/students', studentRoutes);
 app.use('/api/guests', guestsRoutes);
 app.use('/api/circulation', circulationRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/ai', aiRoutes);
 
 const PORT = process.env.PORT || 5000;
 

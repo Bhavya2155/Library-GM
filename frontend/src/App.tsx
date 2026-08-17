@@ -6,6 +6,7 @@ import axios from 'axios';
 
 // Layout
 import Sidebar from './components/Sidebar';
+import AIChat from './components/AIChat';
 
 // Pages
 import Login from './pages/Login';
@@ -47,6 +48,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
       <div className="flex-1 overflow-hidden flex flex-col pt-16 md:pt-0">
         {children}
       </div>
+      <AIChat />
     </div>
   );
 };
