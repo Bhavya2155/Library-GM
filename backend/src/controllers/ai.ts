@@ -19,13 +19,28 @@ export const chatWithAI = async (req: Request, res: Response) => {
     const systemPrompt = `You are a helpful AI assistant for the Gnan Mandir Library Portal. Keep your answers relatively short and helpful.`;
     const fullMessage = `${systemPrompt}\n\nUser: ${message}`;
 
-    const result = await model.generateContent(fullMessage);
-    const response = await result.response;
-    const text = response.text();
+    // Set headers for Server-Sent Events (SSE)
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders(); // Flush the headers to establish the SSE connection immediately
 
-    return res.json({ reply: text });
+    const result = await model.generateContentStream(fullMessage);
+
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
+    }
+
+    res.write('data: [DONE]\n\n');
+    res.end();
   } catch (error: any) {
     console.error('AI Chat Error:', error);
-    return res.status(500).json({ error: 'Failed to communicate with AI', details: error.message });
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'Failed to communicate with AI', details: error.message });
+    } else {
+      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+      res.end();
+    }
   }
 };

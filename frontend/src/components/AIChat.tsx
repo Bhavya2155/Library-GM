@@ -35,9 +35,53 @@ export default function AIChat() {
     setIsLoading(true);
 
     try {
-      const res = await axios.post('/assistant/chat', { message: userMessage.content });
-      const botMessage: Message = { id: Date.now().toString() + 'bot', role: 'assistant', content: res.data.reply };
-      setMessages(prev => [...prev, botMessage]);
+      const botMessageId = Date.now().toString() + 'bot';
+      setMessages(prev => [...prev, { id: botMessageId, role: 'assistant', content: '' }]);
+
+      const response = await fetch(`${axios.defaults.baseURL}/assistant/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage.content })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status} - ${errText}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (reader) {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6);
+              if (dataStr === '[DONE]') break;
+              
+              try {
+                const data = JSON.parse(dataStr);
+                if (data.error) {
+                  throw new Error(data.error);
+                }
+                setMessages(prev => prev.map(msg => 
+                  msg.id === botMessageId ? { ...msg, content: msg.content + data.text } : msg
+                ));
+              } catch (e) {
+                if (e instanceof Error && e.message !== 'Unexpected end of JSON input') {
+                   throw e;
+                }
+              }
+            }
+          }
+        }
+      }
     } catch (error: any) {
       console.error('Failed to send message:', error);
       const errDetail = error.response?.data?.error || error.response?.data?.details || error.message || 'Unknown error';
