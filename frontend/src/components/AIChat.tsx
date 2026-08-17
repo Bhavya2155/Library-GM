@@ -41,7 +41,10 @@ export default function AIChat() {
       const response = await fetch(`${axios.defaults.baseURL}/assistant/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage.content })
+        body: JSON.stringify({ 
+          message: userMessage.content,
+          messages: [...messages, userMessage] 
+        })
       });
 
       if (!response.ok) {
