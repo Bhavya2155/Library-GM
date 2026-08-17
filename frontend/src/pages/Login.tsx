@@ -51,7 +51,10 @@ export default function Login() {
               required 
               className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 transition-colors"
               value={username} 
-              onChange={e => setUsername(e.target.value)} 
+              onChange={e => {
+                const val = e.target.value;
+                setUsername(val ? val.charAt(0).toUpperCase() + val.slice(1) : '');
+              }} 
             />
           </div>
           <div>
