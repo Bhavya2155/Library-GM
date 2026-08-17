@@ -325,7 +325,7 @@ export default function Dashboard() {
 
       {/* Analytics Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        <div ref={readersChartRef} className="bg-white/70 backdrop-blur-2xl rounded-2xl shadow-xl shadow-slate-200/40 border border-white/60 p-6 flex flex-col relative">
+        <div className="bg-white/70 backdrop-blur-2xl rounded-2xl shadow-xl shadow-slate-200/40 border border-white/60 p-6 flex flex-col relative">
           <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
               <Trophy size={22} className="text-amber-500" /> 
@@ -361,22 +361,24 @@ export default function Dashboard() {
             </div>
             </div>
           </div>
-          {isLoadingAnalytics ? (
-            <div className="h-80 flex justify-center items-center">
-              <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-            </div>
-          ) : readersViewMode === 'pie' ? (
-            renderPieChart(topReadersFormatted, 'name', 'count')
-          ) : readersViewMode === 'vbar' ? (
-            renderVerticalBarChart(topReadersFormatted, 'name', 'count', '#6366f1')
-          ) : readersViewMode === 'line' ? (
-            renderLineChart(topReadersFormatted, 'name', 'count', '#6366f1')
-          ) : (
-            renderBarChart(topReadersFormatted, maxReadersCount, 'name', 'count', 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]')
-          )}
+          <div ref={readersChartRef} className="w-full pt-2">
+            {isLoadingAnalytics ? (
+              <div className="h-80 flex justify-center items-center">
+                <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+              </div>
+            ) : readersViewMode === 'pie' ? (
+              renderPieChart(topReadersFormatted, 'name', 'count')
+            ) : readersViewMode === 'vbar' ? (
+              renderVerticalBarChart(topReadersFormatted, 'name', 'count', '#6366f1')
+            ) : readersViewMode === 'line' ? (
+              renderLineChart(topReadersFormatted, 'name', 'count', '#6366f1')
+            ) : (
+              renderBarChart(topReadersFormatted, maxReadersCount, 'name', 'count', 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]')
+            )}
+          </div>
         </div>
 
-        <div ref={booksChartRef} className="bg-white/70 backdrop-blur-2xl rounded-2xl shadow-xl shadow-slate-200/40 border border-white/60 p-6 flex flex-col relative">
+        <div className="bg-white/70 backdrop-blur-2xl rounded-2xl shadow-xl shadow-slate-200/40 border border-white/60 p-6 flex flex-col relative">
           <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
               <TrendingUp size={22} className="text-emerald-500" /> 
@@ -412,19 +414,21 @@ export default function Dashboard() {
             </div>
             </div>
           </div>
-          {isLoadingAnalytics ? (
-            <div className="h-80 flex justify-center items-center">
-              <div className="w-6 h-6 border-2 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
-            </div>
-          ) : booksViewMode === 'pie' ? (
-            renderPieChart(analytics?.popularBooks || [], 'title', 'count')
-          ) : booksViewMode === 'vbar' ? (
-            renderVerticalBarChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
-          ) : booksViewMode === 'line' ? (
-            renderLineChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
-          ) : (
-            renderBarChart(analytics?.popularBooks || [], maxBooksCount, 'title', 'count', 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]')
-          )}
+          <div ref={booksChartRef} className="w-full pt-2">
+            {isLoadingAnalytics ? (
+              <div className="h-80 flex justify-center items-center">
+                <div className="w-6 h-6 border-2 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
+              </div>
+            ) : booksViewMode === 'pie' ? (
+              renderPieChart(analytics?.popularBooks || [], 'title', 'count')
+            ) : booksViewMode === 'vbar' ? (
+              renderVerticalBarChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
+            ) : booksViewMode === 'line' ? (
+              renderLineChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
+            ) : (
+              renderBarChart(analytics?.popularBooks || [], maxBooksCount, 'title', 'count', 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]')
+            )}
+          </div>
         </div>
       </div>
 
