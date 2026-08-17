@@ -10,6 +10,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -22,6 +23,8 @@ export default function Login() {
       toast.success('Logged in successfully');
       navigate('/');
     } catch (error) {
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
       const err = error as any;
       if (err?.response?.status === 401) {
         toast.error('Invalid username or password');
@@ -36,7 +39,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-slate-100">
+      <div className={`bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-slate-100 ${isShaking ? 'animate-shake' : ''}`}>
         <div className="flex flex-col items-center mb-8">
           <div className="flex items-center justify-center mb-2">
             <img src="/logo.png" alt="Gnan Mandir Logo" className="h-24 w-auto object-contain drop-shadow-sm" />
