@@ -103,10 +103,10 @@ export default function Books() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 shrink-0 relative z-50 w-full">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Books Catalog</h1>
           
-          <div className="flex items-center gap-2 lg:gap-4 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3 lg:gap-4 w-full md:w-auto">
             
             {/* Search Box - always visible but adapts width */}
-            <div className="relative flex-1 md:flex-none">
+            <div className="relative w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
               <input
                 type="text"
@@ -117,54 +117,55 @@ export default function Books() {
               />
             </div>
 
-            {/* Backdrop for closing mobile menu when clicking outside */}
-            {isMobileMenuOpen && (
-              <div 
-                className="fixed inset-0 z-40 lg:hidden"
-                onClick={() => setIsMobileMenuOpen(false)}
-              ></div>
-            )}
+            <div className="flex items-center gap-2 lg:gap-4">
+              {/* Backdrop for closing mobile menu when clicking outside */}
+              {isMobileMenuOpen && (
+                <div 
+                  className="fixed inset-0 z-40 lg:hidden"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                ></div>
+              )}
 
-            {/* Action Filters (Hidden on Mobile, Dropdown on Mobile) */}
-            <div className={`flex-col lg:flex-row items-end lg:items-center gap-3 lg:gap-4 absolute lg:relative top-full right-0 lg:top-auto lg:right-auto mt-2 lg:mt-0 p-4 lg:p-0 bg-white/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none rounded-2xl lg:rounded-none shadow-2xl lg:shadow-none border border-slate-200 lg:border-none z-50 transition-all ${isMobileMenuOpen ? 'flex' : 'hidden lg:flex'}`}>
-              <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 lg:px-3 lg:py-1.5 rounded-xl border border-white/60 shadow-sm w-full lg:w-auto relative z-40">
-                <span className="text-slate-500 font-medium whitespace-nowrap">Sort by:</span>
-                <div className="flex items-center gap-1 w-full justify-end">
-                  <Dropdown options={sortOptions} value={sortBy} onChange={setSortBy} align="center" />
-                  {sortBy && (
-                    <div className="border-l border-slate-300 pl-2 ml-1 relative z-30">
-                      <Dropdown options={orderOptions} value={sortOrder} onChange={setSortOrder} align="center" />
-                    </div>
-                  )}
+              {/* Action Filters (Hidden on Mobile, Dropdown on Mobile) */}
+              <div className={`flex-col lg:flex-row items-end lg:items-center gap-3 lg:gap-4 absolute lg:relative top-full right-0 lg:top-auto lg:right-auto mt-2 lg:mt-0 p-4 lg:p-0 bg-white/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none rounded-2xl lg:rounded-none shadow-2xl lg:shadow-none border border-slate-200 lg:border-none z-50 transition-all ${isMobileMenuOpen ? 'flex' : 'hidden lg:flex'}`}>
+                <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 lg:px-3 lg:py-1.5 rounded-xl border border-white/60 shadow-sm w-full lg:w-auto relative z-40">
+                  <span className="text-slate-500 font-medium whitespace-nowrap">Sort by:</span>
+                  <div className="flex items-center gap-1 w-full justify-end">
+                    <Dropdown options={sortOptions} value={sortBy} onChange={setSortBy} align="center" />
+                    {sortBy && (
+                      <div className="border-l border-slate-300 pl-2 ml-1 relative z-30">
+                        <Dropdown options={orderOptions} value={sortOrder} onChange={setSortOrder} align="center" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 lg:px-3 lg:py-1.5 rounded-xl border border-white/60 shadow-sm w-full lg:w-auto relative z-20">
+                  <span className="text-slate-500 font-medium">Category:</span>
+                  <Dropdown options={categoryOptions} value={filterCategory} onChange={setFilterCategory} align="center" />
+                </div>
+
+                <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 lg:px-3 lg:py-1.5 rounded-xl border border-white/60 shadow-sm w-full lg:w-auto relative z-10">
+                  <span className="text-slate-500 font-medium">Language:</span>
+                  <Dropdown options={languageOptions} value={filterLanguage} onChange={setFilterLanguage} align="right" />
                 </div>
               </div>
-              
-              <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 lg:px-3 lg:py-1.5 rounded-xl border border-white/60 shadow-sm w-full lg:w-auto relative z-20">
-                <span className="text-slate-500 font-medium">Category:</span>
-                <Dropdown options={categoryOptions} value={filterCategory} onChange={setFilterCategory} align="center" />
-              </div>
 
-              <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 lg:px-3 lg:py-1.5 rounded-xl border border-white/60 shadow-sm w-full lg:w-auto relative z-10">
-                <span className="text-slate-500 font-medium">Language:</span>
-                <Dropdown options={languageOptions} value={filterLanguage} onChange={setFilterLanguage} align="right" />
-              </div>
+              {/* Always Visible Actions */}
+              <button
+                onClick={() => { setEditingId(null); setForm({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 }); setShowModal(true); }}
+                className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-4 sm:px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5 shrink-0"
+              >
+                <Plus size={20} /> <span className="hidden sm:inline">Add Book</span><span className="sm:hidden">Add</span>
+              </button>
+
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-600 hover:bg-white/80 shadow-sm transition-colors relative z-50 shrink-0"
+              >
+                <MoreVertical size={20} />
+              </button>
             </div>
-
-            {/* Always Visible Actions */}
-            <button
-              onClick={() => { setEditingId(null); setForm({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 }); setShowModal(true); }}
-              className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-3 sm:px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5 shrink-0"
-            >
-              <Plus size={20} /> <span className="hidden sm:inline">Add Book</span><span className="sm:hidden">Add</span>
-            </button>
-
-            <button 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-600 hover:bg-white/80 shadow-sm transition-colors relative z-50 shrink-0"
-            >
-              <MoreVertical size={20} />
-            </button>
-
           </div>
         </div>
 
