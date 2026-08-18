@@ -18,8 +18,8 @@ export default function Dashboard() {
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [readersViewMode, setReadersViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('list');
-  const [booksViewMode, setBooksViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('list');
+  const [readersViewMode, setReadersViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('pie');
+  const [booksViewMode, setBooksViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('pie');
   
   const [exportMenuOpen, setExportMenuOpen] = useState<'readers'|'books'|null>(null);
   
