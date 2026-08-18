@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
-import { BookmarkPlus, CheckCircle, Trash2, RotateCcw, Download, Search, ChevronDown, ArrowUp, ArrowDown, Calendar, X } from 'lucide-react';
+import { BookmarkPlus, CheckCircle, Trash2, RotateCcw, Download, Search, ChevronDown, ArrowUp, ArrowDown, Calendar, X, MoreVertical } from 'lucide-react';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../context/AuthContext';
@@ -100,6 +100,7 @@ export default function Circulation() {
   
   const [showModal, setShowModal] = useState(false);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBookDropdownOpen, setIsBookDropdownOpen] = useState(false);
   const [bookId, setBookId] = useState('');
   const [sortConfig, setSortConfig] = useState<{key: string, direction: 'asc' | 'desc'}>({ key: 'issueDate', direction: 'desc' });
@@ -379,66 +380,81 @@ export default function Circulation() {
   return (
     <div className="h-full w-full flex flex-col px-4 pt-4 md:px-8 md:pt-8 pb-0">
       <div className="max-w-7xl mx-auto w-full h-full flex flex-col relative z-10 min-h-0">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8 shrink-0">
-          <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Circulation Desk</h1>
-          <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-          <div className="relative min-w-[140px]">
-            <button 
-              onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-              onBlur={() => setTimeout(() => setIsStatusDropdownOpen(false), 200)}
-              className="w-full px-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none text-slate-700 font-medium shadow-sm hover:bg-white/80 transition-colors flex justify-between items-center gap-2"
-            >
-              <span>{statusFilter === 'all' ? 'All Status' : statusFilter === 'issued' ? 'Issued' : 'Returned'}</span>
-              <ChevronDown size={16} className={`text-slate-400 transition-transform duration-300 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
+        <div className="flex justify-between items-center w-full mb-8 shrink-0 relative z-50">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Circulation Desk</h1>
+          <div className="flex items-center gap-2 lg:gap-4">
+            
+            {/* Action Filters (Hidden on Mobile, Dropdown on Mobile) */}
+            <div className={`flex-col lg:flex-row items-end lg:items-center gap-4 absolute lg:relative top-full right-0 lg:top-auto lg:right-auto mt-2 lg:mt-0 p-4 lg:p-0 bg-white/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none rounded-2xl lg:rounded-none shadow-2xl lg:shadow-none border border-slate-200 lg:border-none z-50 transition-all ${isMobileMenuOpen ? 'flex' : 'hidden lg:flex'}`}>
+              <div className="relative min-w-[140px] w-full lg:w-auto">
+                <button 
+                  onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                  onBlur={() => setTimeout(() => setIsStatusDropdownOpen(false), 200)}
+                  className="w-full px-4 py-2 bg-white/60 backdrop-blur-md border border-slate-200 lg:border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none text-slate-700 font-medium shadow-sm hover:bg-white/80 transition-colors flex justify-between items-center gap-2"
+                >
+                  <span>{statusFilter === 'all' ? 'All Status' : statusFilter === 'issued' ? 'Issued' : 'Returned'}</span>
+                  <ChevronDown size={16} className={`text-slate-400 transition-transform duration-300 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isStatusDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-full bg-white/90 backdrop-blur-xl border border-white/50 rounded-xl shadow-xl overflow-hidden z-50 py-1">
+                    <div onMouseDown={() => { setStatusFilter('all'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">All Status</div>
+                    <div onMouseDown={() => { setStatusFilter('issued'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">Issued</div>
+                    <div onMouseDown={() => { setStatusFilter('returned'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">Returned</div>
+                  </div>
+                )}
+              </div>
+              <div className="relative group flex items-center justify-end w-full lg:w-auto">
+                <div 
+                  className={`flex items-center justify-center px-3 py-2 bg-white/60 backdrop-blur-md border border-slate-200 lg:border-white/50 rounded-xl shadow-sm hover:bg-white/80 transition-all text-sm cursor-pointer h-10 w-full lg:w-10 ${dateFilter ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-500'}`}
+                  onClick={() => {
+                    if (dateInputRef.current) {
+                      try {
+                        dateInputRef.current.showPicker();
+                      } catch (e) {
+                        dateInputRef.current.focus();
+                      }
+                    }
+                  }}
+                >
+                  <span className="lg:hidden mr-2">Filter by Date</span>
+                  <Calendar size={18} className="shrink-0" />
+                </div>
+                <input 
+                  ref={dateInputRef}
+                  type="date" 
+                  value={dateFilter} 
+                  onChange={(e) => setDateFilter(e.target.value)} 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 pointer-events-none" 
+                />
+                {dateFilter && (
+                  <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDateFilter(''); }} className="absolute -top-1.5 -right-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full bg-white shadow border border-slate-100 w-4 h-4 flex items-center justify-center transition-colors z-20" title="Clear Date">
+                    <X size={10} strokeWidth={3} />
+                  </button>
+                )}
+              </div>
+              <div className="relative w-full lg:w-auto">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-slate-200 lg:border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full lg:w-48 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400" />
+              </div>
+              <button onClick={exportToExcel} className="w-full lg:w-auto bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md shadow-emerald-200 transition-all hover:-translate-y-0.5">
+                <Download size={20} /> Export
+              </button>
+            </div>
+
+            {/* Always Visible Actions */}
+            <button onClick={() => setShowModal(true)} className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-3 sm:px-5 py-2 rounded-xl font-medium flex items-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5">
+              <BookmarkPlus size={20} /> <span className="hidden sm:inline">Issue Book</span><span className="sm:hidden">Issue</span>
             </button>
             
-            {isStatusDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-full bg-white/90 backdrop-blur-xl border border-white/50 rounded-xl shadow-xl overflow-hidden z-50 py-1">
-                <div onMouseDown={() => { setStatusFilter('all'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">All Status</div>
-                <div onMouseDown={() => { setStatusFilter('issued'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">Issued</div>
-                <div onMouseDown={() => { setStatusFilter('returned'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">Returned</div>
-              </div>
-            )}
-          </div>
-          <div className="relative group flex items-center">
-            <div 
-              className={`flex items-center justify-center px-3 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl shadow-sm hover:bg-white/80 transition-all text-sm cursor-pointer h-10 w-10 ${dateFilter ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-500'}`}
-              onClick={() => {
-                if (dateInputRef.current) {
-                  try {
-                    dateInputRef.current.showPicker();
-                  } catch (e) {
-                    dateInputRef.current.focus();
-                  }
-                }
-              }}
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onBlur={() => setTimeout(() => setIsMobileMenuOpen(false), 200)}
+              className="lg:hidden p-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-600 hover:bg-white/80 shadow-sm transition-colors"
             >
-              <Calendar size={18} className="shrink-0" />
-            </div>
-            <input 
-              ref={dateInputRef}
-              type="date" 
-              value={dateFilter} 
-              onChange={(e) => setDateFilter(e.target.value)} 
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 pointer-events-none" 
-            />
-            {dateFilter && (
-              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDateFilter(''); }} className="absolute -top-1.5 -right-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full bg-white shadow border border-slate-100 w-4 h-4 flex items-center justify-center transition-colors z-20" title="Clear Date">
-                <X size={10} strokeWidth={3} />
-              </button>
-            )}
+              <MoreVertical size={20} />
+            </button>
           </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-48 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400" />
-          </div>
-          <button onClick={exportToExcel} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-2 rounded-xl font-medium flex items-center gap-2 shadow-md shadow-emerald-200 transition-all hover:-translate-y-0.5">
-            <Download size={20} /> Export
-          </button>
-          <button onClick={() => setShowModal(true)} className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-5 py-2 rounded-xl font-medium flex items-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5">
-            <BookmarkPlus size={20} /> Issue Book
-          </button>
-        </div>
         </div>
 
       <div className="flex gap-4 mb-6 border-b border-slate-200 shrink-0">
