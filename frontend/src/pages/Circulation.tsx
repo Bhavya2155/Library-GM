@@ -164,6 +164,8 @@ export default function Circulation() {
     setStudentId('');
     setGuestId('');
     setIssueType('student');
+    setIsCustomBook(false);
+    setCustomBookName('');
   };
 
   const handleSort = (key: string) => {
@@ -178,16 +180,27 @@ export default function Circulation() {
     return sortConfig.direction === 'asc' ? <ArrowUp size={14} className="text-indigo-500" /> : <ArrowDown size={14} className="text-indigo-500" />;
   };
 
+  const [isCustomBook, setIsCustomBook] = useState(false);
+  const [customBookName, setCustomBookName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleIssue = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const payload: any = { bookId };
-    if (issueType === 'student') payload.studentId = studentId;
-    if (issueType === 'guest') payload.guestId = guestId;
+    
+    let promise;
+    if (isCustomBook) {
+      const payload: any = { customBookName };
+      if (issueType === 'student') payload.studentId = studentId;
+      if (issueType === 'guest') payload.guestId = guestId;
+      promise = axios.post('/circulation/issue-custom', payload);
+    } else {
+      const payload: any = { bookId };
+      if (issueType === 'student') payload.studentId = studentId;
+      if (issueType === 'guest') payload.guestId = guestId;
+      promise = axios.post('/circulation/issue', payload);
+    }
 
-    const promise = axios.post('/circulation/issue', payload);
     closeModal(); // Close modal instantly
 
     toast.promise(promise, {
@@ -195,7 +208,9 @@ export default function Circulation() {
       success: () => {
         refreshCirculation(); // ONLY fetch circulation, not everything
         // Optimistically remove a copy from the local state
-        setBooks(prev => prev.map((b: any) => b._id === bookId ? { ...b, availableCopies: b.availableCopies - 1 } : b).filter((b: any) => b.availableCopies > 0));
+        if (!isCustomBook) {
+          setBooks(prev => prev.map((b: any) => b._id === bookId ? { ...b, availableCopies: b.availableCopies - 1 } : b).filter((b: any) => b.availableCopies > 0));
+        }
         return 'Book issued successfully';
       },
       error: (err) => err.response?.data?.error || 'Failed to issue book'
@@ -626,66 +641,96 @@ export default function Circulation() {
               <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-700 transition-colors bg-white/80 hover:bg-white p-1.5 rounded-full"><X size={20} /></button>
             </div>
             <form onSubmit={handleIssue} className="p-6 flex flex-col gap-6 relative">
-              <div className="flex gap-6 mb-1 items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                <span className="text-sm font-medium text-slate-700">Recipient Type:</span>
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="radio" name="target" checked={issueType === 'student'} onChange={() => {setIssueType('student'); setGuestId('');}} className="text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
-                  <span className={issueType === 'student' ? 'font-semibold text-indigo-700' : 'text-slate-600'}>Student</span>
-                </label>
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="radio" name="target" checked={issueType === 'guest'} onChange={() => {setIssueType('guest'); setStudentId('');}} className="text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
-                  <span className={issueType === 'guest' ? 'font-semibold text-indigo-700' : 'text-slate-600'}>Guest</span>
+              <div className="flex gap-6 mb-1 items-center bg-slate-50 p-3 rounded-lg border border-slate-100 flex-wrap">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium text-slate-700">Recipient Type:</span>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="radio" name="target" checked={issueType === 'student'} onChange={() => {setIssueType('student'); setGuestId('');}} className="text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
+                    <span className={issueType === 'student' ? 'font-semibold text-indigo-700' : 'text-slate-600'}>Student</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="radio" name="target" checked={issueType === 'guest'} onChange={() => {setIssueType('guest'); setStudentId('');}} className="text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
+                    <span className={issueType === 'guest' ? 'font-semibold text-indigo-700' : 'text-slate-600'}>Guest</span>
+                  </label>
+                </div>
+                
+                <div className="hidden sm:block w-px h-6 bg-slate-200 mx-2"></div>
+                
+                <label className="flex items-center gap-2 text-sm cursor-pointer sm:ml-auto bg-indigo-100/50 px-3 py-1.5 rounded-md border border-indigo-200/50 hover:bg-indigo-100 transition-colors">
+                  <input type="checkbox" checked={isCustomBook} onChange={(e) => { setIsCustomBook(e.target.checked); setBookId(''); setBookPrefix(''); setBookNumber(''); setCustomBookName(''); }} className="text-indigo-600 focus:ring-indigo-500 cursor-pointer rounded" />
+                  <span className="font-semibold text-indigo-800">Issue Uncatalogued Book</span>
                 </label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="relative">
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Book Code (Alphabet & Digit)</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      placeholder="Alphabet (e.g. M)" 
-                      className="w-1/3 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 outline-none uppercase bg-white text-slate-900"
-                      value={bookPrefix}
-                      onChange={e => setBookPrefix(e.target.value)}
-                      onFocus={() => setIsBookDropdownOpen(true)}
-                      onBlur={() => setTimeout(() => setIsBookDropdownOpen(false), 200)}
-                    />
-                    <input 
-                      type="text" 
-                      placeholder="Digit (e.g. 4)" 
-                      className="w-2/3 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white text-slate-900"
-                      value={bookNumber}
-                      onChange={e => setBookNumber(e.target.value)}
-                      onFocus={() => setIsBookDropdownOpen(true)}
-                      onBlur={() => setTimeout(() => setIsBookDropdownOpen(false), 200)}
-                    />
-                  </div>
-                  {bookPrefix || bookNumber ? (
-                    bookId ? (
-                      <p className="text-emerald-600 text-sm mt-12 font-semibold flex items-center gap-1.5">
-                        <CheckCircle size={16} /> Book found: <span className="font-bold ml-1">{books.find((b: any) => b._id === bookId)?.title}</span>
+                  {isCustomBook ? (
+                    <>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Book Name (Custom)</label>
+                      <input 
+                        type="text" 
+                        placeholder="Type the exact name of the unnumbered book..." 
+                        className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white text-slate-900 shadow-inner"
+                        value={customBookName}
+                        onChange={e => setCustomBookName(e.target.value)}
+                        autoFocus
+                        required
+                      />
+                      <p className="text-slate-500 text-xs mt-2 flex items-start gap-1">
+                        <span className="text-indigo-500 mt-0.5">ⓘ</span> 
+                        This book will be temporarily added to the catalog and issued immediately.
                       </p>
-                    ) : (
-                      <p className="text-rose-500 text-sm mt-12 font-semibold flex items-center gap-1.5">
-                         Book not found
-                      </p>
-                    )
-                  ) : null}
+                    </>
+                  ) : (
+                    <>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Book Code (Alphabet & Digit)</label>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          placeholder="Alphabet (e.g. M)" 
+                          className="w-1/3 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 outline-none uppercase bg-white text-slate-900"
+                          value={bookPrefix}
+                          onChange={e => setBookPrefix(e.target.value)}
+                          onFocus={() => setIsBookDropdownOpen(true)}
+                          onBlur={() => setTimeout(() => setIsBookDropdownOpen(false), 200)}
+                        />
+                        <input 
+                          type="text" 
+                          placeholder="Digit (e.g. 4)" 
+                          className="w-2/3 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 outline-none bg-white text-slate-900"
+                          value={bookNumber}
+                          onChange={e => setBookNumber(e.target.value)}
+                          onFocus={() => setIsBookDropdownOpen(true)}
+                          onBlur={() => setTimeout(() => setIsBookDropdownOpen(false), 200)}
+                        />
+                      </div>
+                      {bookPrefix || bookNumber ? (
+                        bookId ? (
+                          <p className="text-emerald-600 text-sm mt-12 font-semibold flex items-center gap-1.5">
+                            <CheckCircle size={16} /> Book found: <span className="font-bold ml-1">{books.find((b: any) => b._id === bookId)?.title}</span>
+                          </p>
+                        ) : (
+                          <p className="text-rose-500 text-sm mt-12 font-semibold flex items-center gap-1.5">
+                             Book not found
+                          </p>
+                        )
+                      ) : null}
 
-                  {isBookDropdownOpen && searchSuggestions.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-1 border border-slate-200 rounded-lg overflow-hidden bg-white shadow-xl z-50">
-                      {searchSuggestions.map((b: any) => (
-                        <div 
-                          key={b._id} 
-                          onMouseDown={() => handleSelectBook(b)}
-                          className="px-3 py-2 hover:bg-indigo-50 cursor-pointer flex justify-between items-center transition-colors border-b last:border-0 border-slate-100"
-                        >
-                          <span className="font-semibold text-slate-700 text-sm">{b.isbn}</span>
-                          <span className="text-slate-500 truncate ml-2 text-xs">{b.title}</span>
+                      {isBookDropdownOpen && searchSuggestions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1 border border-slate-200 rounded-lg overflow-hidden bg-white shadow-xl z-50">
+                          {searchSuggestions.map((b: any) => (
+                            <div 
+                              key={b._id} 
+                              onMouseDown={() => handleSelectBook(b)}
+                              className="px-3 py-2 hover:bg-indigo-50 cursor-pointer flex justify-between items-center transition-colors border-b last:border-0 border-slate-100"
+                            >
+                              <span className="font-semibold text-slate-700 text-sm">{b.isbn}</span>
+                              <span className="text-slate-500 truncate ml-2 text-xs">{b.title}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      )}
+                    </>
                   )}
                 </div>
 
@@ -710,15 +755,23 @@ export default function Circulation() {
                   )}
                 </div>
               </div>
-              
-              {bookId && (studentId || guestId) ? (
+              {(isCustomBook && customBookName.trim() && (studentId || guestId)) || (!isCustomBook && bookId && (studentId || guestId)) ? (
                 <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex flex-col gap-2">
                   <h4 className="font-semibold text-indigo-900 mb-1">Confirmation Summary</h4>
                   <div className="grid grid-cols-2 gap-4 text-sm text-indigo-800">
                     <div>
                       <span className="text-indigo-600 block text-xs uppercase tracking-wider mb-0.5">Book</span>
-                      <strong>{books.find((b: any) => b._id === bookId)?.title}</strong>
-                      <div className="text-indigo-500/80 text-xs mt-0.5">ISBN: {books.find((b: any) => b._id === bookId)?.isbn}</div>
+                      {isCustomBook ? (
+                        <>
+                          <strong>[Custom] {customBookName}</strong>
+                          <div className="text-indigo-500/80 text-xs mt-0.5">Uncatalogued Item</div>
+                        </>
+                      ) : (
+                        <>
+                          <strong>{books.find((b: any) => b._id === bookId)?.title}</strong>
+                          <div className="text-indigo-500/80 text-xs mt-0.5">ISBN: {books.find((b: any) => b._id === bookId)?.isbn}</div>
+                        </>
+                      )}
                     </div>
                     <div>
                       <span className="text-indigo-600 block text-xs uppercase tracking-wider mb-0.5">Recipient</span>
@@ -749,9 +802,9 @@ export default function Circulation() {
                 <button type="button" onClick={closeModal} className="flex-1 py-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 font-medium transition-colors bg-white/50 backdrop-blur-sm">Cancel</button>
                 <button 
                   type="submit" 
-                  disabled={!bookId || (!studentId && !guestId) || isSubmitting}
+                  disabled={(isCustomBook ? (!customBookName.trim() || (!studentId && !guestId)) : (!bookId || (!studentId && !guestId))) || isSubmitting}
                   className={`flex-1 py-2.5 rounded-xl font-medium shadow-md transition-all ${
-                    bookId && (studentId || guestId) && !isSubmitting
+                    ((isCustomBook && customBookName.trim() && (studentId || guestId)) || (!isCustomBook && bookId && (studentId || guestId))) && !isSubmitting
                       ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white hover:from-indigo-600 hover:to-indigo-700 shadow-indigo-200 hover:-translate-y-0.5' 
                       : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
                   }`}

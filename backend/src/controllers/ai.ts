@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { libraryTools } from '../lib/aiTools';
-import { db } from '../lib/db';
+import prisma from '../lib/db';
 
 const executeTool = async (call: any) => {
   const name = call.name;
@@ -11,7 +11,7 @@ const executeTool = async (call: any) => {
     switch (name) {
       case 'search_books':
         if (args.query) {
-           return await db.book.findMany({
+           return await prisma.book.findMany({
              where: {
                OR: [
                  { title: { contains: args.query } },
@@ -22,14 +22,14 @@ const executeTool = async (call: any) => {
              take: 10
            });
         }
-        return await db.book.findMany({ take: 10 });
+        return await prisma.book.findMany({ take: 10 });
       case 'check_book_availability':
-        return await db.book.findMany({
+        return await prisma.book.findMany({
           where: { title: { contains: args.title } },
           select: { title: true, quantity: true, availableCopies: true }
         });
       case 'get_student_info':
-        return await db.student.findMany({
+        return await prisma.student.findMany({
           where: {
             OR: [
               { name: { contains: args.query } },
@@ -43,16 +43,16 @@ const executeTool = async (call: any) => {
         const whereClause: any = { status: 'issued' };
         if (args.studentId) whereClause.student = { studentId: args.studentId };
         if (args.overdueOnly) whereClause.dueDate = { lt: new Date() };
-        return await db.issuedBook.findMany({
+        return await prisma.issuedBook.findMany({
           where: whereClause,
           include: { book: true, student: true },
           take: 10
         });
       case 'get_library_stats':
         const [totalBooks, activeStudents, issuedBooks] = await Promise.all([
-          db.book.count(),
-          db.student.count(),
-          db.issuedBook.count({ where: { status: 'issued' } })
+          prisma.book.count(),
+          prisma.student.count(),
+          prisma.issuedBook.count({ where: { status: 'issued' } })
         ]);
         return { totalBooks, activeStudents, issuedBooks };
       default:

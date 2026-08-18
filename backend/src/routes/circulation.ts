@@ -95,6 +95,71 @@ router.post('/issue', async (req, res) => {
   }
 });
 
+router.post('/issue-custom', async (req, res) => {
+  try {
+    const { customBookName, studentId, guestId } = req.body;
+    
+    if (!studentId && !guestId) {
+      throw new Error('Must provide either a student or a guest.');
+    }
+    if (!customBookName || !customBookName.trim()) {
+      throw new Error('Custom book name is required.');
+    }
+
+    const [admin, existingIssue] = await Promise.all([
+      prisma.admin.findUnique({ where: { id: (req as any).adminId } }),
+      studentId 
+        ? prisma.issuedBook.findFirst({ where: { studentId: parseInt(studentId), status: 'issued' } })
+        : prisma.issuedBook.findFirst({ where: { guestId: parseInt(guestId), status: 'issued' } })
+    ]);
+
+    if (existingIssue) {
+      throw new Error(studentId ? 'Student already has a book issued. They must return it first.' : 'Guest already has a book issued. They must return it first.');
+    }
+
+    let issuerPrefix = 'Sevak';
+    if (admin) {
+      if (admin.role === 'coordinator') issuerPrefix = 'Coordinator';
+      else if (admin.role === 'admin' || admin.role === 'super') issuerPrefix = 'Coordinator';
+      else issuerPrefix = 'Sevak';
+    }
+    const issuedBy = admin ? `${issuerPrefix}: ${admin.username}` : 'Unknown';
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7);
+
+    const fakeIsbn = `CUSTOM-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+    await prisma.$transaction(async (tx) => {
+      const newBook = await tx.book.create({
+        data: {
+          title: `[Custom] ${customBookName.trim()}`,
+          author: 'Unknown',
+          isbn: fakeIsbn,
+          category: 'Uncatalogued',
+          language: 'English',
+          quantity: 1,
+          availableCopies: 0 // instantly issued
+        }
+      });
+
+      await tx.issuedBook.create({
+        data: {
+          bookId: newBook.id,
+          studentId: studentId ? parseInt(studentId) : null,
+          guestId: guestId ? parseInt(guestId) : null,
+          dueDate,
+          renewals: 0,
+          issuedBy
+        }
+      });
+    });
+
+    res.status(201).json({ message: 'Issued custom book successfully' });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 router.post('/renew/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
