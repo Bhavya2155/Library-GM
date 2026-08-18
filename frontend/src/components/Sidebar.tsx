@@ -362,7 +362,7 @@ const Sidebar = () => {
                             {staff.role !== 'admin' ? (
                               <button onClick={() => handleDeleteStaff(staff.id)} className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors">Delete</button>
                             ) : (
-                              <div className="w-[50px]"></div> /* Placeholder to keep grid aligned */
+                              <button disabled className="text-transparent text-sm font-medium px-2 py-1 rounded invisible cursor-default select-none">Delete</button>
                             )}
                           </div>
                         </li>
