@@ -384,6 +384,14 @@ export default function Circulation() {
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Circulation Desk</h1>
           <div className="flex items-center gap-2 lg:gap-4 w-full sm:w-auto">
             
+            {/* Backdrop for closing mobile menu when clicking outside */}
+            {isMobileMenuOpen && (
+              <div 
+                className="fixed inset-0 z-40 lg:hidden"
+                onClick={() => setIsMobileMenuOpen(false)}
+              ></div>
+            )}
+
             {/* Action Filters (Hidden on Mobile, Dropdown on Mobile) */}
             <div className={`flex-col lg:flex-row items-end lg:items-center gap-4 absolute lg:relative top-full right-0 lg:top-auto lg:right-auto mt-2 lg:mt-0 p-4 lg:p-0 bg-white/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none rounded-2xl lg:rounded-none shadow-2xl lg:shadow-none border border-slate-200 lg:border-none z-50 transition-all ${isMobileMenuOpen ? 'flex' : 'hidden lg:flex'}`}>
               <div className="relative min-w-[140px] w-full lg:w-auto">
@@ -437,7 +445,7 @@ export default function Circulation() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-slate-200 lg:border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full lg:w-48 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400" />
               </div>
-              <button onClick={exportToExcel} className="w-full lg:w-auto bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md shadow-emerald-200 transition-all hover:-translate-y-0.5">
+              <button onClick={() => { exportToExcel(); setIsMobileMenuOpen(false); }} className="w-full lg:w-auto bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md shadow-emerald-200 transition-all hover:-translate-y-0.5">
                 <Download size={20} /> Export
               </button>
             </div>
@@ -449,8 +457,7 @@ export default function Circulation() {
             
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              onBlur={() => setTimeout(() => setIsMobileMenuOpen(false), 200)}
-              className="lg:hidden p-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-600 hover:bg-white/80 shadow-sm transition-colors"
+              className="lg:hidden p-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-600 hover:bg-white/80 shadow-sm transition-colors relative z-50"
             >
               <MoreVertical size={20} />
             </button>
