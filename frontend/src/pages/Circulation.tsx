@@ -455,7 +455,7 @@ export default function Circulation() {
 
               {/* Always Visible Actions */}
               <button onClick={() => setShowModal(true)} className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-3 sm:px-5 py-2 rounded-xl font-medium flex items-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5 shrink-0">
-                <BookmarkPlus size={20} /> <span className="hidden sm:inline">Issue Book</span><span className="sm:hidden">Issue</span>
+                <BookmarkPlus size={20} /> <span>Issue Book</span>
               </button>
               
               <button 

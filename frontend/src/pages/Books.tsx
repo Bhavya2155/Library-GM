@@ -156,7 +156,7 @@ export default function Books() {
                 onClick={() => { setEditingId(null); setForm({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 }); setShowModal(true); }}
                 className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-4 sm:px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5 shrink-0"
               >
-                <Plus size={20} /> <span className="hidden sm:inline">Add Book</span><span className="sm:hidden">Add</span>
+                <Plus size={20} /> <span>Add Book</span>
               </button>
 
               <button 
