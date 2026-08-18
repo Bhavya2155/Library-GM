@@ -25,11 +25,10 @@ export default function AIChat() {
     scrollToBottom();
   }, [messages, isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (text: string) => {
+    if (!text.trim() || isLoading) return;
 
-    const userMessage: Message = { id: Date.now().toString(), role: 'user', content: input };
+    const userMessage: Message = { id: Date.now().toString(), role: 'user', content: text };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
@@ -103,6 +102,18 @@ export default function AIChat() {
       setIsLoading(false);
     }
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSend(input);
+  };
+
+  const suggestions = [
+    "Check availability",
+    "List overdue books",
+    "Find student info",
+    "Library stats"
+  ];
 
   return (
     <>
@@ -196,7 +207,21 @@ export default function AIChat() {
         </div>
 
         {/* Input */}
-        <div className="p-3 bg-white border-t border-slate-100 shrink-0">
+        <div className="p-3 bg-white border-t border-slate-100 shrink-0 flex flex-col gap-2">
+          {messages.length === 1 && (
+            <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar w-full">
+              {suggestions.map((suggestion, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSend(suggestion)}
+                  className="shrink-0 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-medium rounded-full transition-colors border border-indigo-100 whitespace-nowrap"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="flex gap-2">
             <input
               type="text"
