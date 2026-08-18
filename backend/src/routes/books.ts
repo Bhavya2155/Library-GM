@@ -8,7 +8,9 @@ router.use(auth);
 router.get('/', async (req, res) => {
   try {
     const { search, category, language, sortBy, sortOrder } = req.query;
-    let whereClause: any = {};
+    let whereClause: any = {
+      isbn: { not: { startsWith: 'CUSTOM-' } }
+    };
     
     if (search) {
       whereClause.OR = [
