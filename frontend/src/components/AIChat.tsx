@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import { X, Send, Bot, User, Loader2, Sparkles, RotateCcw } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -141,12 +141,23 @@ export default function AIChat() {
               <p className="text-xs text-indigo-200">Powered by AI</p>
             </div>
           </div>
-          <button 
-            onClick={() => setIsOpen(false)}
-            className="text-indigo-200 hover:text-white transition-colors"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={() => {
+                setMessages([{ id: Date.now().toString(), role: 'assistant', content: 'Hi there! How can I help you today?' }]);
+              }}
+              title="New Chat"
+              className="text-indigo-200 hover:text-white transition-colors p-1"
+            >
+              <RotateCcw size={18} />
+            </button>
+            <button 
+              onClick={() => setIsOpen(false)}
+              className="text-indigo-200 hover:text-white transition-colors p-1"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
