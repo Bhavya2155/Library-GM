@@ -137,7 +137,7 @@ export default function AIChat() {
               <Bot size={20} />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Library Assistant</h3>
+              <h3 className="font-semibold text-sm">GnanMandir AI Assistant</h3>
               <p className="text-xs text-indigo-200">Powered by AI</p>
             </div>
           </div>
