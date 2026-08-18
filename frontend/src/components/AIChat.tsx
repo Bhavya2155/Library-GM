@@ -160,9 +160,16 @@ export default function AIChat() {
           </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 custom-scrollbar">
-          {messages.map(msg => (
+        {/* Messages Wrapper */}
+        <div className="flex-1 relative bg-slate-50 overflow-hidden flex flex-col">
+          {/* Watermark Logo */}
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.04]">
+            <img src="/logo.png" alt="" className="w-48 h-48 object-contain grayscale" />
+          </div>
+
+          {/* Messages Scroll Area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar relative z-10">
+            {messages.map(msg => (
             <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
               <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-200 text-slate-600'}`}>
                 {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
@@ -185,6 +192,7 @@ export default function AIChat() {
             </div>
           )}
           <div ref={messagesEndRef} />
+        </div>
         </div>
 
         {/* Input */}
