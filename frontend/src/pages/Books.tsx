@@ -103,7 +103,7 @@ export default function Books() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 shrink-0 relative z-50 w-full">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Books Catalog</h1>
           
-          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3 lg:gap-4 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4 w-full md:w-auto">
             
             {/* Search Box - always visible but adapts width */}
             <div className="relative w-full sm:w-auto">

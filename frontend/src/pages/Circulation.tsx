@@ -382,7 +382,7 @@ export default function Circulation() {
       <div className="max-w-7xl mx-auto w-full h-full flex flex-col relative z-10 min-h-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 shrink-0 relative z-50 w-full">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Circulation Desk</h1>
-          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3 lg:gap-4 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4 w-full md:w-auto">
             
             {/* Search Box - always visible but adapts width */}
             <div className="relative w-full sm:w-auto">
