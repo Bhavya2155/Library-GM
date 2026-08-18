@@ -380,9 +380,9 @@ export default function Circulation() {
   return (
     <div className="h-full w-full flex flex-col px-4 pt-4 md:px-8 md:pt-8 pb-0">
       <div className="max-w-7xl mx-auto w-full h-full flex flex-col relative z-10 min-h-0">
-        <div className="flex justify-between items-center w-full mb-8 shrink-0 relative z-50">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 shrink-0 relative z-50 w-full">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Circulation Desk</h1>
-          <div className="flex items-center gap-2 lg:gap-4">
+          <div className="flex items-center gap-2 lg:gap-4 w-full sm:w-auto">
             
             {/* Action Filters (Hidden on Mobile, Dropdown on Mobile) */}
             <div className={`flex-col lg:flex-row items-end lg:items-center gap-4 absolute lg:relative top-full right-0 lg:top-auto lg:right-auto mt-2 lg:mt-0 p-4 lg:p-0 bg-white/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none rounded-2xl lg:rounded-none shadow-2xl lg:shadow-none border border-slate-200 lg:border-none z-50 transition-all ${isMobileMenuOpen ? 'flex' : 'hidden lg:flex'}`}>
