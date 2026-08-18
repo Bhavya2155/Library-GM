@@ -87,7 +87,7 @@ export const chatWithAI = async (req: Request, res: Response) => {
       tools: [{ functionDeclarations: libraryTools }]
     });
 
-    const systemPrompt = `You are a helpful AI assistant for the Gnan Mandir Library Portal. Keep your answers relatively short and helpful. You have access to the library database via tools. If the user asks a question about books, students, or stats, USE THE TOOLS to look up the real data before answering. Do not guess information.`;
+    const systemPrompt = `You are a helpful AI assistant for the Gnan Mandir Library Portal. Keep your answers relatively short and helpful. You have access to the library database via tools. If the user asks a question about books, students, or stats, USE THE TOOLS to look up the real data before answering. Do not guess information. IMPORTANT: Do NOT use any markdown formatting like **bold** or *italics*. Output plain text only because the frontend cannot render markdown.`;
 
     // Format history if provided
     let history = [];
