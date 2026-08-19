@@ -21,6 +21,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Root ping route for uptime monitors
+app.get('/', (req, res) => {
+  res.status(200).send('API is running');
+});
+
 app.use('/api/admin', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/books', bookRoutes);
