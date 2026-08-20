@@ -4,9 +4,9 @@ import axios from 'axios';
 const AuthContext = createContext<any>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [role, setRole] = useState(localStorage.getItem('role') || 'admin');
-  const [username, setUsername] = useState(localStorage.getItem('username') || '');
+  const [token, setToken] = useState(localStorage.getItem('token') || sessionStorage.getItem('token'));
+  const [role, setRole] = useState(localStorage.getItem('role') || sessionStorage.getItem('role') || '');
+  const [username, setUsername] = useState(localStorage.getItem('username') || sessionStorage.getItem('username') || '');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,9 +19,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [token]);
 
   const login = (newToken: string, newRole: string, newUsername: string) => {
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('role', newRole);
-    localStorage.setItem('username', newUsername);
+    // Clear both storages first to prevent conflicts
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('username');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('role');
+    sessionStorage.removeItem('username');
+
+    // Admin and Coordinator persist across browser restarts
+    if (newRole === 'admin' || newRole === 'coordinator') {
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('role', newRole);
+      localStorage.setItem('username', newUsername);
+    } else {
+      // Student and Leader log out when tab/browser is closed
+      sessionStorage.setItem('token', newToken);
+      sessionStorage.setItem('role', newRole);
+      sessionStorage.setItem('username', newUsername);
+    }
+    
     setToken(newToken);
     setRole(newRole);
     setUsername(newUsername);
@@ -31,6 +48,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('username');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('role');
+    sessionStorage.removeItem('username');
     setToken(null);
     setRole('');
     setUsername('');
