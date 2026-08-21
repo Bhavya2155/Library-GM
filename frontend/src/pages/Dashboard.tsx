@@ -87,7 +87,7 @@ export default function Dashboard() {
     }
     const top10 = data.slice(0, 10);
     return (
-      <div className="space-y-4 h-96 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-4 h-[26rem] overflow-y-auto pr-2 custom-scrollbar">
         {top10.map((item, idx) => {
           const percentage = maxVal === 0 ? 0 : (item[valKey] / maxVal) * 100;
           return (
@@ -115,7 +115,7 @@ export default function Dashboard() {
     }
     const top10 = data.slice(0, 10);
     return (
-      <div className="h-96 w-full relative">
+      <div className="h-[26rem] w-full relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -166,15 +166,17 @@ export default function Dashboard() {
     if (data.length === 0) return <div className="text-slate-400 p-4 text-center">No data available.</div>;
     const top10 = data.slice(0, 10);
     return (
-      <div className="h-96 w-full">
+      <div className="h-[26rem] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 90 }}>
+          <BarChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 150 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis 
               dataKey={titleKey} 
-              tick={{ fontSize: 11, fill: '#64748b' }} 
-              angle={-45} 
-              textAnchor="end"
+              tick={({ x, y, payload }) => (
+                <text x={x} y={y} dy={16} textAnchor="end" fill="#64748b" fontSize={11} transform={`rotate(-45 ${x} ${y})`}>
+                  {payload.value.length > 25 ? payload.value.substring(0, 25) + '...' : payload.value}
+                </text>
+              )}
               axisLine={false}
               tickLine={false}
               interval={0}
@@ -195,15 +197,17 @@ export default function Dashboard() {
     if (data.length === 0) return <div className="text-slate-400 p-4 text-center">No data available.</div>;
     const top10 = data.slice(0, 10);
     return (
-      <div className="h-96 w-full">
+      <div className="h-[26rem] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 90 }}>
+          <LineChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 150 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis 
               dataKey={titleKey} 
-              tick={{ fontSize: 11, fill: '#64748b' }} 
-              angle={-45} 
-              textAnchor="end"
+              tick={({ x, y, payload }) => (
+                <text x={x} y={y} dy={16} textAnchor="end" fill="#64748b" fontSize={11} transform={`rotate(-45 ${x} ${y})`}>
+                  {payload.value.length > 25 ? payload.value.substring(0, 25) + '...' : payload.value}
+                </text>
+              )}
               axisLine={false}
               tickLine={false}
               interval={0}
@@ -221,11 +225,11 @@ export default function Dashboard() {
 
   const topReadersFormatted = useMemo(() => {
     return (analyticsReaders?.topReaders || []).map((r: any) => ({ ...r, name: formatName(r.name) }));
-  }, [analyticsReaders?.topReaders]);
+  }, [JSON.stringify(analyticsReaders?.topReaders)]);
 
   const popularBooksFormatted = useMemo(() => {
     return analyticsBooks?.popularBooks || [];
-  }, [analyticsBooks?.popularBooks]);
+  }, [JSON.stringify(analyticsBooks?.popularBooks)]);
 
   const maxReadersCount = Math.max(...(analyticsReaders?.topReaders?.map((r: any) => r.count) || [0]), 1);
   const maxBooksCount = Math.max(...(popularBooksFormatted.map((b: any) => b.count) || [0]), 1);
@@ -376,7 +380,7 @@ export default function Dashboard() {
           </div>
           <div ref={readersChartRef} className="w-full pt-2">
             {isLoadingReadersAnalytics ? (
-              <div className="h-96 flex justify-center items-center">
+              <div className="h-[26rem] flex justify-center items-center">
                 <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
             ) : readersViewMode === 'pie' ? (
@@ -472,7 +476,7 @@ export default function Dashboard() {
           </div>
           <div ref={booksChartRef} className="w-full pt-2">
             {isLoadingBooksAnalytics ? (
-              <div className="h-96 flex justify-center items-center">
+              <div className="h-[26rem] flex justify-center items-center">
                 <div className="w-6 h-6 border-2 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
               </div>
             ) : booksViewMode === 'pie' ? (
