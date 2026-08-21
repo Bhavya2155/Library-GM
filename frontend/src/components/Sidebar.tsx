@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import { preload } from 'swr';
 import axios from 'axios';
 
+
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 const prefetchAll = (path: string) => {
@@ -24,7 +25,7 @@ const prefetchAll = (path: string) => {
 };
 
 import toast from 'react-hot-toast';
-import axios from 'axios';
+
 
 const Sidebar = () => {
   const { logout, token, role } = useAuth();
