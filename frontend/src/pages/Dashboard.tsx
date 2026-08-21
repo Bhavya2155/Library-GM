@@ -10,6 +10,34 @@ import * as htmlToImage from 'html-to-image';
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#84cc16', '#10b981', '#14b8a6', '#06b6d4'];
 
+const renderPieLabel = ({ cx, cy, midAngle, outerRadius, value, name }: any) => {
+  const RADIAN = Math.PI / 180;
+  const radius = outerRadius + 30;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  
+  return (
+    <text 
+      x={x} 
+      y={y} 
+      fill="#64748b" 
+      textAnchor={x > cx ? 'start' : 'end'} 
+      dominantBaseline="central"
+      className="text-xs font-medium"
+    >
+      {name?.length > 15 ? name.substring(0, 15) + '...' : name} ({value})
+    </text>
+  );
+};
+
+const renderXAxisTick = ({ x, y, payload }: any) => {
+  return (
+    <text x={x} y={y} dy={16} textAnchor="end" fill="#64748b" fontSize={11} transform={`rotate(-45 ${x} ${y})`}>
+      {payload.value.length > 15 ? payload.value.substring(0, 15) + '...' : payload.value}
+    </text>
+  );
+};
+
 export default function Dashboard() {
   const { role } = useAuth();
   const navigate = useNavigate();
@@ -126,25 +154,7 @@ export default function Dashboard() {
               dataKey={valKey}
               nameKey={titleKey}
               labelLine={{ stroke: '#94a3b8', strokeWidth: 1 }}
-              label={({ cx, cy, midAngle, outerRadius, value, name }: any) => {
-                const RADIAN = Math.PI / 180;
-                const radius = outerRadius + 20; 
-                const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                return (
-                  <text 
-                    x={x} 
-                    y={y} 
-                    fill="#64748b" 
-                    textAnchor={x > cx ? 'start' : 'end'} 
-                    dominantBaseline="central" 
-                    fontSize={11}
-                    fontWeight="bold"
-                  >
-                    {name.length > 15 ? name.substring(0, 15) + '...' : name} ({value})
-                  </text>
-                );
-              }}
+              label={renderPieLabel}
             >
               {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -169,11 +179,7 @@ export default function Dashboard() {
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis 
               dataKey={titleKey} 
-              tick={({ x, y, payload }) => (
-                <text x={x} y={y} dy={16} textAnchor="end" fill="#64748b" fontSize={11} transform={`rotate(-45 ${x} ${y})`}>
-                  {payload.value.length > 15 ? payload.value.substring(0, 15) + '...' : payload.value}
-                </text>
-              )}
+              tick={renderXAxisTick}
               axisLine={false}
               tickLine={false}
               interval={0}
@@ -199,11 +205,7 @@ export default function Dashboard() {
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis 
               dataKey={titleKey} 
-              tick={({ x, y, payload }) => (
-                <text x={x} y={y} dy={16} textAnchor="end" fill="#64748b" fontSize={11} transform={`rotate(-45 ${x} ${y})`}>
-                  {payload.value.length > 15 ? payload.value.substring(0, 15) + '...' : payload.value}
-                </text>
-              )}
+              tick={renderXAxisTick}
               axisLine={false}
               tickLine={false}
               interval={0}
