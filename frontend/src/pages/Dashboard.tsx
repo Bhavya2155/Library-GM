@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import useSWR from 'swr';
-import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, Filter, ChevronDown, Download, BarChart2, PieChart as PieChartIcon, Image as ImageIcon, FileSpreadsheet, Activity, List } from 'lucide-react';
+import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, BarChart2, PieChart as PieChartIcon, Image as ImageIcon, FileSpreadsheet, Activity, List, MoreVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/dateFormatter';
@@ -54,7 +54,6 @@ export default function Dashboard() {
   const [readersViewMode, setReadersViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('pie');
   const [booksViewMode, setBooksViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('pie');
   
-  const [exportMenuOpen, setExportMenuOpen] = useState<'readers'|'books'|null>(null);
   
   const readersChartRef = useRef<HTMLDivElement>(null);
   const booksChartRef = useRef<HTMLDivElement>(null);
@@ -250,7 +249,6 @@ export default function Dashboard() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    setExportMenuOpen(null);
   };
 
   const downloadImage = async (ref: React.RefObject<HTMLDivElement | null>, filename: string) => {
@@ -264,7 +262,6 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error generating image", error);
     }
-    setExportMenuOpen(null);
   };
 
   return (
@@ -303,31 +300,36 @@ export default function Dashboard() {
               Top Readers
             </h2>
             <div className="flex flex-wrap justify-end items-center gap-2">
+              <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60 hidden sm:flex">
+                <button onClick={() => setReadersViewMode('list')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><List size={16} /></button>
+                <button onClick={() => setReadersViewMode('vbar')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'vbar' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><BarChart2 size={16} /></button>
+                <button onClick={() => setReadersViewMode('pie')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'pie' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><PieChartIcon size={16} /></button>
+                <button onClick={() => setReadersViewMode('line')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'line' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><Activity size={16} /></button>
+              </div>
               <div className="relative z-[60]">
-                <button 
+                <button
                   onClick={() => setIsReadersDropdownOpen(!isReadersDropdownOpen)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 shadow-sm rounded-lg transition-colors border border-slate-200"
+                  className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-lg transition-colors border border-transparent"
                 >
-                  <Filter size={14} className="text-slate-400" />
-                  {options.find(o => o.value === readersDateRange)?.label}
-                  <ChevronDown size={14} className={`transition-transform duration-200 ${isReadersDropdownOpen ? 'rotate-180' : ''}`} />
+                  <MoreVertical size={18} />
                 </button>
                 
                 {isReadersDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-[55]" onClick={() => setIsReadersDropdownOpen(false)}></div>
-                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-slate-200 py-2 z-[60]">
+                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-slate-200 py-2 z-[60] overflow-hidden">
+                      <div className="px-4 py-1 text-[10px] font-bold text-slate-400 tracking-wider">FILTER</div>
                       {options.map((opt) => (
                         <button
                           key={opt.value}
-                          onClick={() => { setReadersDateRange(opt.value); setIsReadersDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors hover:bg-indigo-50/80 ${readersDateRange === opt.value ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-600'}`}
+                          onClick={() => { setReadersDateRange(opt.value); }}
+                          className={`w-full flex items-center justify-between px-4 py-2 text-xs font-bold transition-colors hover:bg-indigo-50/80 ${readersDateRange === opt.value ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-600'}`}
                         >
-                          {opt.label}
+                          {opt.label} {readersDateRange === opt.value && <CheckCircle size={12} className="text-indigo-500" />}
                         </button>
                       ))}
                       {readersDateRange === 'custom' && (
-                        <div className="px-3 pt-2 pb-1 border-t border-slate-100 mt-2">
+                        <div className="px-3 pt-2 pb-1">
                           <input 
                             type="date" 
                             value={readersCustomStart}
@@ -342,37 +344,18 @@ export default function Dashboard() {
                           />
                         </div>
                       )}
+                      <div className="border-t border-slate-100 my-1"></div>
+                      <div className="px-4 py-1 text-[10px] font-bold text-slate-400 tracking-wider">EXPORT</div>
+                      <button onClick={() => { downloadCSV(topReadersFormatted, 'top_10_readers', 'name', 'count'); setIsReadersDropdownOpen(false); }} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium text-xs">
+                        <FileSpreadsheet size={14} className="text-emerald-500" /> CSV Data
+                      </button>
+                      <button onClick={() => { downloadImage(readersChartRef, 'top_readers_chart'); setIsReadersDropdownOpen(false); }} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium text-xs">
+                        <ImageIcon size={14} className="text-blue-500" /> Image (PNG)
+                      </button>
                     </div>
                   </>
                 )}
               </div>
-              <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60 hidden sm:flex">
-                <button onClick={() => setReadersViewMode('list')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><List size={16} /></button>
-                <button onClick={() => setReadersViewMode('vbar')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'vbar' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><BarChart2 size={16} /></button>
-                <button onClick={() => setReadersViewMode('pie')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'pie' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><PieChartIcon size={16} /></button>
-                <button onClick={() => setReadersViewMode('line')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'line' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><Activity size={16} /></button>
-              </div>
-              <div className="relative">
-                <button
-                  onClick={() => setExportMenuOpen(exportMenuOpen === 'readers' ? null : 'readers')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-100"
-                >
-                  <Download size={14} /> Export <ChevronDown size={12} />
-                </button>
-              {exportMenuOpen === 'readers' && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(null)}></div>
-                  <div className="absolute right-0 mt-2 w-40 bg-white shadow-xl rounded-xl border border-slate-100 z-50 overflow-hidden text-sm">
-                    <button onClick={() => downloadCSV(topReadersFormatted, 'top_10_readers', 'name', 'count')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium">
-                      <FileSpreadsheet size={16} className="text-emerald-500" /> CSV Data
-                    </button>
-                    <button onClick={() => downloadImage(readersChartRef, 'top_readers_chart')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium border-t border-slate-50">
-                      <ImageIcon size={16} className="text-blue-500" /> Image (PNG)
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
             </div>
           </div>
           <div ref={readersChartRef} className="w-full pt-2">
@@ -399,31 +382,36 @@ export default function Dashboard() {
               Most Popular Books
             </h2>
             <div className="flex flex-wrap justify-end items-center gap-2">
+              <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60 hidden sm:flex">
+                <button onClick={() => setBooksViewMode('list')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'list' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><List size={16} /></button>
+                <button onClick={() => setBooksViewMode('vbar')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'vbar' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><BarChart2 size={16} /></button>
+                <button onClick={() => setBooksViewMode('pie')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'pie' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><PieChartIcon size={16} /></button>
+                <button onClick={() => setBooksViewMode('line')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'line' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><Activity size={16} /></button>
+              </div>
               <div className="relative z-[60]">
                 <button 
                   onClick={() => setIsBooksDropdownOpen(!isBooksDropdownOpen)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 shadow-sm rounded-lg transition-colors border border-slate-200"
+                  className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-lg transition-colors border border-transparent"
                 >
-                  <Filter size={14} className="text-slate-400" />
-                  {options.find(o => o.value === booksDateRange)?.label}
-                  <ChevronDown size={14} className={`transition-transform duration-200 ${isBooksDropdownOpen ? 'rotate-180' : ''}`} />
+                  <MoreVertical size={18} />
                 </button>
                 
                 {isBooksDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-[55]" onClick={() => setIsBooksDropdownOpen(false)}></div>
-                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-slate-200 py-2 z-[60]">
+                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-slate-200 py-2 z-[60] overflow-hidden">
+                      <div className="px-4 py-1 text-[10px] font-bold text-slate-400 tracking-wider">FILTER</div>
                       {options.map((opt) => (
                         <button
                           key={opt.value}
-                          onClick={() => { setBooksDateRange(opt.value); setIsBooksDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors hover:bg-emerald-50/80 ${booksDateRange === opt.value ? 'text-emerald-600 bg-emerald-50/50' : 'text-slate-600'}`}
+                          onClick={() => { setBooksDateRange(opt.value); }}
+                          className={`w-full flex items-center justify-between px-4 py-2 text-xs font-bold transition-colors hover:bg-emerald-50/80 ${booksDateRange === opt.value ? 'text-emerald-600 bg-emerald-50/50' : 'text-slate-600'}`}
                         >
-                          {opt.label}
+                          {opt.label} {booksDateRange === opt.value && <CheckCircle size={12} className="text-emerald-500" />}
                         </button>
                       ))}
                       {booksDateRange === 'custom' && (
-                        <div className="px-3 pt-2 pb-1 border-t border-slate-100 mt-2">
+                        <div className="px-3 pt-2 pb-1">
                           <input 
                             type="date" 
                             value={booksCustomStart}
@@ -438,37 +426,18 @@ export default function Dashboard() {
                           />
                         </div>
                       )}
+                      <div className="border-t border-slate-100 my-1"></div>
+                      <div className="px-4 py-1 text-[10px] font-bold text-slate-400 tracking-wider">EXPORT</div>
+                      <button onClick={() => { downloadCSV(popularBooksFormatted, 'top_10_books', 'title', 'count'); setIsBooksDropdownOpen(false); }} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium text-xs">
+                        <FileSpreadsheet size={14} className="text-emerald-500" /> CSV Data
+                      </button>
+                      <button onClick={() => { downloadImage(booksChartRef, 'popular_books_chart'); setIsBooksDropdownOpen(false); }} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium text-xs">
+                        <ImageIcon size={14} className="text-blue-500" /> Image (PNG)
+                      </button>
                     </div>
                   </>
                 )}
               </div>
-              <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60 hidden sm:flex">
-                <button onClick={() => setBooksViewMode('list')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'list' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><List size={16} /></button>
-                <button onClick={() => setBooksViewMode('vbar')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'vbar' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><BarChart2 size={16} /></button>
-                <button onClick={() => setBooksViewMode('pie')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'pie' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><PieChartIcon size={16} /></button>
-                <button onClick={() => setBooksViewMode('line')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'line' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><Activity size={16} /></button>
-              </div>
-              <div className="relative">
-                <button
-                  onClick={() => setExportMenuOpen(exportMenuOpen === 'books' ? null : 'books')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-100"
-                >
-                  <Download size={14} /> Export <ChevronDown size={12} />
-                </button>
-              {exportMenuOpen === 'books' && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(null)}></div>
-                  <div className="absolute right-0 mt-2 w-40 bg-white shadow-xl rounded-xl border border-slate-100 z-50 overflow-hidden text-sm">
-                    <button onClick={() => downloadCSV(popularBooksFormatted, 'top_10_books', 'title', 'count')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium">
-                      <FileSpreadsheet size={16} className="text-emerald-500" /> CSV Data
-                    </button>
-                    <button onClick={() => downloadImage(booksChartRef, 'popular_books_chart')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium border-t border-slate-50">
-                      <ImageIcon size={16} className="text-blue-500" /> Image (PNG)
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
             </div>
           </div>
           <div ref={booksChartRef} className="w-full pt-2">
