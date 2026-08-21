@@ -14,10 +14,15 @@ export default function Dashboard() {
   const { role } = useAuth();
   const navigate = useNavigate();
   
-  const [dateRange, setDateRange] = useState('all-time');
-  const [customStart, setCustomStart] = useState('');
-  const [customEnd, setCustomEnd] = useState('');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [readersDateRange, setReadersDateRange] = useState('all-time');
+  const [readersCustomStart, setReadersCustomStart] = useState('');
+  const [readersCustomEnd, setReadersCustomEnd] = useState('');
+  const [isReadersDropdownOpen, setIsReadersDropdownOpen] = useState(false);
+
+  const [booksDateRange, setBooksDateRange] = useState('all-time');
+  const [booksCustomStart, setBooksCustomStart] = useState('');
+  const [booksCustomEnd, setBooksCustomEnd] = useState('');
+  const [isBooksDropdownOpen, setIsBooksDropdownOpen] = useState(false);
   const [readersViewMode, setReadersViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('pie');
   const [booksViewMode, setBooksViewMode] = useState<'list' | 'pie' | 'vbar' | 'line'>('pie');
   
@@ -37,20 +42,36 @@ export default function Dashboard() {
   const { data: logins = [], isLoading: isLoadingLogins } = useSWR(role === 'admin' ? '/dashboard/logins' : null);
 
   // Generate query params for analytics
-  let query = '';
-  if (dateRange === 'this-month') {
+  // Generate query params for Readers analytics
+  let readersQuery = '';
+  if (readersDateRange === 'this-month') {
     const start = new Date();
     start.setDate(1);
-    query = `?startDate=${start.toISOString().split('T')[0]}`;
-  } else if (dateRange === 'last-7-days') {
+    readersQuery = `?startDate=${start.toISOString().split('T')[0]}`;
+  } else if (readersDateRange === 'last-7-days') {
     const start = new Date();
     start.setDate(start.getDate() - 7);
-    query = `?startDate=${start.toISOString().split('T')[0]}`;
-  } else if (dateRange === 'custom' && customStart) {
-    query = `?startDate=${customStart}${customEnd ? `&endDate=${customEnd}` : ''}`;
+    readersQuery = `?startDate=${start.toISOString().split('T')[0]}`;
+  } else if (readersDateRange === 'custom' && readersCustomStart) {
+    readersQuery = `?startDate=${readersCustomStart}${readersCustomEnd ? `&endDate=${readersCustomEnd}` : ''}`;
   }
 
-  const { data: analytics = { topReaders: [], popularBooks: [] }, isLoading: isLoadingAnalytics } = useSWR(`/dashboard/analytics${query}`);
+  // Generate query params for Books analytics
+  let booksQuery = '';
+  if (booksDateRange === 'this-month') {
+    const start = new Date();
+    start.setDate(1);
+    booksQuery = `?startDate=${start.toISOString().split('T')[0]}`;
+  } else if (booksDateRange === 'last-7-days') {
+    const start = new Date();
+    start.setDate(start.getDate() - 7);
+    booksQuery = `?startDate=${start.toISOString().split('T')[0]}`;
+  } else if (booksDateRange === 'custom' && booksCustomStart) {
+    booksQuery = `?startDate=${booksCustomStart}${booksCustomEnd ? `&endDate=${booksCustomEnd}` : ''}`;
+  }
+
+  const { data: analyticsReaders = { topReaders: [], popularBooks: [] }, isLoading: isLoadingReadersAnalytics } = useSWR(`/dashboard/analytics${readersQuery}`);
+  const { data: analyticsBooks = { topReaders: [], popularBooks: [] }, isLoading: isLoadingBooksAnalytics } = useSWR(`/dashboard/analytics${booksQuery}`);
 
   const cards = [
     { title: 'Total Books', value: stats.totalBooks, icon: Book, color: 'text-indigo-600', bg: 'bg-indigo-100', link: '/books' },
@@ -198,10 +219,10 @@ export default function Dashboard() {
     );
   };
 
-  const maxReadersCount = Math.max(...(analytics?.topReaders?.map((r: any) => r.count) || [0]), 1);
-  const maxBooksCount = Math.max(...(analytics?.popularBooks?.map((b: any) => b.count) || [0]), 1);
+  const maxReadersCount = Math.max(...(analyticsReaders?.topReaders?.map((r: any) => r.count) || [0]), 1);
+  const maxBooksCount = Math.max(...(analyticsBooks?.popularBooks?.map((b: any) => b.count) || [0]), 1);
 
-  const topReadersFormatted = (analytics?.topReaders || []).map((r: any) => ({ ...r, name: formatName(r.name) }));
+  const topReadersFormatted = (analyticsReaders?.topReaders || []).map((r: any) => ({ ...r, name: formatName(r.name) }));
 
   const downloadCSV = (data: any[], filename: string, titleKey: string, valKey: string) => {
     const top10 = data.slice(0, 10);
@@ -243,66 +264,8 @@ export default function Dashboard() {
     <div className="h-full overflow-y-auto p-4 md:p-8">
       <div className="max-w-7xl mx-auto relative z-10">
       
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 relative z-50">
+      <div className="mb-8 relative z-50">
         <h1 className="text-3xl font-bold text-slate-900 drop-shadow-sm">Dashboard Overview</h1>
-        
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Date Filter */}
-          <div className="flex flex-wrap items-center gap-3 bg-white/70 backdrop-blur-md p-2 rounded-xl shadow-sm border border-white">
-            <Filter size={18} className="text-slate-400 ml-2" />
-            
-            <div className="relative">
-              <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 bg-transparent border-none text-sm font-bold text-slate-700 hover:text-indigo-600 focus:outline-none transition-colors"
-              >
-                {options.find(o => o.value === dateRange)?.label}
-                <ChevronDown size={16} className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {isDropdownOpen && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-40"
-                    onClick={() => setIsDropdownOpen(false)}
-                  ></div>
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-white/90 backdrop-blur-xl rounded-xl shadow-xl border border-white/60 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    {options.map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => {
-                          setDateRange(opt.value);
-                          setIsDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2.5 text-sm font-bold transition-colors hover:bg-indigo-50/80 ${dateRange === opt.value ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-600'}`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-            
-            {dateRange === 'custom' && (
-              <div className="flex items-center gap-2 border-l border-slate-200 pl-3 ml-1">
-                <input 
-                  type="date" 
-                  value={customStart}
-                  onChange={(e) => setCustomStart(e.target.value)}
-                  className="text-xs font-bold text-slate-600 border border-slate-200/60 bg-white/50 backdrop-blur-sm p-1.5 rounded-md focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all outline-none"
-                />
-                <span className="text-slate-400 text-xs font-bold">to</span>
-                <input 
-                  type="date" 
-                  value={customEnd}
-                  onChange={(e) => setCustomEnd(e.target.value)}
-                  className="text-xs font-bold text-slate-600 border border-slate-200/60 bg-white/50 backdrop-blur-sm p-1.5 rounded-md focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all outline-none"
-                />
-              </div>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* KPI Cards */}
@@ -332,7 +295,50 @@ export default function Dashboard() {
               <Trophy size={22} className="text-amber-500" /> 
               Top Readers
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap justify-end items-center gap-2">
+              <div className="relative z-[60]">
+                <button 
+                  onClick={() => setIsReadersDropdownOpen(!isReadersDropdownOpen)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 shadow-sm rounded-lg transition-colors border border-slate-200"
+                >
+                  <Filter size={14} className="text-slate-400" />
+                  {options.find(o => o.value === readersDateRange)?.label}
+                  <ChevronDown size={14} className={`transition-transform duration-200 ${isReadersDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isReadersDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-[55]" onClick={() => setIsReadersDropdownOpen(false)}></div>
+                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-slate-200 py-2 z-[60]">
+                      {options.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => { setReadersDateRange(opt.value); setIsReadersDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors hover:bg-indigo-50/80 ${readersDateRange === opt.value ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-600'}`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                      {readersDateRange === 'custom' && (
+                        <div className="px-3 pt-2 pb-1 border-t border-slate-100 mt-2">
+                          <input 
+                            type="date" 
+                            value={readersCustomStart}
+                            onChange={(e) => setReadersCustomStart(e.target.value)}
+                            className="w-full text-xs font-medium text-slate-600 border border-slate-200 bg-slate-50 p-1.5 rounded mb-2 outline-none focus:border-indigo-500"
+                          />
+                          <input 
+                            type="date" 
+                            value={readersCustomEnd}
+                            onChange={(e) => setReadersCustomEnd(e.target.value)}
+                            className="w-full text-xs font-medium text-slate-600 border border-slate-200 bg-slate-50 p-1.5 rounded outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
               <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60 hidden sm:flex">
                 <button onClick={() => setReadersViewMode('list')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><List size={16} /></button>
                 <button onClick={() => setReadersViewMode('vbar')} className={`p-1.5 rounded-md transition-colors ${readersViewMode === 'vbar' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}><BarChart2 size={16} /></button>
@@ -363,7 +369,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div ref={readersChartRef} className="w-full pt-2">
-            {isLoadingAnalytics ? (
+            {isLoadingReadersAnalytics ? (
               <div className="h-80 flex justify-center items-center">
                 <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
@@ -385,7 +391,50 @@ export default function Dashboard() {
               <TrendingUp size={22} className="text-emerald-500" /> 
               Most Popular Books
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap justify-end items-center gap-2">
+              <div className="relative z-[60]">
+                <button 
+                  onClick={() => setIsBooksDropdownOpen(!isBooksDropdownOpen)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 shadow-sm rounded-lg transition-colors border border-slate-200"
+                >
+                  <Filter size={14} className="text-slate-400" />
+                  {options.find(o => o.value === booksDateRange)?.label}
+                  <ChevronDown size={14} className={`transition-transform duration-200 ${isBooksDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isBooksDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-[55]" onClick={() => setIsBooksDropdownOpen(false)}></div>
+                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-slate-200 py-2 z-[60]">
+                      {options.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => { setBooksDateRange(opt.value); setIsBooksDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors hover:bg-emerald-50/80 ${booksDateRange === opt.value ? 'text-emerald-600 bg-emerald-50/50' : 'text-slate-600'}`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                      {booksDateRange === 'custom' && (
+                        <div className="px-3 pt-2 pb-1 border-t border-slate-100 mt-2">
+                          <input 
+                            type="date" 
+                            value={booksCustomStart}
+                            onChange={(e) => setBooksCustomStart(e.target.value)}
+                            className="w-full text-xs font-medium text-slate-600 border border-slate-200 bg-slate-50 p-1.5 rounded mb-2 outline-none focus:border-emerald-500"
+                          />
+                          <input 
+                            type="date" 
+                            value={booksCustomEnd}
+                            onChange={(e) => setBooksCustomEnd(e.target.value)}
+                            className="w-full text-xs font-medium text-slate-600 border border-slate-200 bg-slate-50 p-1.5 rounded outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
               <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60 hidden sm:flex">
                 <button onClick={() => setBooksViewMode('list')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'list' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><List size={16} /></button>
                 <button onClick={() => setBooksViewMode('vbar')} className={`p-1.5 rounded-md transition-colors ${booksViewMode === 'vbar' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-400 hover:text-slate-600'}`}><BarChart2 size={16} /></button>
@@ -403,7 +452,7 @@ export default function Dashboard() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(null)}></div>
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow-xl rounded-xl border border-slate-100 z-50 overflow-hidden text-sm">
-                    <button onClick={() => downloadCSV(analytics?.popularBooks || [], 'top_10_books', 'title', 'count')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium">
+                    <button onClick={() => downloadCSV(analyticsBooks?.popularBooks || [], 'top_10_books', 'title', 'count')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium">
                       <FileSpreadsheet size={16} className="text-emerald-500" /> CSV Data
                     </button>
                     <button onClick={() => downloadImage(booksChartRef, 'popular_books_chart')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium border-t border-slate-50">
@@ -416,18 +465,18 @@ export default function Dashboard() {
             </div>
           </div>
           <div ref={booksChartRef} className="w-full pt-2">
-            {isLoadingAnalytics ? (
+            {isLoadingBooksAnalytics ? (
               <div className="h-80 flex justify-center items-center">
                 <div className="w-6 h-6 border-2 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
               </div>
             ) : booksViewMode === 'pie' ? (
-              renderPieChart(analytics?.popularBooks || [], 'title', 'count')
+              renderPieChart(analyticsBooks?.popularBooks || [], 'title', 'count')
             ) : booksViewMode === 'vbar' ? (
-              renderVerticalBarChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
+              renderVerticalBarChart(analyticsBooks?.popularBooks || [], 'title', 'count', '#10b981')
             ) : booksViewMode === 'line' ? (
-              renderLineChart(analytics?.popularBooks || [], 'title', 'count', '#10b981')
+              renderLineChart(analyticsBooks?.popularBooks || [], 'title', 'count', '#10b981')
             ) : (
-              renderBarChart(analytics?.popularBooks || [], maxBooksCount, 'title', 'count', 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]')
+              renderBarChart(analyticsBooks?.popularBooks || [], maxBooksCount, 'title', 'count', 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]')
             )}
           </div>
         </div>
