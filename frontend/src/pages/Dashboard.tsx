@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import useSWR from 'swr';
 import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, Filter, ChevronDown, Download, BarChart2, PieChart as PieChartIcon, Image as ImageIcon, FileSpreadsheet, Activity, List } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -87,7 +87,7 @@ export default function Dashboard() {
     }
     const top10 = data.slice(0, 10);
     return (
-      <div className="space-y-4 h-80 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-4 h-96 overflow-y-auto pr-2 custom-scrollbar">
         {top10.map((item, idx) => {
           const percentage = maxVal === 0 ? 0 : (item[valKey] / maxVal) * 100;
           return (
@@ -115,7 +115,7 @@ export default function Dashboard() {
     }
     const top10 = data.slice(0, 10);
     return (
-      <div className="h-80 w-full relative">
+      <div className="h-96 w-full relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -166,9 +166,9 @@ export default function Dashboard() {
     if (data.length === 0) return <div className="text-slate-400 p-4 text-center">No data available.</div>;
     const top10 = data.slice(0, 10);
     return (
-      <div className="h-80 w-full">
+      <div className="h-96 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
+          <BarChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 90 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis 
               dataKey={titleKey} 
@@ -195,9 +195,9 @@ export default function Dashboard() {
     if (data.length === 0) return <div className="text-slate-400 p-4 text-center">No data available.</div>;
     const top10 = data.slice(0, 10);
     return (
-      <div className="h-80 w-full">
+      <div className="h-96 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
+          <LineChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 90 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis 
               dataKey={titleKey} 
@@ -219,10 +219,16 @@ export default function Dashboard() {
     );
   };
 
-  const maxReadersCount = Math.max(...(analyticsReaders?.topReaders?.map((r: any) => r.count) || [0]), 1);
-  const maxBooksCount = Math.max(...(analyticsBooks?.popularBooks?.map((b: any) => b.count) || [0]), 1);
+  const topReadersFormatted = useMemo(() => {
+    return (analyticsReaders?.topReaders || []).map((r: any) => ({ ...r, name: formatName(r.name) }));
+  }, [analyticsReaders?.topReaders]);
 
-  const topReadersFormatted = (analyticsReaders?.topReaders || []).map((r: any) => ({ ...r, name: formatName(r.name) }));
+  const popularBooksFormatted = useMemo(() => {
+    return analyticsBooks?.popularBooks || [];
+  }, [analyticsBooks?.popularBooks]);
+
+  const maxReadersCount = Math.max(...(analyticsReaders?.topReaders?.map((r: any) => r.count) || [0]), 1);
+  const maxBooksCount = Math.max(...(popularBooksFormatted.map((b: any) => b.count) || [0]), 1);
 
   const downloadCSV = (data: any[], filename: string, titleKey: string, valKey: string) => {
     const top10 = data.slice(0, 10);
@@ -370,7 +376,7 @@ export default function Dashboard() {
           </div>
           <div ref={readersChartRef} className="w-full pt-2">
             {isLoadingReadersAnalytics ? (
-              <div className="h-80 flex justify-center items-center">
+              <div className="h-96 flex justify-center items-center">
                 <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
             ) : readersViewMode === 'pie' ? (
@@ -452,7 +458,7 @@ export default function Dashboard() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(null)}></div>
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow-xl rounded-xl border border-slate-100 z-50 overflow-hidden text-sm">
-                    <button onClick={() => downloadCSV(analyticsBooks?.popularBooks || [], 'top_10_books', 'title', 'count')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium">
+                    <button onClick={() => downloadCSV(popularBooksFormatted, 'top_10_books', 'title', 'count')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium">
                       <FileSpreadsheet size={16} className="text-emerald-500" /> CSV Data
                     </button>
                     <button onClick={() => downloadImage(booksChartRef, 'popular_books_chart')} className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 font-medium border-t border-slate-50">
@@ -466,17 +472,17 @@ export default function Dashboard() {
           </div>
           <div ref={booksChartRef} className="w-full pt-2">
             {isLoadingBooksAnalytics ? (
-              <div className="h-80 flex justify-center items-center">
+              <div className="h-96 flex justify-center items-center">
                 <div className="w-6 h-6 border-2 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
               </div>
             ) : booksViewMode === 'pie' ? (
-              renderPieChart(analyticsBooks?.popularBooks || [], 'title', 'count')
+              renderPieChart(popularBooksFormatted, 'title', 'count')
             ) : booksViewMode === 'vbar' ? (
-              renderVerticalBarChart(analyticsBooks?.popularBooks || [], 'title', 'count', '#10b981')
+              renderVerticalBarChart(popularBooksFormatted, 'title', 'count', '#10b981')
             ) : booksViewMode === 'line' ? (
-              renderLineChart(analyticsBooks?.popularBooks || [], 'title', 'count', '#10b981')
+              renderLineChart(popularBooksFormatted, 'title', 'count', '#10b981')
             ) : (
-              renderBarChart(analyticsBooks?.popularBooks || [], maxBooksCount, 'title', 'count', 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]')
+              renderBarChart(popularBooksFormatted, maxBooksCount, 'title', 'count', 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]')
             )}
           </div>
         </div>
