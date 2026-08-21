@@ -85,10 +85,9 @@ export default function Dashboard() {
     if (data.length === 0) {
       return <div className="text-slate-400 p-4 text-center">No data available for this period.</div>;
     }
-    const top10 = data.slice(0, 10);
-    return (
+        return (
       <div className="space-y-4 h-[26rem] overflow-y-auto pr-2 custom-scrollbar">
-        {top10.map((item, idx) => {
+        {data.map((item, idx) => {
           const percentage = maxVal === 0 ? 0 : (item[valKey] / maxVal) * 100;
           return (
             <div key={idx} className="relative group">
@@ -113,13 +112,12 @@ export default function Dashboard() {
     if (data.length === 0) {
       return <div className="text-slate-400 p-4 text-center">No data available for this period.</div>;
     }
-    const top10 = data.slice(0, 10);
-    return (
+        return (
       <div className="h-[26rem] w-full relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={top10}
+              data={data}
               cx="50%"
               cy="50%"
               innerRadius={50}
@@ -148,7 +146,7 @@ export default function Dashboard() {
                 );
               }}
             >
-              {top10.map((_, index) => (
+              {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
@@ -164,17 +162,16 @@ export default function Dashboard() {
 
   const renderVerticalBarChart = (data: any[], titleKey: string, valKey: string, color: string) => {
     if (data.length === 0) return <div className="text-slate-400 p-4 text-center">No data available.</div>;
-    const top10 = data.slice(0, 10);
-    return (
+        return (
       <div className="h-[26rem] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 150 }}>
+          <BarChart data={data} margin={{ top: 10, right: 10, left: 20, bottom: 110 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis 
               dataKey={titleKey} 
               tick={({ x, y, payload }) => (
                 <text x={x} y={y} dy={16} textAnchor="end" fill="#64748b" fontSize={11} transform={`rotate(-45 ${x} ${y})`}>
-                  {payload.value.length > 25 ? payload.value.substring(0, 25) + '...' : payload.value}
+                  {payload.value.length > 15 ? payload.value.substring(0, 15) + '...' : payload.value}
                 </text>
               )}
               axisLine={false}
@@ -195,17 +192,16 @@ export default function Dashboard() {
 
   const renderLineChart = (data: any[], titleKey: string, valKey: string, color: string) => {
     if (data.length === 0) return <div className="text-slate-400 p-4 text-center">No data available.</div>;
-    const top10 = data.slice(0, 10);
-    return (
+        return (
       <div className="h-[26rem] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={top10} margin={{ top: 10, right: 10, left: -20, bottom: 150 }}>
+          <LineChart data={data} margin={{ top: 10, right: 10, left: 20, bottom: 110 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis 
               dataKey={titleKey} 
               tick={({ x, y, payload }) => (
                 <text x={x} y={y} dy={16} textAnchor="end" fill="#64748b" fontSize={11} transform={`rotate(-45 ${x} ${y})`}>
-                  {payload.value.length > 25 ? payload.value.substring(0, 25) + '...' : payload.value}
+                  {payload.value.length > 15 ? payload.value.substring(0, 15) + '...' : payload.value}
                 </text>
               )}
               axisLine={false}
@@ -224,20 +220,19 @@ export default function Dashboard() {
   };
 
   const topReadersFormatted = useMemo(() => {
-    return (analyticsReaders?.topReaders || []).map((r: any) => ({ ...r, name: formatName(r.name) }));
+    return (analyticsReaders?.topReaders || []).slice(0, 10).map((r: any) => ({ ...r, name: formatName(r.name) }));
   }, [JSON.stringify(analyticsReaders?.topReaders)]);
 
   const popularBooksFormatted = useMemo(() => {
-    return analyticsBooks?.popularBooks || [];
+    return (analyticsBooks?.popularBooks || []).slice(0, 10);
   }, [JSON.stringify(analyticsBooks?.popularBooks)]);
 
   const maxReadersCount = Math.max(...(analyticsReaders?.topReaders?.map((r: any) => r.count) || [0]), 1);
   const maxBooksCount = Math.max(...(popularBooksFormatted.map((b: any) => b.count) || [0]), 1);
 
   const downloadCSV = (data: any[], filename: string, titleKey: string, valKey: string) => {
-    const top10 = data.slice(0, 10);
-    const headers = [titleKey.charAt(0).toUpperCase() + titleKey.slice(1), 'Count'];
-    const rows = top10.map(item => [
+        const headers = [titleKey.charAt(0).toUpperCase() + titleKey.slice(1), 'Count'];
+    const rows = data.map(item => [
       `"${item[titleKey]}"`,
       item[valKey]
     ]);
