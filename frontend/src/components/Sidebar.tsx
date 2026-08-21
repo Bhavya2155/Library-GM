@@ -3,6 +3,26 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BookOpen, Users, LayoutDashboard, Library, LogOut, Bell, UserCircle, Settings, Eye, EyeOff, ChevronDown, Menu, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { preload } from 'swr';
+import axios from 'axios';
+
+const fetcher = (url: string) => axios.get(url).then(res => res.data);
+
+const prefetchAll = (path: string) => {
+  if (path === '/') {
+    preload('/dashboard/stats', fetcher);
+    // don't prefetch all dashboard analytics, it's fine
+  } else if (path === '/books') {
+    preload('/books?search=&sortBy=&sortOrder=asc&category=All&language=All', fetcher);
+  } else if (path === '/students') {
+    preload('/students?search=&sortBy=&sortOrder=asc&class=All&division=All', fetcher);
+  } else if (path === '/guests') {
+    preload('/guests?search=&sortBy=&sortOrder=asc', fetcher);
+  } else if (path === '/circulation') {
+    preload('/circulation/history?search=&type=All&status=All&startDate=&endDate=', fetcher);
+  }
+};
+
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
@@ -164,17 +184,17 @@ const Sidebar = () => {
       </div>
       
       <nav className="flex-1 p-4 flex flex-col gap-2">
-        <NavLink onClick={() => setIsMobileOpen(false)} to="/" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`} end><LayoutDashboard size={20} /> Dashboard</NavLink>
+        <NavLink onClick={() => setIsMobileOpen(false)} to="/" onMouseEnter={() => prefetchAll("/")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`} end><LayoutDashboard size={20} /> Dashboard</NavLink>
         {(role === 'admin' || role === 'coordinator' || role === 'leader') && (
-          <NavLink onClick={() => setIsMobileOpen(false)} to="/books" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><BookOpen size={20} /> Books</NavLink>
+          <NavLink onClick={() => setIsMobileOpen(false)} to="/books" onMouseEnter={() => prefetchAll("/books")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><BookOpen size={20} /> Books</NavLink>
         )}
         {(role === 'admin' || role === 'coordinator') && (
           <>
-            <NavLink onClick={() => setIsMobileOpen(false)} to="/students" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Users size={20} /> Students</NavLink>
-            <NavLink onClick={() => setIsMobileOpen(false)} to="/guests" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><UserCircle size={20} /> Guests</NavLink>
+            <NavLink onClick={() => setIsMobileOpen(false)} to="/students" onMouseEnter={() => prefetchAll("/students")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Users size={20} /> Students</NavLink>
+            <NavLink onClick={() => setIsMobileOpen(false)} to="/guests" onMouseEnter={() => prefetchAll("/guests")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><UserCircle size={20} /> Guests</NavLink>
           </>
         )}
-        <NavLink onClick={() => setIsMobileOpen(false)} to="/circulation" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Library size={20} /> Circulation</NavLink>
+        <NavLink onClick={() => setIsMobileOpen(false)} to="/circulation" onMouseEnter={() => prefetchAll("/circulation")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Library size={20} /> Circulation</NavLink>
       </nav>
 
       <div className="p-4 border-t border-white/50 flex flex-col gap-2">

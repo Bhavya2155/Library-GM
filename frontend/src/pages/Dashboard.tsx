@@ -98,8 +98,8 @@ export default function Dashboard() {
     booksQuery = `?startDate=${booksCustomStart}${booksCustomEnd ? `&endDate=${booksCustomEnd}` : ''}`;
   }
 
-  const { data: analyticsReaders = { topReaders: [], popularBooks: [] }, isLoading: isLoadingReadersAnalytics } = useSWR(`/dashboard/analytics${readersQuery}`);
-  const { data: analyticsBooks = { topReaders: [], popularBooks: [] }, isLoading: isLoadingBooksAnalytics } = useSWR(`/dashboard/analytics${booksQuery}`);
+  const { data: analyticsReaders = { topReaders: [], popularBooks: [] }, isLoading: isLoadingReadersAnalytics } = useSWR(`/dashboard/analytics${readersQuery}`, { keepPreviousData: true });
+  const { data: analyticsBooks = { topReaders: [], popularBooks: [] }, isLoading: isLoadingBooksAnalytics } = useSWR(`/dashboard/analytics${booksQuery}`, { keepPreviousData: true });
 
   const cards = [
     { title: 'Total Books', value: stats.totalBooks, icon: Book, color: 'text-indigo-600', bg: 'bg-indigo-100', link: '/books' },

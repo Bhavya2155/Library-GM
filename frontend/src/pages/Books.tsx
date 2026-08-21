@@ -14,7 +14,7 @@ export default function Books() {
   const [filterLanguage, setFilterLanguage] = useState('All');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&category=${filterCategory}&language=${filterLanguage}`);
+  const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&category=${filterCategory}&language=${filterLanguage}`, { keepPreviousData: true });
   const [showModal, setShowModal] = useState(false);
   const sortOptions = [
     { value: '', label: 'Default' },
