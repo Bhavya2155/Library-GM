@@ -1,6 +1,6 @@
 import express from 'express';
 import prisma from '../lib/db';
-import { auth, isAdmin } from '../middleware/auth';
+import { auth, isAdmin, isCirculationAdmin } from '../middleware/auth';
 
 const router = express.Router();
 router.use(auth);
@@ -190,7 +190,7 @@ router.post('/renew/:id', async (req, res) => {
   }
 });
 
-router.post('/undo-renew/:id', isAdmin, async (req, res) => {
+router.post('/undo-renew/:id', isCirculationAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const record = await prisma.issuedBook.findUnique({ where: { id } });
@@ -247,7 +247,7 @@ router.post('/return/:id', async (req, res) => {
   }
 });
 
-router.post('/undo-return/:id', isAdmin, async (req, res) => {
+router.post('/undo-return/:id', isCirculationAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     
@@ -283,7 +283,7 @@ router.post('/undo-return/:id', isAdmin, async (req, res) => {
   }
 });
 
-router.delete('/:id', isAdmin, async (req, res) => {
+router.delete('/:id', isCirculationAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     

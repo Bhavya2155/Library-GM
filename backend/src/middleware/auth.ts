@@ -21,3 +21,10 @@ export const isAdmin = (req: any, res: Response, next: NextFunction) => {
   }
   next();
 };
+
+export const isCirculationAdmin = (req: any, res: Response, next: NextFunction) => {
+  if (req.role !== 'admin' && req.role !== 'senior_leader') {
+    return res.status(403).json({ error: 'Access denied: Admin or Senior Leader only.' });
+  }
+  next();
+};

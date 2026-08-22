@@ -141,7 +141,7 @@ router.post('/staff', auth, isAdmin, async (req, res) => {
   try {
     const { username, password, role } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
-    if (!['coordinator', 'leader', 'student'].includes(role)) return res.status(400).json({ error: 'Invalid role. Allowed: coordinator, leader, student.' });
+    if (!['coordinator', 'leader', 'student', 'senior_leader'].includes(role)) return res.status(400).json({ error: 'Invalid role. Allowed: coordinator, leader, student, senior_leader.' });
     
     const existing = await prisma.admin.findUnique({ where: { username } });
     if (existing) return res.status(400).json({ error: 'Username already exists' });
@@ -161,7 +161,7 @@ router.put('/staff/:id', auth, isAdmin, async (req, res) => {
   try {
     const { username, password, role } = req.body;
     if (!username) return res.status(400).json({ error: 'Username is required' });
-    if (!['coordinator', 'leader', 'student', 'admin'].includes(role)) return res.status(400).json({ error: 'Invalid role. Allowed: coordinator, leader, student, admin.' });
+    if (!['coordinator', 'leader', 'student', 'senior_leader', 'admin'].includes(role)) return res.status(400).json({ error: 'Invalid role. Allowed: coordinator, leader, student, senior_leader, admin.' });
     
     // Allow editing coordinator/leader/student AND admin (super account)
     const record = await prisma.admin.findFirst({
@@ -199,7 +199,7 @@ router.delete('/staff/:id', auth, isAdmin, async (req, res) => {
       where: {
         id: parseInt(req.params.id),
         username: { not: 'Dada' },
-        role: { in: ['coordinator', 'leader', 'student'] }
+        role: { in: ['coordinator', 'leader', 'student', 'senior_leader'] }
       }
     });
     if (!record) return res.status(404).json({ error: 'Account not found or protected' });
