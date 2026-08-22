@@ -631,7 +631,7 @@ export default function Circulation() {
                   )}
                 </div>
               </td>
-              {role === 'admin' && (
+              {(role === 'admin' || role === 'senior_leader') && (
                 <td className="px-3 py-3">
                   <button onClick={() => handleDelete(record._id)} className="text-red-500 hover:text-red-700 transition-colors bg-red-50 hover:bg-red-100 rounded-lg flex items-center justify-center w-8 h-8" title="Delete Record">
                     <Trash2 size={16} />
