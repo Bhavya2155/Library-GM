@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -7,7 +7,12 @@ import toast from 'react-hot-toast';
 
 export default function Guests() {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data: guests = [], mutate, isLoading } = useSWR(`/guests?search=${searchTerm}`);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+  const { data: guests = [], mutate, isLoading } = useSWR(`/guests?search=${debouncedSearchTerm}`);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '' });
   const [editingId, setEditingId] = useState<string | null>(null);

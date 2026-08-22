@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -8,13 +8,18 @@ import toast from 'react-hot-toast';
 
 export default function Books() {
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
   const [filterCategory, setFilterCategory] = useState('All');
   const [filterLanguage, setFilterLanguage] = useState('All');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&category=${filterCategory}&language=${filterLanguage}`, { keepPreviousData: true });
+  const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${debouncedSearch}&sortBy=${sortBy}&sortOrder=${sortOrder}&category=${filterCategory}&language=${filterLanguage}`, { keepPreviousData: true });
   const [showModal, setShowModal] = useState(false);
   const sortOptions = [
     { value: '', label: 'Default' },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -8,7 +8,12 @@ import { formatName } from '../utils/nameFormatter';
 
 export default function Students() {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data: students = [], mutate, isLoading } = useSWR(`/students?search=${searchTerm}`);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+  const { data: students = [], mutate, isLoading } = useSWR(`/students?search=${debouncedSearchTerm}`);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '', studentId: '' });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
