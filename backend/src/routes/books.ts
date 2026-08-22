@@ -13,11 +13,17 @@ router.get('/', async (req, res) => {
     };
     
     if (search) {
-      whereClause.OR = [
-        { title: { contains: String(search) } },
-        { author: { contains: String(search) } },
-        { isbn: { contains: String(search) } },
-      ];
+      // Remove punctuation and split by whitespace
+      const searchTerms = String(search).replace(/[.,]/g, ' ').trim().split(/\s+/);
+      if (searchTerms.length > 0 && searchTerms[0] !== '') {
+        whereClause.AND = searchTerms.map(term => ({
+          OR: [
+            { title: { contains: term } },
+            { author: { contains: term } },
+            { isbn: { contains: term } },
+          ]
+        }));
+      }
     }
     
     if (category && category !== 'All') {
