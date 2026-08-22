@@ -319,6 +319,12 @@ const Sidebar = () => {
                             Leader
                           </div>
                           <div 
+                            className={`px-3 py-2.5 text-sm cursor-pointer transition-colors flex items-center ${newStaffRole === 'senior_leader' ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
+                            onMouseDown={(e) => { e.preventDefault(); setNewStaffRole('senior_leader'); setShowRoleDropdown(false); }}
+                          >
+                            Senior Leader
+                          </div>
+                          <div 
                             className={`px-3 py-2.5 text-sm cursor-pointer transition-colors flex items-center ${newStaffRole === 'student' ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
                             onMouseDown={(e) => { e.preventDefault(); setNewStaffRole('student'); setShowRoleDropdown(false); }}
                           >
