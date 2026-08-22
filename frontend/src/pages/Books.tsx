@@ -108,7 +108,7 @@ export default function Books() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 shrink-0 relative z-50 w-full">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Books Catalog</h1>
           
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 xl:gap-4 w-full md:w-auto">
             
             {/* Search Box - always visible but adapts width */}
             <div className="relative w-full sm:w-auto">
@@ -122,18 +122,18 @@ export default function Books() {
               />
             </div>
 
-            <div className="flex items-center gap-2 lg:gap-4">
+            <div className="flex items-center gap-2 xl:gap-4">
               {/* Backdrop for closing mobile menu when clicking outside */}
               {isMobileMenuOpen && (
                 <div 
-                  className="fixed inset-0 z-40 lg:hidden"
+                  className="fixed inset-0 z-40 xl:hidden"
                   onClick={() => setIsMobileMenuOpen(false)}
                 ></div>
               )}
 
               {/* Action Filters (Hidden on Mobile, Dropdown on Mobile) */}
-              <div className={`flex-col lg:flex-row items-end lg:items-center gap-3 lg:gap-4 absolute lg:relative top-full right-0 lg:top-auto lg:right-auto mt-2 lg:mt-0 p-4 lg:p-0 bg-white/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none rounded-2xl lg:rounded-none shadow-2xl lg:shadow-none border border-slate-200 lg:border-none z-50 transition-all ${isMobileMenuOpen ? 'flex' : 'hidden lg:flex'}`}>
-                <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 lg:px-3 lg:py-1.5 rounded-xl border border-white/60 shadow-sm w-full lg:w-auto relative z-40">
+              <div className={`flex-col xl:flex-row items-end xl:items-center gap-3 xl:gap-4 absolute xl:relative top-full right-0 xl:top-auto xl:right-auto mt-2 xl:mt-0 p-4 xl:p-0 bg-white/95 xl:bg-transparent backdrop-blur-xl xl:backdrop-blur-none rounded-2xl xl:rounded-none shadow-2xl xl:shadow-none border border-slate-200 xl:border-none z-50 transition-all ${isMobileMenuOpen ? 'flex' : 'hidden xl:flex'}`}>
+                <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 xl:px-3 xl:py-1.5 rounded-xl border border-white/60 shadow-sm w-full xl:w-auto relative z-40">
                   <span className="text-slate-500 font-medium whitespace-nowrap">Sort by:</span>
                   <div className="flex items-center gap-1 w-full justify-end">
                     <Dropdown options={sortOptions} value={sortBy} onChange={setSortBy} align="center" />
@@ -145,12 +145,12 @@ export default function Books() {
                   </div>
                 </div>
                 
-                <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 lg:px-3 lg:py-1.5 rounded-xl border border-white/60 shadow-sm w-full lg:w-auto relative z-20">
+                <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 xl:px-3 xl:py-1.5 rounded-xl border border-white/60 shadow-sm w-full xl:w-auto relative z-20">
                   <span className="text-slate-500 font-medium">Category:</span>
                   <Dropdown options={categoryOptions} value={filterCategory} onChange={setFilterCategory} align="center" />
                 </div>
 
-                <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 lg:px-3 lg:py-1.5 rounded-xl border border-white/60 shadow-sm w-full lg:w-auto relative z-10">
+                <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 xl:px-3 xl:py-1.5 rounded-xl border border-white/60 shadow-sm w-full xl:w-auto relative z-10">
                   <span className="text-slate-500 font-medium">Language:</span>
                   <Dropdown options={languageOptions} value={filterLanguage} onChange={setFilterLanguage} align="right" />
                 </div>
@@ -166,7 +166,7 @@ export default function Books() {
 
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-600 hover:bg-white/80 shadow-sm transition-colors relative z-50 shrink-0"
+                className="xl:hidden p-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-600 hover:bg-white/80 shadow-sm transition-colors relative z-50 shrink-0"
               >
                 <MoreVertical size={20} />
               </button>
