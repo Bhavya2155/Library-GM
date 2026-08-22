@@ -55,7 +55,7 @@ const Sidebar = () => {
       const res = await axios.get('/admin/staff', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const roleOrder: Record<string, number> = { admin: 1, coordinator: 2, leader: 3, student: 4 };
+      const roleOrder: Record<string, number> = { admin: 1, senior_leader: 2, coordinator: 3, leader: 4, student: 5 };
       const sortedStaff = res.data.sort((a: any, b: any) => {
         const rankA = roleOrder[a.role] || 99;
         const rankB = roleOrder[b.role] || 99;
