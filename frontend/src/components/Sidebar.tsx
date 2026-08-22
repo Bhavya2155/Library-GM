@@ -174,7 +174,7 @@ const Sidebar = () => {
         <img src="/logo.png" alt="Gnan Mandir Logo" className="h-10 w-auto object-contain drop-shadow-sm" />
         <div className="flex flex-col items-center gap-0.5">
           <span className="text-[10px] font-bold tracking-wider text-indigo-600 uppercase text-center whitespace-nowrap">
-            {role === 'admin' || role === 'coordinator' || role === 'senior_leader' ? 'Coordinator Library Dashboard' : role === 'leader' ? 'Leader Library Dashboard' : 'Student Library Dashboard'}
+            {role === 'admin' || role === 'coordinator' ? 'Coordinator Library Dashboard' : role === 'senior_leader' ? 'Senior Leader Library Dashboard' : role === 'leader' ? 'Leader Library Dashboard' : 'Student Library Dashboard'}
           </span>
           {role === 'admin' && (
             <span className="text-[9px] font-bold tracking-wider text-rose-500 uppercase text-center">
@@ -189,7 +189,7 @@ const Sidebar = () => {
         {(role === 'admin' || role === 'coordinator' || role === 'senior_leader' || role === 'leader') && (
           <NavLink onClick={() => setIsMobileOpen(false)} to="/books" onMouseEnter={() => prefetchAll("/books")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><BookOpen size={20} /> Books</NavLink>
         )}
-        {(role === 'admin' || role === 'coordinator' || role === 'senior_leader') && (
+        {(role === 'admin' || role === 'coordinator') && (
           <>
             <NavLink onClick={() => setIsMobileOpen(false)} to="/students" onMouseEnter={() => prefetchAll("/students")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Users size={20} /> Students</NavLink>
             <NavLink onClick={() => setIsMobileOpen(false)} to="/guests" onMouseEnter={() => prefetchAll("/guests")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><UserCircle size={20} /> Guests</NavLink>
