@@ -505,7 +505,7 @@ export default function Circulation() {
                   <div className="flex items-center gap-1">Status {renderSortIcon('status')}</div>
                 </th>
                 <th className="px-3 py-3 font-semibold ">Actions</th>
-                {role === 'admin' && <th className="px-3 py-3 font-semibold ">Delete</th>}
+                {(role === 'admin' || role === 'senior_leader') && <th className="px-3 py-3 font-semibold ">Delete</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
@@ -612,7 +612,7 @@ export default function Circulation() {
                               <button onClick={() => handleRenew(record._id)} className="text-emerald-600 hover:text-emerald-800 text-xs font-medium flex items-center gap-1 transition-colors bg-emerald-50 px-2 py-1.5 rounded-lg whitespace-nowrap">
                                 <CheckCircle size={14} /> Renew
                               </button>
-                            ) : role === 'admin' ? (
+                            ) : (role === 'admin' || role === 'senior_leader') ? (
                               <button onClick={() => handleUndoRenew(record._id)} className="text-amber-600 hover:text-amber-800 text-xs font-medium flex items-center gap-1 transition-colors bg-amber-50 px-2 py-1.5 rounded-lg whitespace-nowrap">
                                 <RotateCcw size={14} /> Undo Renew
                               </button>
@@ -623,7 +623,7 @@ export default function Circulation() {
                       </button>
                     </>
                   ) : (
-                    role === 'admin' && (
+                    (role === 'admin' || role === 'senior_leader') && (
                       <button onClick={() => handleUndoReturn(record._id)} className="text-slate-600 hover:text-slate-800 text-xs font-medium flex items-center gap-1 transition-colors bg-slate-100 px-2 py-1.5 rounded-lg whitespace-nowrap">
                         <RotateCcw size={14} /> Undo Return
                       </button>

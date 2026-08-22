@@ -174,7 +174,7 @@ const Sidebar = () => {
         <img src="/logo.png" alt="Gnan Mandir Logo" className="h-10 w-auto object-contain drop-shadow-sm" />
         <div className="flex flex-col items-center gap-0.5">
           <span className="text-[10px] font-bold tracking-wider text-indigo-600 uppercase text-center whitespace-nowrap">
-            {role === 'admin' || role === 'coordinator' ? 'Coordinator Library Dashboard' : role === 'leader' ? 'Leader Library Dashboard' : 'Student Library Dashboard'}
+            {role === 'admin' || role === 'coordinator' || role === 'senior_leader' ? 'Coordinator Library Dashboard' : role === 'leader' ? 'Leader Library Dashboard' : 'Student Library Dashboard'}
           </span>
           {role === 'admin' && (
             <span className="text-[9px] font-bold tracking-wider text-rose-500 uppercase text-center">
@@ -186,10 +186,10 @@ const Sidebar = () => {
       
       <nav className="flex-1 p-4 flex flex-col gap-2">
         <NavLink onClick={() => setIsMobileOpen(false)} to="/" onMouseEnter={() => prefetchAll("/")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`} end><LayoutDashboard size={20} /> Dashboard</NavLink>
-        {(role === 'admin' || role === 'coordinator' || role === 'leader') && (
+        {(role === 'admin' || role === 'coordinator' || role === 'senior_leader' || role === 'leader') && (
           <NavLink onClick={() => setIsMobileOpen(false)} to="/books" onMouseEnter={() => prefetchAll("/books")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><BookOpen size={20} /> Books</NavLink>
         )}
-        {(role === 'admin' || role === 'coordinator') && (
+        {(role === 'admin' || role === 'coordinator' || role === 'senior_leader') && (
           <>
             <NavLink onClick={() => setIsMobileOpen(false)} to="/students" onMouseEnter={() => prefetchAll("/students")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Users size={20} /> Students</NavLink>
             <NavLink onClick={() => setIsMobileOpen(false)} to="/guests" onMouseEnter={() => prefetchAll("/guests")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><UserCircle size={20} /> Guests</NavLink>
@@ -298,7 +298,7 @@ const Sidebar = () => {
                         }`}
                         onClick={() => { if (newStaffRole !== 'admin') setShowRoleDropdown(!showRoleDropdown); }}
                       >
-                        <span className="capitalize font-medium">{newStaffRole === 'admin' ? 'Boss' : newStaffRole}</span>
+                        <span className="capitalize font-medium">{newStaffRole === 'admin' ? 'Boss' : newStaffRole.replace('_', ' ')}</span>
                         {newStaffRole !== 'admin' && (
                           <ChevronDown size={16} className={`text-slate-400 transition-transform ${showRoleDropdown ? 'rotate-180' : ''}`} />
                         )}
@@ -377,8 +377,9 @@ const Sidebar = () => {
                               staff.role === 'admin' ? 'bg-red-100 text-red-700' :
                               staff.role === 'coordinator' ? 'bg-indigo-100 text-indigo-700' :
                               staff.role === 'leader' ? 'bg-purple-100 text-purple-700' :
+                              staff.role === 'senior_leader' ? 'bg-fuchsia-100 text-fuchsia-700' :
                               'bg-slate-100 text-slate-600'
-                            }`}>{staff.role === 'admin' ? 'super account' : staff.role || 'student'}</span>
+                            }`}>{staff.role === 'admin' ? 'super account' : (staff.role || 'student').replace('_', ' ')}</span>
                           </div>
                           <div className="flex gap-2 shrink-0 justify-end">
                             <button onClick={() => startEditStaff(staff)} className="text-indigo-500 hover:text-indigo-700 text-sm font-medium px-2 py-1 rounded hover:bg-indigo-50 transition-colors">Edit</button>

@@ -487,8 +487,8 @@ export default function Dashboard() {
                     <tr key={login.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4 text-slate-900 font-medium">{login.username}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${login.role === 'admin' ? 'bg-amber-100 text-amber-700' : login.role === 'leader' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                          {login.role === 'admin' ? 'COORDINATOR' : login.role === 'leader' ? 'LEADER' : 'STUDENT'}
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${login.role === 'admin' ? 'bg-amber-100 text-amber-700' : login.role === 'senior_leader' ? 'bg-fuchsia-100 text-fuchsia-700' : login.role === 'leader' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {login.role === 'admin' ? 'SUPER ACCOUNT' : login.role === 'coordinator' ? 'COORDINATOR' : login.role === 'senior_leader' ? 'SENIOR LEADER' : login.role === 'leader' ? 'LEADER' : 'STUDENT'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-600">
