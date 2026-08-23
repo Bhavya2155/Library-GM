@@ -13,8 +13,9 @@ export default function Books() {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(timer);
   }, [search]);
-  const [sortBy, setSortBy] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [sortConfig, setSortConfig] = useState('');
+  const sortBy = sortConfig ? sortConfig.split('-')[0] : '';
+  const sortOrder = sortConfig ? sortConfig.split('-')[1] : 'asc';
   const [filterCategory, setFilterCategory] = useState('All');
   const [filterLanguage, setFilterLanguage] = useState('All');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -23,14 +24,14 @@ export default function Books() {
   const [showModal, setShowModal] = useState(false);
   const sortOptions = [
     { value: '', label: 'Default' },
-    { value: 'title', label: 'Title' },
-    { value: 'author', label: 'Author' },
-    { value: 'category', label: 'Category' },
-    { value: 'language', label: 'Language' },
-  ];
-  const orderOptions = [
-    { value: 'asc', label: 'A-Z' },
-    { value: 'desc', label: 'Z-A' },
+    { value: 'title-asc', label: 'Title (A-Z)' },
+    { value: 'title-desc', label: 'Title (Z-A)' },
+    { value: 'author-asc', label: 'Author (A-Z)' },
+    { value: 'author-desc', label: 'Author (Z-A)' },
+    { value: 'category-asc', label: 'Category (A-Z)' },
+    { value: 'category-desc', label: 'Category (Z-A)' },
+    { value: 'language-asc', label: 'Language (A-Z)' },
+    { value: 'language-desc', label: 'Language (Z-A)' },
   ];
   const categoryOptions = [
     { value: 'All', label: 'All' },
@@ -134,14 +135,9 @@ export default function Books() {
               {/* Action Filters (Hidden on Mobile, Dropdown on Mobile) */}
               <div className={`flex-col xl:flex-row items-end xl:items-center gap-3 xl:gap-4 absolute xl:relative top-full right-0 xl:top-auto xl:right-auto mt-2 xl:mt-0 p-4 xl:p-0 bg-white/95 xl:bg-transparent backdrop-blur-xl xl:backdrop-blur-none rounded-2xl xl:rounded-none shadow-2xl xl:shadow-none border border-slate-200 xl:border-none z-50 transition-all ${isMobileMenuOpen ? 'flex' : 'hidden xl:flex'}`}>
                 <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 xl:px-3 xl:py-1.5 rounded-xl border border-white/60 shadow-sm w-full xl:w-auto relative z-40">
-                  <span className="text-slate-500 font-medium whitespace-nowrap">Sort by:</span>
+                  <span className="text-slate-500 font-medium whitespace-nowrap">Sort:</span>
                   <div className="flex items-center gap-1 w-full justify-end">
-                    <Dropdown options={sortOptions} value={sortBy} onChange={setSortBy} align="center" />
-                    {sortBy && (
-                      <div className="border-l border-slate-300 pl-2 ml-1 relative z-30">
-                        <Dropdown options={orderOptions} value={sortOrder} onChange={setSortOrder} align="center" />
-                      </div>
-                    )}
+                    <Dropdown options={sortOptions} value={sortConfig} onChange={setSortConfig} align="center" />
                   </div>
                 </div>
                 
