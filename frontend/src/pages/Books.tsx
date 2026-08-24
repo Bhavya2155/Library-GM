@@ -18,7 +18,7 @@ export default function Books() {
   const sortOrder = sortConfig ? sortConfig.split('-')[1] : 'asc';
   const [filterCategory, setFilterCategory] = useState('All');
   const [filterLanguage, setFilterLanguage] = useState('All');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   
   const { data: books = [], mutate, isLoading } = useSWR(`/books?search=${debouncedSearch}&sortBy=${sortBy}&sortOrder=${sortOrder}&category=${filterCategory}&language=${filterLanguage}`, { keepPreviousData: true });
   const [showModal, setShowModal] = useState(false);
@@ -74,7 +74,7 @@ export default function Books() {
       setEditingId(null);
       mutate();
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to save book');
+      toast.error(err.response?.data?.error || 'Error saving book');
     }
   };
 
@@ -92,19 +92,19 @@ export default function Books() {
   };
 
   const handleDelete = async (id: string) => {
-    if(!confirm('Are you sure you want to delete this book?')) return;
+    if (!window.confirm('Are you sure you want to delete this book?')) return;
     try {
       await axios.delete(`/books/${id}`);
       toast.success('Book deleted');
       mutate();
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to delete book');
+      toast.error('Error deleting book');
     }
   };
 
   return (
-    <div className="h-full overflow-y-auto p-4 md:p-8">
-      <div className="max-w-7xl mx-auto relative z-10">
+    <div className="h-full overflow-y-auto p-4 md:p-8 relative">
+      <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 shrink-0 relative z-50 w-full">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Books Catalog</h1>
@@ -125,15 +125,15 @@ export default function Books() {
 
             <div className="flex items-center gap-2 xl:gap-4">
               {/* Backdrop for closing mobile menu when clicking outside */}
-              {isMobileMenuOpen && (
+              {isFilterMenuOpen && (
                 <div 
-                  className="fixed inset-0 z-40 xl:hidden"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsFilterMenuOpen(false)}
                 ></div>
               )}
 
               {/* Action Filters (Hidden on Mobile, Dropdown on Mobile) */}
-              <div className={`flex-col xl:flex-row items-end xl:items-center gap-3 xl:gap-4 absolute xl:relative top-full right-0 xl:top-auto xl:right-auto mt-2 xl:mt-0 p-4 xl:p-0 bg-white/95 xl:bg-transparent backdrop-blur-xl xl:backdrop-blur-none rounded-2xl xl:rounded-none shadow-2xl xl:shadow-none border border-slate-200 xl:border-none z-50 transition-all ${isMobileMenuOpen ? 'flex' : 'hidden xl:flex'}`}>
+              <div className={`flex-col items-end sm:items-start gap-3 absolute top-full right-0 mt-2 p-4 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200 z-50 transition-all ${isFilterMenuOpen ? 'flex' : 'hidden'}`}>
                 <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 xl:px-3 xl:py-1.5 rounded-xl border border-white/60 shadow-sm w-full xl:w-auto relative z-40">
                   <span className="text-slate-500 font-medium whitespace-nowrap">Sort:</span>
                   <div className="flex items-center gap-1 w-full justify-end">
@@ -152,19 +152,20 @@ export default function Books() {
                 </div>
               </div>
 
+              <button 
+                onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+                className="px-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-700 font-medium hover:bg-white/80 shadow-sm transition-colors relative z-50 shrink-0 flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                <span className="hidden sm:inline">Filters</span>
+              </button>
+
               {/* Always Visible Actions */}
               <button
                 onClick={() => { setEditingId(null); setForm({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 }); setShowModal(true); }}
                 className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-4 sm:px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5 shrink-0"
               >
                 <Plus size={20} /> <span>Add Book</span>
-              </button>
-
-              <button 
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="xl:hidden p-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-600 hover:bg-white/80 shadow-sm transition-colors relative z-50 shrink-0"
-              >
-                <MoreVertical size={20} />
               </button>
             </div>
           </div>
