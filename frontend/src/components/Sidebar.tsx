@@ -380,11 +380,11 @@ const Sidebar = () => {
                           </div>
                           <div className="flex-1">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap ${
-                              staff.role === 'admin' ? 'bg-red-100 text-red-700' :
-                              staff.role === 'coordinator' ? 'bg-indigo-100 text-indigo-700' :
+                              staff.role === 'admin' ? 'bg-amber-100 text-amber-700' :
+                              staff.role === 'coordinator' ? 'bg-emerald-100 text-emerald-700' :
                               staff.role === 'leader' ? 'bg-purple-100 text-purple-700' :
-                              staff.role === 'senior_leader' ? 'bg-fuchsia-100 text-fuchsia-700' :
-                              'bg-slate-100 text-slate-600'
+                              staff.role === 'senior_leader' ? 'bg-rose-100 text-rose-700' :
+                              'bg-blue-100 text-blue-700'
                             }`}>{staff.role === 'admin' ? 'super account' : (staff.role || 'student').replace('_', ' ')}</span>
                           </div>
                           <div className="flex gap-2 shrink-0 justify-end">
