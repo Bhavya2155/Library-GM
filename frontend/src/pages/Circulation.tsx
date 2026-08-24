@@ -311,7 +311,14 @@ export default function Circulation() {
 
   const exportToExcel = () => {
     const filteredRecords = records.filter(r => {
-      if (statusFilter !== 'all' && r.status !== statusFilter) return false;
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'overdue') {
+          const isOverdue = r.status === 'issued' && ((new Date().getTime() - new Date(r.issueDate).getTime()) / (1000 * 3600 * 24) > 14);
+          if (!isOverdue) return false;
+        } else if (r.status !== statusFilter) {
+          return false;
+        }
+      }
       if (activeTab === 'students' && !r.studentId) return false;
       if (activeTab === 'guests' && !r.guestId) return false;
       if (dateFilter && (!r.issueDate || !r.issueDate.startsWith(dateFilter))) return false;
@@ -407,7 +414,7 @@ export default function Circulation() {
                     onBlur={() => setTimeout(() => setIsStatusDropdownOpen(false), 200)}
                     className="w-full px-4 py-2 bg-white/60 backdrop-blur-md border border-slate-200 lg:border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none text-slate-700 font-medium shadow-sm hover:bg-white/80 transition-colors flex justify-between items-center gap-2"
                   >
-                    <span>{statusFilter === 'all' ? 'All Status' : statusFilter === 'issued' ? 'Issued' : 'Returned'}</span>
+                    <span>{statusFilter === 'all' ? 'All Status' : statusFilter === 'issued' ? 'Issued' : statusFilter === 'returned' ? 'Returned' : 'Overdue'}</span>
                     <ChevronDown size={16} className={`text-slate-400 transition-transform duration-300 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
@@ -416,6 +423,7 @@ export default function Circulation() {
                       <div onMouseDown={() => { setStatusFilter('all'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">All Status</div>
                       <div onMouseDown={() => { setStatusFilter('issued'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">Issued</div>
                       <div onMouseDown={() => { setStatusFilter('returned'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">Returned</div>
+                      <div onMouseDown={() => { setStatusFilter('overdue'); setIsStatusDropdownOpen(false); }} className="px-4 py-2 hover:bg-indigo-50/80 cursor-pointer transition-colors text-sm font-medium text-slate-700">Overdue</div>
                     </div>
                   )}
                 </div>
@@ -510,7 +518,14 @@ export default function Circulation() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
               {records.filter(r => {
-                if (statusFilter !== 'all' && r.status !== statusFilter) return false;
+                if (statusFilter !== 'all') {
+                  if (statusFilter === 'overdue') {
+                    const isOverdue = r.status === 'issued' && ((new Date().getTime() - new Date(r.issueDate).getTime()) / (1000 * 3600 * 24) > 14);
+                    if (!isOverdue) return false;
+                  } else if (r.status !== statusFilter) {
+                    return false;
+                  }
+                }
                 if (activeTab === 'students' && !r.studentId) return false;
                 if (activeTab === 'guests' && !r.guestId) return false;
                 if (dateFilter && (!r.issueDate || !r.issueDate.startsWith(dateFilter))) return false;
