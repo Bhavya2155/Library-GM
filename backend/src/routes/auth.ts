@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
       prisma.loginHistory.create({
         data: {
           username: admin.username,
-          role: admin.role
+          role: admin.role === 'admin' ? 'coordinator' : admin.role
         }
       }).catch(err => console.error("History Error:", err));
     }
