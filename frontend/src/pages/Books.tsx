@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
-import { Plus, Search, Trash2, Pencil, X, MoreVertical } from 'lucide-react';
+import { Plus, Search, Trash2, Pencil, X } from 'lucide-react';
 import Dropdown from '../components/Dropdown';
 import toast from 'react-hot-toast';
 
