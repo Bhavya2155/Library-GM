@@ -219,7 +219,7 @@ const Sidebar = () => {
                       <li key={n._id} 
                           onClick={() => {
                             setShowDropdown(false);
-                            window.location.href = `/circulation?search=${encodeURIComponent(n.studentGmNo || n.guestName)}`;
+                            window.location.href = `/circulation?search=${encodeURIComponent(n.studentName || n.guestName)}`;
                           }}
                           className="p-4 hover:bg-slate-50/50 cursor-pointer transition-colors">
                         <div className="font-semibold text-sm text-slate-800 line-clamp-1">
