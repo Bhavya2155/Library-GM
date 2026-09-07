@@ -142,19 +142,24 @@ const Sidebar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await axios.get('/notifications');
-        setNotifications(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
-  }, []);
+    useEffect(() => {
+      const fetchNotifications = async () => {
+        try {
+          const res = await axios.get('/notifications');
+          setNotifications(res.data);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 60000);
+      window.addEventListener('refreshNotifications', fetchNotifications);
+      
+      return () => {
+        clearInterval(interval);
+        window.removeEventListener('refreshNotifications', fetchNotifications);
+      };
+    }, []);
 
   return (
     <>
