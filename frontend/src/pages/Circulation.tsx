@@ -233,7 +233,7 @@ export default function Circulation() {
     }));
 
     axios.post(`/circulation/renew/${id}`)
-      .then(() => toast.success('Book renewed successfully'))
+      .then(() => { toast.success('Book renewed successfully'); window.dispatchEvent(new Event('refreshNotifications')); })
       .catch((err) => {
         refreshCirculation();
         toast.error(err.response?.data?.error || 'Failed to renew book');
@@ -269,7 +269,7 @@ export default function Circulation() {
     setBooks(prev => prev.map((b: any) => b._id === records.find(r => r._id === id)?.bookId?._id ? { ...b, availableCopies: b.availableCopies + 1 } : b));
 
     axios.post(`/circulation/return/${id}`)
-      .then(() => toast.success('Book returned'))
+      .then(() => { toast.success('Book returned'); window.dispatchEvent(new Event('refreshNotifications')); })
       .catch((err) => {
         refreshCirculation();
         toast.error(err.response?.data?.error || 'Failed to process return');
