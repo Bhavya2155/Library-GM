@@ -61,7 +61,12 @@ export default function Guests() {
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full sm:w-full sm:w-64 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400" />
+            <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-10 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full sm:w-full sm:w-64 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400" />
+            {searchTerm && (
+              <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                <X size={16} />
+              </button>
+            )}
           </div>
           <button onClick={() => { setEditingId(null); setForm({ name: '' }); setShowModal(true); }} className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5 whitespace-nowrap">
             <UserCircle size={20} /> Register Guest

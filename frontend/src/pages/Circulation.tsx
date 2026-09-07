@@ -394,7 +394,17 @@ export default function Circulation() {
             {/* Search Box - always visible but adapts width */}
             <div className="relative w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-              <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full sm:w-48 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400" />
+              <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-10 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none w-full sm:w-48 shadow-sm hover:bg-white/80 transition-colors text-slate-700 placeholder:text-slate-400" />
+              {searchTerm && (
+                <button onClick={() => {
+                  setSearchTerm('');
+                  if (window.location.search.includes('search=')) {
+                    window.history.replaceState({}, '', window.location.pathname);
+                  }
+                }} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                  <X size={16} />
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-2 xl:gap-4">
