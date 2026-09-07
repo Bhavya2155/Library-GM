@@ -327,12 +327,12 @@ export default function Circulation() {
       const gmNo = r.studentId?.studentId || '';
       const title = r.bookId?.title || '';
       const isbn = r.bookId?.isbn || '';
-      const name = formatName(r.studentId?.name) || formatName(r.guestId?.name) || '';
+      const rawName = r.studentId?.name || r.guestId?.name || '';
       return (
         gmNo.toLowerCase().includes(term) ||
         title.toLowerCase().includes(term) ||
         isbn.toLowerCase().includes(term) ||
-        name.toLowerCase().includes(term)
+        rawName.toLowerCase().includes(term)
       );
     });
 
@@ -534,12 +534,12 @@ export default function Circulation() {
                 const gmNo = r.studentId?.studentId || '';
                 const title = r.bookId?.title || '';
                 const isbn = r.bookId?.isbn || '';
-                const name = formatName(r.studentId?.name) || formatName(r.guestId?.name) || '';
+                const rawName = r.studentId?.name || r.guestId?.name || '';
                 return (
                   gmNo.toLowerCase().includes(term) ||
                   title.toLowerCase().includes(term) ||
                   isbn.toLowerCase().includes(term) ||
-                  name.toLowerCase().includes(term)
+                  rawName.toLowerCase().includes(term)
                 );
               }).sort((a, b) => {
                 let aValue: any = '';
