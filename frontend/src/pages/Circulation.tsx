@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { BookmarkPlus, CheckCircle, Trash2, RotateCcw, Download, Search, ChevronDown, ArrowUp, ArrowDown, Calendar, X, MoreVertical } from 'lucide-react';
@@ -206,8 +206,17 @@ export default function Circulation() {
 
     toast.promise(promise, {
       loading: 'Issuing book...',
-      success: () => {
-        refreshCirculation(); // ONLY fetch circulation, not everything
+      success: (res: any) => {
+        const newRecord = res.data.record;
+        
+        // Optimistically insert the new record at the top of the local state and SWR cache!
+        if (newRecord) {
+          setRecords(prev => [newRecord, ...prev]);
+          mutate('/circulation', [newRecord, ...(initialRecords || [])], false);
+        } else {
+          refreshCirculation(); // Fallback if record wasn't returned
+        }
+        
         // Optimistically remove a copy from the local state
         if (!isCustomBook) {
           setBooks(prev => prev.map((b: any) => b._id === bookId ? { ...b, availableCopies: b.availableCopies - 1 } : b).filter((b: any) => b.availableCopies > 0));

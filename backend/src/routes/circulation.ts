@@ -72,7 +72,7 @@ router.post('/issue', async (req, res) => {
     dueDate.setDate(dueDate.getDate() + 7);
 
     // 2. Perform writes in a single batch transaction (1 network round trip)
-    await prisma.$transaction([
+    const [newIssue] = await prisma.$transaction([
       prisma.issuedBook.create({
         data: {
           bookId: parseInt(bookId),
@@ -81,6 +81,11 @@ router.post('/issue', async (req, res) => {
           dueDate,
           renewals: 0,
           issuedBy
+        },
+        include: {
+          book: { select: { id: true, title: true, isbn: true } },
+          student: { select: { id: true, name: true, studentId: true } },
+          guest: { select: { id: true, name: true } }
         }
       }),
       prisma.book.update({
@@ -89,7 +94,21 @@ router.post('/issue', async (req, res) => {
       })
     ]);
 
-    res.status(201).json({ message: 'Issued successfully' });
+    const mapped = {
+      _id: newIssue.id,
+      issueDate: newIssue.issueDate,
+      dueDate: newIssue.dueDate,
+      returnDate: newIssue.returnDate,
+      renewDate: newIssue.renewDate,
+      status: newIssue.status,
+      renewals: newIssue.renewals,
+      issuedBy: newIssue.issuedBy,
+      bookId: newIssue.book ? { _id: newIssue.book.id, title: newIssue.book.title, isbn: newIssue.book.isbn } : null,
+      studentId: newIssue.student ? { _id: newIssue.student.id, name: newIssue.student.name, studentId: newIssue.student.studentId } : null,
+      guestId: newIssue.guest ? { _id: newIssue.guest.id, name: newIssue.guest.name } : null
+    };
+
+    res.status(201).json({ message: 'Issued successfully', record: mapped });
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
@@ -129,7 +148,7 @@ router.post('/issue-custom', async (req, res) => {
 
     const fakeIsbn = `CUSTOM-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-    await prisma.$transaction(async (tx) => {
+    const newIssue = await prisma.$transaction(async (tx) => {
       const newBook = await tx.book.create({
         data: {
           title: `[Custom] ${customBookName.trim()}`,
@@ -142,7 +161,7 @@ router.post('/issue-custom', async (req, res) => {
         }
       });
 
-      await tx.issuedBook.create({
+      return tx.issuedBook.create({
         data: {
           bookId: newBook.id,
           studentId: studentId ? parseInt(studentId) : null,
@@ -150,11 +169,30 @@ router.post('/issue-custom', async (req, res) => {
           dueDate,
           renewals: 0,
           issuedBy
+        },
+        include: {
+          book: { select: { id: true, title: true, isbn: true } },
+          student: { select: { id: true, name: true, studentId: true } },
+          guest: { select: { id: true, name: true } }
         }
       });
     });
 
-    res.status(201).json({ message: 'Issued custom book successfully' });
+    const mapped = {
+      _id: newIssue.id,
+      issueDate: newIssue.issueDate,
+      dueDate: newIssue.dueDate,
+      returnDate: newIssue.returnDate,
+      renewDate: newIssue.renewDate,
+      status: newIssue.status,
+      renewals: newIssue.renewals,
+      issuedBy: newIssue.issuedBy,
+      bookId: newIssue.book ? { _id: newIssue.book.id, title: newIssue.book.title, isbn: newIssue.book.isbn } : null,
+      studentId: newIssue.student ? { _id: newIssue.student.id, name: newIssue.student.name, studentId: newIssue.student.studentId } : null,
+      guestId: newIssue.guest ? { _id: newIssue.guest.id, name: newIssue.guest.name } : null
+    };
+
+    res.status(201).json({ message: 'Issued custom book successfully', record: mapped });
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
