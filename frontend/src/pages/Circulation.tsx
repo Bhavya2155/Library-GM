@@ -121,14 +121,6 @@ export default function Circulation() {
     // SWR handles fetching automatically
   };
 
-  const refreshCirculation = async () => {
-    try {
-      const recRes = await axios.get('/circulation');
-      setRecords(recRes.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   useEffect(() => {
     fetchData();
