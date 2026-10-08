@@ -209,14 +209,12 @@ export default function Circulation() {
       success: (res: any) => {
         const newRecord = res.data.record;
         
+        // Optimistically insert the new record at the top of the local state and SWR cache!
         if (newRecord) {
-          setRecords(prev => {
-            const updated = [newRecord, ...prev];
-            mutate('/circulation', updated, false); // Keep SWR cache perfectly synced with our local changes
-            return updated;
-          });
+          setRecords(prev => [newRecord, ...prev]);
+          mutate('/circulation', [newRecord, ...(initialRecords || [])], false);
         } else {
-          mutate('/circulation'); // Fallback to background fetch
+          mutate('/circulation'); // Fallback if record wasn't returned
         }
         
         // Optimistically remove a copy from the local state
