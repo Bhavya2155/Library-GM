@@ -19,7 +19,7 @@ app.use(express.json());
 
 import { cleanupDatabase } from './jobs/cron';
 app.get('/api/cron/cleanup', async (req, res) => {
-  if (req.headers.authorization !== \Bearer ${process.env.CRON_SECRET}\ && process.env.VERCEL) {
+  if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}` && process.env.VERCEL) {
     return res.status(401).end('Unauthorized');
   }
   await cleanupDatabase();
@@ -40,7 +40,7 @@ app.use('/api/assistant', aiRoutes);
 const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-  app.listen(PORT, () => console.log(\Server running on port ${PORT} with SQLite Database\));
+  app.listen(PORT, () => console.log(`Server running on port ${PORT} with SQLite Database`));
 }
 
 export default app;

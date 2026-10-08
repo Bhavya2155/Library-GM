@@ -10,12 +10,12 @@ export async function cleanupDatabase() {
     const deletedLogins = await prisma.loginHistory.deleteMany({
       where: { loginTime: { lt: oneAndHalfYearsAgo } }
     });
-    console.log(Deleted $ login history records older than 1.5 years.);
+    console.log(`Deleted ${deletedLogins.count} login history records older than 1.5 years.`);
 
     const deletedIssued = await prisma.issuedBook.deleteMany({
       where: { status: 'returned', returnDate: { lt: oneAndHalfYearsAgo } }
     });
-    console.log(Deleted $ returned circulation records older than 1.5 years.);
+    console.log(`Deleted ${deletedIssued.count} returned circulation records older than 1.5 years.`);
 
   } catch (error) {
     console.error('Error during daily cleanup cron job:', error);
