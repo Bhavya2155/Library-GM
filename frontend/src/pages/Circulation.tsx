@@ -209,12 +209,14 @@ export default function Circulation() {
       success: (res: any) => {
         const newRecord = res.data.record;
         
-        // Optimistically insert the new record at the top of the local state and SWR cache!
         if (newRecord) {
-          setRecords(prev => [newRecord, ...prev]);
-          mutate('/circulation', [newRecord, ...(initialRecords || [])], false);
+          setRecords(prev => {
+            const updated = [newRecord, ...prev];
+            mutate('/circulation', updated, false); // Keep SWR cache perfectly synced with our local changes
+            return updated;
+          });
         } else {
-          refreshCirculation(); // Fallback if record wasn't returned
+          mutate('/circulation'); // Fallback to background fetch
         }
         
         // Optimistically remove a copy from the local state
@@ -242,9 +244,9 @@ export default function Circulation() {
     }));
 
     axios.post(`/circulation/renew/${id}`)
-      .then(() => { toast.success('Book renewed successfully'); window.dispatchEvent(new Event('refreshNotifications')); })
+      .then(() => { toast.success(''); window.dispatchEvent(new Event('refreshNotifications')); mutate('/circulation'); })
       .catch((err) => {
-        refreshCirculation();
+        mutate('/circulation');
         toast.error(err.response?.data?.error || 'Failed to renew book');
       });
   };
@@ -263,9 +265,9 @@ export default function Circulation() {
     }));
 
     axios.post(`/circulation/undo-renew/${id}`)
-      .then(() => { toast.success('Renew undone'); window.dispatchEvent(new Event('refreshNotifications')); })
+      .then(() => { toast.success(''); window.dispatchEvent(new Event('refreshNotifications')); mutate('/circulation'); })
       .catch((err) => {
-        refreshCirculation();
+        mutate('/circulation');
         toast.error(err.response?.data?.error || 'Failed to undo renew');
       });
   };
@@ -278,9 +280,9 @@ export default function Circulation() {
     setBooks(prev => prev.map((b: any) => b._id === records.find(r => r._id === id)?.bookId?._id ? { ...b, availableCopies: b.availableCopies + 1 } : b));
 
     axios.post(`/circulation/return/${id}`)
-      .then(() => { toast.success('Book returned'); window.dispatchEvent(new Event('refreshNotifications')); })
+      .then(() => { toast.success(''); window.dispatchEvent(new Event('refreshNotifications')); mutate('/circulation'); })
       .catch((err) => {
-        refreshCirculation();
+        mutate('/circulation');
         toast.error(err.response?.data?.error || 'Failed to process return');
       });
   };
@@ -293,9 +295,9 @@ export default function Circulation() {
     setBooks(prev => prev.map((b: any) => b._id === records.find(r => r._id === id)?.bookId?._id ? { ...b, availableCopies: b.availableCopies - 1 } : b));
 
     axios.post(`/circulation/undo-return/${id}`)
-      .then(() => { toast.success('Return undone'); window.dispatchEvent(new Event('refreshNotifications')); })
+      .then(() => { toast.success(''); window.dispatchEvent(new Event('refreshNotifications')); mutate('/circulation'); })
       .catch((err) => {
-        refreshCirculation();
+        mutate('/circulation');
         toast.error(err.response?.data?.error || 'Failed to undo return');
       });
   };
@@ -311,9 +313,9 @@ export default function Circulation() {
     }
 
     axios.delete(`/circulation/${id}`)
-      .then(() => { toast.success('Record deleted'); window.dispatchEvent(new Event('refreshNotifications')); })
+      .then(() => { toast.success(''); window.dispatchEvent(new Event('refreshNotifications')); mutate('/circulation'); })
       .catch((err) => {
-        refreshCirculation();
+        mutate('/circulation');
         toast.error(err.response?.data?.error || 'Failed to delete record');
       });
   };
