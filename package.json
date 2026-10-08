@@ -1,0 +1,12 @@
+{
+  "name": "library-gm",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "postinstall": "cd backend && npx prisma generate",
+    "build": "cd frontend && npm run build"
+  }
+}

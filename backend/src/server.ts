@@ -9,22 +9,24 @@ import circulationRoutes from './routes/circulation';
 import notificationRoutes from './routes/notifications';
 import guestsRoutes from './routes/guests';
 import aiRoutes from './routes/ai';
-import './lib/db'; // Initialize DB
-import { initCronJobs } from './jobs/cron';
+import './lib/db';
 
 dotenv.config();
-
-// Initialize background jobs
-initCronJobs();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Root ping route for uptime monitors
-app.get('/', (req, res) => {
-  res.status(200).send('API is running');
+import { cleanupDatabase } from './jobs/cron';
+app.get('/api/cron/cleanup', async (req, res) => {
+  if (req.headers.authorization !== \Bearer ${process.env.CRON_SECRET}\ && process.env.VERCEL) {
+    return res.status(401).end('Unauthorized');
+  }
+  await cleanupDatabase();
+  res.status(200).send('Cleanup complete');
 });
+
+app.get('/', (req, res) => res.status(200).send('API is running'));
 
 app.use('/api/admin', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
@@ -37,4 +39,8 @@ app.use('/api/assistant', aiRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT} with SQLite Database`));
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => console.log(\Server running on port ${PORT} with SQLite Database\));
+}
+
+export default app;
