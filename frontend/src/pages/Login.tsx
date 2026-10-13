@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Download, CheckCircle2 } from 'lucide-react';
+import { usePWA } from '../context/PWAContext';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -12,6 +13,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
   const { login } = useAuth();
+  const { isInstalled, installApp } = usePWA();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +91,29 @@ export default function Login() {
               'Sign In'
             )}
           </button>
+
+          <div className="pt-3 border-t border-slate-100 flex flex-col items-center">
+            {isInstalled ? (
+              <div 
+                onClick={() => toast.success('LibraryGM is installed on this device!')}
+                className="w-full py-2.5 px-3 bg-emerald-50/80 hover:bg-emerald-100/70 border border-emerald-200/80 text-emerald-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-xs cursor-pointer transition-all"
+                title="LibraryGM is installed"
+              >
+                <CheckCircle2 size={15} className="text-emerald-600" />
+                <span>App is Installed</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={installApp}
+                className="w-full py-2.5 px-3 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/70 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-xs group"
+                title="Download & install LibraryGM app"
+              >
+                <Download size={15} className="text-indigo-600 transition-transform group-hover:translate-y-0.5" />
+                <span>Download App (PWA)</span>
+              </button>
+            )}
+          </div>
         </form>
       </div>
     </div>

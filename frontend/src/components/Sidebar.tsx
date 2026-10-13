@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { BookOpen, Users, LayoutDashboard, Library, LogOut, Bell, UserCircle, Settings, Eye, EyeOff, ChevronDown, Menu, X, Download } from 'lucide-react';
+import { BookOpen, Users, LayoutDashboard, Library, LogOut, Bell, UserCircle, Settings, Eye, EyeOff, ChevronDown, Menu, X, Download, CheckCircle2 } from 'lucide-react';
+import { usePWA } from '../context/PWAContext';
 import { createPortal } from 'react-dom';
 import { preload } from 'swr';
 import axios from 'axios';
@@ -29,11 +30,10 @@ import toast from 'react-hot-toast';
 
 const Sidebar = () => {
   const { logout, token, role } = useAuth();
+  const { isInstalled, installApp } = usePWA();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isStandalone, setIsStandalone] = useState(false);
   
   // Settings Dropdown & Modal State
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
@@ -163,58 +163,37 @@ const Sidebar = () => {
       };
     }, []);
 
-    useEffect(() => {
-      const isRunningStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone === true;
-      setIsStandalone(isRunningStandalone);
 
-      const handleBeforeInstallPrompt = (e: Event) => {
-        e.preventDefault();
-        setDeferredPrompt(e);
-      };
-
-      const handleAppInstalled = () => {
-        setDeferredPrompt(null);
-        setIsStandalone(true);
-        toast.success('LibraryGM installed successfully!');
-      };
-
-      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.addEventListener('appinstalled', handleAppInstalled);
-
-      return () => {
-        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-        window.removeEventListener('appinstalled', handleAppInstalled);
-      };
-    }, []);
-
-    const handleInstallClick = async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          setDeferredPrompt(null);
-        }
-      } else {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-        if (isIOS) {
-          toast('To install: tap the Share button in Safari and choose "Add to Home Screen"', {
-            icon: '📱',
-            duration: 5000
-          });
-        } else {
-          toast('To install: click the Install icon in your browser address bar or menu', {
-            icon: 'ℹ️',
-            duration: 4000
-          });
-        }
-      }
-    };
 
   return (
     <>
       <button onClick={() => setIsMobileOpen(true)} className="md:hidden fixed top-4 left-4 z-40 p-2 bg-white/90 backdrop-blur-md rounded-xl shadow-md text-slate-700 hover:text-indigo-600 transition-colors">
         <Menu size={24} />
       </button>
+
+      {/* Mobile Top-Right PWA Status Pill */}
+      <div className="md:hidden fixed top-4 right-4 z-40">
+        {isInstalled ? (
+          <div 
+            onClick={() => toast.success('LibraryGM is installed and ready!')}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white/90 backdrop-blur-md rounded-xl shadow-md border border-emerald-200/80 text-emerald-700 text-xs font-semibold cursor-pointer active:scale-95 transition-all"
+            title="App is installed"
+          >
+            <CheckCircle2 size={14} className="text-emerald-600" />
+            <span>Installed</span>
+          </div>
+        ) : (
+          <button 
+            type="button"
+            onClick={installApp}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white/90 backdrop-blur-md rounded-xl shadow-md border border-indigo-200 text-indigo-700 text-xs font-semibold hover:bg-indigo-50 active:scale-95 transition-all shadow-xs"
+            title="Download App"
+          >
+            <Download size={14} className="text-indigo-600" />
+            <span>Download</span>
+          </button>
+        )}
+      </div>
 
       {isMobileOpen && (
         <div className="md:hidden fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsMobileOpen(false)}></div>
@@ -253,12 +232,33 @@ const Sidebar = () => {
       </nav>
 
       <div className="p-4 border-t border-white/50 flex flex-col gap-2">
-        {!isStandalone && (
-          <button 
-            onClick={handleInstallClick}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 text-indigo-700 bg-gradient-to-r from-indigo-50 to-indigo-100/70 hover:from-indigo-100 hover:to-indigo-200/70 hover:shadow-sm font-semibold text-xs border border-indigo-200/60 shadow-xs"
+        {isInstalled ? (
+          <div 
+            onClick={() => toast.success('LibraryGM is installed on this device!')}
+            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-700 text-xs font-semibold shadow-xs cursor-pointer hover:bg-emerald-100/70 transition-all duration-200"
+            title="App is installed on this device"
           >
-            <Download size={16} className="text-indigo-600 animate-bounce" /> Install App
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span>App is Installed</span>
+            </div>
+            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+          </div>
+        ) : (
+          <button 
+            type="button"
+            onClick={installApp}
+            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-300 text-indigo-700 bg-gradient-to-r from-indigo-50 to-indigo-100/70 hover:from-indigo-100 hover:to-indigo-200/80 hover:shadow-sm font-semibold text-xs border border-indigo-200/60 shadow-xs group"
+            title="Download & install LibraryGM app"
+          >
+            <div className="flex items-center gap-2">
+              <Download size={15} className="text-indigo-600 transition-transform group-hover:translate-y-0.5" />
+              <span>Download App</span>
+            </div>
+            <span className="bg-indigo-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">PWA</span>
           </button>
         )}
         <div className="relative" ref={dropdownRef}>

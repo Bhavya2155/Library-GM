@@ -68,16 +68,18 @@ const AdminOrLeaderRoute = ({ children }: { children: ReactNode }) => {
 };
 
 import { SWRConfig } from 'swr';
+import { PWAProvider } from './context/PWAContext';
 
 function App() {
   return (
     <AuthProvider>
-      <SWRConfig value={{ 
-        fetcher: (url: string) => axios.get(url).then(res => res.data),
-        revalidateOnFocus: false, // Prevents excessive refetching
-        dedupingInterval: 5000 // Deduplicate requests within 5 seconds
-      }}>
-        <Router>
+      <PWAProvider>
+        <SWRConfig value={{ 
+          fetcher: (url: string) => axios.get(url).then(res => res.data),
+          revalidateOnFocus: false, // Prevents excessive refetching
+          dedupingInterval: 5000 // Deduplicate requests within 5 seconds
+        }}>
+          <Router>
           <Toaster position="top-right" containerStyle={{ zIndex: 99999 }} />
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -89,7 +91,8 @@ function App() {
           </Routes>
         </Router>
       </SWRConfig>
-    </AuthProvider>
+    </PWAProvider>
+  </AuthProvider>
   );
 }
 
