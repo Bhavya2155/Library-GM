@@ -104,9 +104,9 @@ export default function Books() {
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-8 relative">
-      <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
+      <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 relative z-10">
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 shrink-0 relative z-50 w-full">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 shrink-0 relative z-20 w-full">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 drop-shadow-sm whitespace-nowrap">Books Catalog</h1>
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 xl:gap-4 w-full md:w-auto">
@@ -132,13 +132,13 @@ export default function Books() {
               {/* Backdrop for closing mobile menu when clicking outside */}
               {isFilterMenuOpen && (
                 <div 
-                  className="fixed inset-0 z-40"
+                  className="fixed inset-0 z-20"
                   onClick={() => setIsFilterMenuOpen(false)}
                 ></div>
               )}
 
               {/* Action Filters (Hidden on Mobile, Dropdown on Mobile) */}
-              <div className={`flex-col items-end sm:items-start gap-3 absolute top-full right-0 mt-2 p-4 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200 z-50 transition-all ${isFilterMenuOpen ? 'flex' : 'hidden'}`}>
+              <div className={`flex-col items-end sm:items-start gap-3 absolute top-full right-0 mt-2 p-4 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200 z-30 transition-all ${isFilterMenuOpen ? 'flex' : 'hidden'}`}>
                 <div className="flex justify-between sm:justify-start items-center gap-2 bg-white/50 backdrop-blur-md px-4 py-2 xl:px-3 xl:py-1.5 rounded-xl border border-white/60 shadow-sm w-full xl:w-auto relative z-40">
                   <span className="text-slate-500 font-medium whitespace-nowrap">Sort:</span>
                   <div className="flex items-center gap-1 w-full justify-end">
@@ -159,7 +159,7 @@ export default function Books() {
 
               <button 
                 onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-                className="px-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-700 font-medium hover:bg-white/80 shadow-sm transition-colors relative z-50 shrink-0 flex items-center gap-2"
+                className="px-4 py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl text-slate-700 font-medium hover:bg-white/80 shadow-sm transition-colors relative z-20 shrink-0 flex items-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                 <span className="hidden sm:inline">Filters</span>
