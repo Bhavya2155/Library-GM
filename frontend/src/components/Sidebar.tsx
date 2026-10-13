@@ -171,29 +171,6 @@ const Sidebar = () => {
         <Menu size={24} />
       </button>
 
-      {/* Mobile Top-Right PWA Status Pill */}
-      <div className="md:hidden fixed top-4 right-4 z-40">
-        {isInstalled ? (
-          <div 
-            onClick={() => toast.success('LibraryGM is installed and ready!')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white/90 backdrop-blur-md rounded-xl shadow-md border border-emerald-200/80 text-emerald-700 text-xs font-semibold cursor-pointer active:scale-95 transition-all"
-            title="App is installed"
-          >
-            <CheckCircle2 size={14} className="text-emerald-600" />
-            <span>Installed</span>
-          </div>
-        ) : (
-          <button 
-            type="button"
-            onClick={installApp}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white/90 backdrop-blur-md rounded-xl shadow-md border border-indigo-200 text-indigo-700 text-xs font-semibold hover:bg-indigo-50 active:scale-95 transition-all shadow-xs"
-            title="Download App"
-          >
-            <Download size={14} className="text-indigo-600" />
-            <span>Download</span>
-          </button>
-        )}
-      </div>
 
       {isMobileOpen && (
         <div className="md:hidden fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsMobileOpen(false)}></div>
