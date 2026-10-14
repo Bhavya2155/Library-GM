@@ -29,6 +29,8 @@ model Book {
   createdAt       DateTime @default(now())
   issuedBooks     IssuedBook[]
 
+  @@index([category])
+  @@index([language])
   @@map("books")
 }
 
@@ -41,6 +43,7 @@ model Student {
   createdAt DateTime @default(now())
   issuedBooks IssuedBook[]
 
+  @@index([name])
   @@map("students")
 }
 
@@ -69,6 +72,11 @@ model IssuedBook {
   student    Student?  @relation(fields: [studentId], references: [id])
   guest      Guest?    @relation(fields: [guestId], references: [id])
 
+  @@index([status, dueDate])
+  @@index([bookId])
+  @@index([studentId])
+  @@index([guestId])
+  @@index([issueDate])
   @@map("issued_books")
 }
 

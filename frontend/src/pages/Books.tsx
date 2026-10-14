@@ -61,19 +61,29 @@ export default function Books() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const currentForm = { ...form };
+    const isEdit = !!editingId;
+    const editId = editingId;
+    setShowModal(false);
+    setForm({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 });
+    setEditingId(null);
+
     try {
-      if (editingId) {
-        await axios.put(`/books/${editingId}`, form);
+      if (isEdit) {
+        mutate(
+          books.map((b: any) => b._id === editId ? { ...b, ...currentForm } : b),
+          false
+        );
+        await axios.put(`/books/${editId}`, currentForm);
         toast.success('Book updated');
       } else {
-        await axios.post('/books', form);
+        const res = await axios.post('/books', currentForm);
+        mutate([res.data, ...books], false);
         toast.success('Book added');
       }
-      setShowModal(false);
-      setForm({ title: '', author: '', isbn: '', category: '', language: 'English', quantity: 1 });
-      setEditingId(null);
       mutate();
     } catch (err: any) {
+      mutate();
       toast.error(err.response?.data?.error || 'Error saving book');
     }
   };
@@ -93,11 +103,13 @@ export default function Books() {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this book?')) return;
+    mutate(books.filter((b: any) => b._id !== id), false);
     try {
       await axios.delete(`/books/${id}`);
       toast.success('Book deleted');
       mutate();
     } catch (err: any) {
+      mutate();
       toast.error('Error deleting book');
     }
   };

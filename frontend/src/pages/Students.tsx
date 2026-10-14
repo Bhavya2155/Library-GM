@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -8,12 +8,7 @@ import { formatName } from '../utils/nameFormatter';
 
 export default function Students() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-  const { data: students = [], mutate, isLoading } = useSWR(`/students?search=${debouncedSearchTerm}`);
+  const { data: students = [], mutate, isLoading } = useSWR('/students');
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '', studentId: '' });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -21,32 +16,43 @@ export default function Students() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const currentForm = { ...form };
+    const isEdit = !!editingId;
+    const editId = editingId;
+    setShowModal(false);
+    setForm({ name: '', studentId: '' });
+    setEditingId(null);
+
     try {
-      if (editingId) {
-        await axios.put(`/students/${editingId}`, form);
+      if (isEdit) {
+        mutate(
+          students.map((s: any) => s._id === editId ? { ...s, ...currentForm } : s),
+          false
+        );
+        await axios.put(`/students/${editId}`, currentForm);
         toast.success('Student updated');
       } else {
-        await axios.post('/students', form);
+        const res = await axios.post('/students', currentForm);
+        mutate([res.data, ...students], false);
         toast.success('Student added');
       }
-      setShowModal(false);
-      setForm({ name: '', studentId: '' });
-      setEditingId(null);
       mutate();
     } catch (err: any) {
+      mutate();
       toast.error(err.response?.data?.error || 'Failed to save student');
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this student?')) {
-      try {
-        await axios.delete(`/students/${id}`);
-        toast.success('Student deleted');
-        mutate();
-      } catch (err: any) {
-        toast.error('Failed to delete student. They might have issued books.');
-      }
+    if (!confirm('Are you sure you want to delete this student?')) return;
+    mutate(students.filter((s: any) => s._id !== id), false);
+    try {
+      await axios.delete(`/students/${id}`);
+      toast.success('Student deleted');
+      mutate();
+    } catch (err: any) {
+      mutate();
+      toast.error('Failed to delete student. They might have issued books.');
     }
   };
 

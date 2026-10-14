@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import useSWR from 'swr';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -7,42 +7,49 @@ import toast from 'react-hot-toast';
 
 export default function Guests() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-  const { data: guests = [], mutate, isLoading } = useSWR(`/guests?search=${debouncedSearchTerm}`);
+  const { data: guests = [], mutate, isLoading } = useSWR('/guests');
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '' });
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const currentForm = { ...form };
+    const isEdit = !!editingId;
+    const editId = editingId;
+    setShowModal(false);
+    setForm({ name: '' });
+    setEditingId(null);
+
     try {
-      if (editingId) {
-        await axios.put(`/guests/${editingId}`, form);
+      if (isEdit) {
+        mutate(
+          guests.map((g: any) => g._id === editId ? { ...g, ...currentForm } : g),
+          false
+        );
+        await axios.put(`/guests/${editId}`, currentForm);
         toast.success('Guest updated');
       } else {
-        await axios.post('/guests', form);
+        const res = await axios.post('/guests', currentForm);
+        mutate([res.data, ...guests], false);
         toast.success('Guest added');
       }
-      setShowModal(false);
-      setForm({ name: '' });
-      setEditingId(null);
       mutate();
     } catch (err: any) {
+      mutate();
       toast.error(err.response?.data?.error || 'Failed to save guest');
     }
   };
 
   const handleDelete = async (id: string) => {
-    if(!confirm('Are you sure you want to delete this guest?')) return;
+    if (!confirm('Are you sure you want to delete this guest?')) return;
+    mutate(guests.filter((g: any) => g._id !== id), false);
     try {
       await axios.delete(`/guests/${id}`);
       toast.success('Guest deleted');
       mutate();
     } catch (err: any) {
+      mutate();
       toast.error(err.response?.data?.error || 'Failed to delete guest');
     }
   };

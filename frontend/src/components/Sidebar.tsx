@@ -4,24 +4,37 @@ import { useAuth } from '../context/AuthContext';
 import { BookOpen, Users, LayoutDashboard, Library, LogOut, Bell, UserCircle, Settings, Eye, EyeOff, ChevronDown, Menu, X, Download, CheckCircle2 } from 'lucide-react';
 import { usePWA } from '../context/PWAContext';
 import { createPortal } from 'react-dom';
-import { preload } from 'swr';
+import useSWR, { preload, mutate } from 'swr';
 import axios from 'axios';
 
 
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 const prefetchAll = (path: string) => {
-  if (path === '/') {
-    preload('/dashboard/stats', fetcher);
-    // don't prefetch all dashboard analytics, it's fine
-  } else if (path === '/books') {
-    preload('/books?search=&sortBy=&sortOrder=asc&category=All&language=All', fetcher);
-  } else if (path === '/students') {
-    preload('/students?search=&sortBy=&sortOrder=asc&class=All&division=All', fetcher);
-  } else if (path === '/guests') {
-    preload('/guests?search=&sortBy=&sortOrder=asc', fetcher);
-  } else if (path === '/circulation') {
-    preload('/circulation/history?search=&type=All&status=All&startDate=&endDate=', fetcher);
+  try {
+    if (path === '/') {
+      import('../pages/Dashboard');
+      preload('/dashboard/stats', fetcher);
+      preload('/dashboard/analytics', fetcher);
+    } else if (path === '/books') {
+      import('../pages/Books');
+      preload('/books?search=&sortBy=&sortOrder=asc&category=All&language=All', fetcher);
+      preload('/books', fetcher);
+    } else if (path === '/students') {
+      import('../pages/Students');
+      preload('/students', fetcher);
+    } else if (path === '/guests') {
+      import('../pages/Guests');
+      preload('/guests', fetcher);
+    } else if (path === '/circulation') {
+      import('../pages/Circulation');
+      preload('/circulation', fetcher);
+      preload('/books', fetcher);
+      preload('/students', fetcher);
+      preload('/guests', fetcher);
+    }
+  } catch (e) {
+    // ignore preload error
   }
 };
 
@@ -31,7 +44,10 @@ import toast from 'react-hot-toast';
 const Sidebar = () => {
   const { logout, token, role } = useAuth();
   const { isInstalled, installApp } = usePWA();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const { data: notifications = [] } = useSWR<any[]>('/notifications', fetcher, { 
+    refreshInterval: 60000,
+    dedupingInterval: 10000
+  });
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   
@@ -145,22 +161,9 @@ const Sidebar = () => {
   }, []);
 
     useEffect(() => {
-      const fetchNotifications = async () => {
-        try {
-          const res = await axios.get('/notifications');
-          setNotifications(res.data);
-        } catch (err) {
-          console.error(err);
-        }
-      };
-      fetchNotifications();
-      const interval = setInterval(fetchNotifications, 60000);
-      window.addEventListener('refreshNotifications', fetchNotifications);
-      
-      return () => {
-        clearInterval(interval);
-        window.removeEventListener('refreshNotifications', fetchNotifications);
-      };
+      const handleRefresh = () => mutate('/notifications');
+      window.addEventListener('refreshNotifications', handleRefresh);
+      return () => window.removeEventListener('refreshNotifications', handleRefresh);
     }, []);
 
 
@@ -195,17 +198,17 @@ const Sidebar = () => {
       </div>
       
       <nav className="flex-1 p-4 flex flex-col gap-2">
-        <NavLink onClick={() => setIsMobileOpen(false)} to="/" onMouseEnter={() => prefetchAll("/")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`} end><LayoutDashboard size={20} /> Dashboard</NavLink>
+        <NavLink onClick={() => setIsMobileOpen(false)} to="/" onMouseEnter={() => prefetchAll("/")} onTouchStart={() => prefetchAll("/")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`} end><LayoutDashboard size={20} /> Dashboard</NavLink>
         {(role === 'admin' || role === 'coordinator' || role === 'senior_leader' || role === 'leader') && (
-          <NavLink onClick={() => setIsMobileOpen(false)} to="/books" onMouseEnter={() => prefetchAll("/books")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><BookOpen size={20} /> Books</NavLink>
+          <NavLink onClick={() => setIsMobileOpen(false)} to="/books" onMouseEnter={() => prefetchAll("/books")} onTouchStart={() => prefetchAll("/books")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><BookOpen size={20} /> Books</NavLink>
         )}
         {(role === 'admin' || role === 'coordinator') && (
           <>
-            <NavLink onClick={() => setIsMobileOpen(false)} to="/students" onMouseEnter={() => prefetchAll("/students")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Users size={20} /> Students</NavLink>
-            <NavLink onClick={() => setIsMobileOpen(false)} to="/guests" onMouseEnter={() => prefetchAll("/guests")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><UserCircle size={20} /> Guests</NavLink>
+            <NavLink onClick={() => setIsMobileOpen(false)} to="/students" onMouseEnter={() => prefetchAll("/students")} onTouchStart={() => prefetchAll("/students")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Users size={20} /> Students</NavLink>
+            <NavLink onClick={() => setIsMobileOpen(false)} to="/guests" onMouseEnter={() => prefetchAll("/guests")} onTouchStart={() => prefetchAll("/guests")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><UserCircle size={20} /> Guests</NavLink>
           </>
         )}
-        <NavLink onClick={() => setIsMobileOpen(false)} to="/circulation" onMouseEnter={() => prefetchAll("/circulation")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Library size={20} /> Circulation</NavLink>
+        <NavLink onClick={() => setIsMobileOpen(false)} to="/circulation" onMouseEnter={() => prefetchAll("/circulation")} onTouchStart={() => prefetchAll("/circulation")} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200 font-medium translate-x-1' : 'text-slate-600 hover:bg-white/60 hover:text-indigo-600 hover:shadow-sm'}`}><Library size={20} /> Circulation</NavLink>
       </nav>
 
       <div className="p-4 border-t border-white/50 flex flex-col gap-2">
@@ -254,7 +257,7 @@ const Sidebar = () => {
                   <div className="p-4 text-center text-slate-500 text-sm">All caught up!</div>
                 ) : (
                   <ul className="divide-y divide-slate-100/50">
-                    {notifications.map(n => (
+                    {notifications.map((n: any) => (
                       <li key={n._id} 
                           onClick={() => {
                             setShowDropdown(false);
