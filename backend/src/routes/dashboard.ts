@@ -31,9 +31,12 @@ router.get('/stats', auth, async (req, res) => {
 
 router.get('/logins', auth, isAdmin, async (req, res) => {
   try {
+    const { limit } = req.query;
+    const take = limit && limit !== 'all' ? parseInt(limit as string, 10) : undefined;
+
     const logins = await db.loginHistory.findMany({
       orderBy: { loginTime: 'desc' },
-      take: 10
+      ...(take ? { take } : {})
     });
     res.json(logins);
   } catch (err: any) {

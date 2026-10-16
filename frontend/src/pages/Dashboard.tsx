@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import useSWR from 'swr';
-import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, BarChart2, PieChart as PieChartIcon, Image as ImageIcon, FileSpreadsheet, Activity, List, MoreVertical } from 'lucide-react';
+import { Book, Users, CheckCircle, Clock, Trophy, TrendingUp, BarChart2, PieChart as PieChartIcon, Image as ImageIcon, FileSpreadsheet, Activity, List, MoreVertical, Search, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDate } from '../utils/dateFormatter';
@@ -67,6 +67,40 @@ export default function Dashboard() {
   
   const { data: stats = { totalBooks: 0, totalStudents: 0, issuedBooks: 0, availableBooks: 0 } } = useSWR('/dashboard/stats');
   const { data: logins = [], isLoading: isLoadingLogins } = useSWR(role === 'admin' ? '/dashboard/logins' : null);
+
+  // Login History State & Filtering
+  const [loginSearch, setLoginSearch] = useState('');
+  const [loginRoleFilter, setLoginRoleFilter] = useState('All');
+  const [loginPage, setLoginPage] = useState(1);
+  const [loginPageSize, setLoginPageSize] = useState<number>(25);
+
+  const filteredLogins = useMemo(() => {
+    return logins.filter((login: any) => {
+      const matchesSearch = login.username?.toLowerCase().includes(loginSearch.toLowerCase());
+      const matchesRole = loginRoleFilter === 'All' || login.role === loginRoleFilter;
+      return matchesSearch && matchesRole;
+    });
+  }, [logins, loginSearch, loginRoleFilter]);
+
+  const totalPages = Math.ceil(filteredLogins.length / loginPageSize) || 1;
+  const paginatedLogins = useMemo(() => {
+    if (loginPageSize >= 999999) return filteredLogins;
+    const start = (loginPage - 1) * loginPageSize;
+    return filteredLogins.slice(start, start + loginPageSize);
+  }, [filteredLogins, loginPage, loginPageSize]);
+
+  const handleExportExcel = async () => {
+    const XLSX = await import('xlsx');
+    const dataToExport = filteredLogins.map((item: any) => ({
+      Username: item.username,
+      Role: item.role === 'admin' ? 'SUPER ACCOUNT' : item.role === 'coordinator' ? 'COORDINATOR' : item.role === 'senior_leader' ? 'SENIOR LEADER' : item.role === 'leader' ? 'LEADER' : 'STUDENT',
+      'Login Time': new Date(item.loginTime).toLocaleString()
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Login History');
+    XLSX.writeFile(workbook, `Login_History_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
 
   // Generate query params for analytics
   // Generate query params for Readers analytics
@@ -458,47 +492,161 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Logins */}
+      {/* Past Login History */}
       {role === 'admin' && (
-        <div className="mt-4">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6 drop-shadow-sm flex items-center gap-2">
-            <Clock size={24} className="text-indigo-600" /> Recent Logins
-          </h2>
+        <div className="mt-8 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 drop-shadow-sm flex items-center gap-2">
+                <Clock size={24} className="text-indigo-600" /> Past Login History
+                <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2.5 py-0.5 rounded-full shadow-sm">
+                  {filteredLogins.length} {filteredLogins.length === 1 ? 'login' : 'logins'}
+                </span>
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">Complete chronological record of all user logins</p>
+            </div>
+
+            {/* Controls */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              {/* Search */}
+              <div className="relative">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search user..."
+                  value={loginSearch}
+                  onChange={(e) => { setLoginSearch(e.target.value); setLoginPage(1); }}
+                  className="pl-8 pr-3 py-1.5 text-xs sm:text-sm bg-white/80 backdrop-blur border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 w-36 sm:w-44 shadow-sm"
+                />
+              </div>
+
+              {/* Role Filter */}
+              <select
+                value={loginRoleFilter}
+                onChange={(e) => { setLoginRoleFilter(e.target.value); setLoginPage(1); }}
+                className="py-1.5 px-3 text-xs sm:text-sm bg-white/80 backdrop-blur border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-slate-700 cursor-pointer"
+              >
+                <option value="All">All Roles</option>
+                <option value="student">Student</option>
+                <option value="senior_leader">Senior Leader</option>
+                <option value="leader">Leader</option>
+                <option value="coordinator">Coordinator</option>
+                <option value="admin">Super Account</option>
+              </select>
+
+              {/* Page size / Show all */}
+              <select
+                value={loginPageSize}
+                onChange={(e) => { setLoginPageSize(Number(e.target.value)); setLoginPage(1); }}
+                className="py-1.5 px-3 text-xs sm:text-sm bg-white/80 backdrop-blur border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-slate-700 cursor-pointer"
+              >
+                <option value={10}>Show 10</option>
+                <option value={25}>Show 25</option>
+                <option value={50}>Show 50</option>
+                <option value={100}>Show 100</option>
+                <option value={999999}>Show All ({filteredLogins.length})</option>
+              </select>
+
+              {/* Export to Excel */}
+              <button
+                onClick={handleExportExcel}
+                title="Export Login History to Excel"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm hover:shadow transition-all"
+              >
+                <Download size={15} />
+                <span className="hidden sm:inline">Export</span>
+              </button>
+            </div>
+          </div>
+
           <div className="bg-white/70 backdrop-blur-2xl rounded-2xl shadow-xl shadow-slate-200/40 border border-white/60 overflow-hidden">
             {isLoadingLogins ? (
               <div className="p-8 flex flex-col items-center justify-center space-y-3 text-slate-500">
                 <div className="w-6 h-6 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
                 <p>Loading login history...</p>
               </div>
-            ) : logins.length === 0 ? (
-              <div className="p-8 text-center text-slate-500">No login history found.</div>
+            ) : filteredLogins.length === 0 ? (
+              <div className="p-8 text-center text-slate-500">
+                {loginSearch || loginRoleFilter !== 'All' 
+                  ? 'No login history matches your filter criteria.' 
+                  : 'No login history found.'}
+              </div>
             ) : (
-              <div className="overflow-x-auto w-full">
-              <table className="w-full text-left border-collapse whitespace-nowrap">
-                <thead>
-                  <tr className="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider border-b border-white">
-                    <th className="px-6 py-4 font-semibold w-1/3">Username</th>
-                    <th className="px-6 py-4 font-semibold w-1/3">Role</th>
-                    <th className="px-6 py-4 font-semibold w-1/3">Login Time</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/50 text-sm">
-                  {logins.map((login: any) => (
-                    <tr key={login.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4 text-slate-900 font-medium">{login.username}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${login.role === 'admin' ? 'bg-amber-100 text-amber-700' : login.role === 'coordinator' ? 'bg-emerald-100 text-emerald-700' : login.role === 'senior_leader' ? 'bg-rose-100 text-rose-700' : login.role === 'leader' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                          {login.role === 'admin' ? 'SUPER ACCOUNT' : login.role === 'coordinator' ? 'COORDINATOR' : login.role === 'senior_leader' ? 'SENIOR LEADER' : login.role === 'leader' ? 'LEADER' : 'STUDENT'}
+              <>
+                <div className="overflow-x-auto w-full max-h-[520px] overflow-y-auto">
+                  <table className="w-full text-left border-collapse whitespace-nowrap">
+                    <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur shadow-sm">
+                      <tr className="text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200/60">
+                        <th className="px-6 py-3.5 font-semibold w-1/3">Username</th>
+                        <th className="px-6 py-3.5 font-semibold w-1/3">Role</th>
+                        <th className="px-6 py-3.5 font-semibold w-1/3">Login Time</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-sm">
+                      {paginatedLogins.map((login: any) => (
+                        <tr key={login.id} className="hover:bg-slate-50/70 transition-colors">
+                          <td className="px-6 py-3.5 text-slate-900 font-medium">{login.username}</td>
+                          <td className="px-6 py-3.5">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${
+                              login.role === 'admin' ? 'bg-amber-100 text-amber-700' :
+                              login.role === 'coordinator' ? 'bg-emerald-100 text-emerald-700' :
+                              login.role === 'senior_leader' ? 'bg-rose-100 text-rose-700' :
+                              login.role === 'leader' ? 'bg-purple-100 text-purple-700' :
+                              'bg-blue-100 text-blue-700'
+                            }`}>
+                              {login.role === 'admin' ? 'SUPER ACCOUNT' :
+                               login.role === 'coordinator' ? 'COORDINATOR' :
+                               login.role === 'senior_leader' ? 'SENIOR LEADER' :
+                               login.role === 'leader' ? 'LEADER' : 'STUDENT'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-3.5 text-slate-600">
+                            {formatDate(login.loginTime)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination footer */}
+                {filteredLogins.length > 0 && (
+                  <div className="p-3 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+                    <div>
+                      {loginPageSize >= 999999 ? (
+                        <span>Showing all {filteredLogins.length} records</span>
+                      ) : (
+                        <span>
+                          Showing {Math.min((loginPage - 1) * loginPageSize + 1, filteredLogins.length)} to{' '}
+                          {Math.min(loginPage * loginPageSize, filteredLogins.length)} of {filteredLogins.length} entries
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-600">
-                        {formatDate(login.loginTime)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      )}
+                    </div>
+
+                    {loginPageSize < 999999 && totalPages > 1 && (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setLoginPage(p => Math.max(1, p - 1))}
+                          disabled={loginPage === 1}
+                          className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-colors"
+                        >
+                          Prev
+                        </button>
+                        <span className="px-2 text-slate-700 font-semibold">
+                          {loginPage} / {totalPages}
+                        </span>
+                        <button
+                          onClick={() => setLoginPage(p => Math.min(totalPages, p + 1))}
+                          disabled={loginPage === totalPages}
+                          className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-colors"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
