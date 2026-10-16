@@ -299,7 +299,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-4 md:p-8">
+    <div className="h-full overflow-y-auto p-4 md:p-8 pb-36 md:pb-40">
       <div className="max-w-7xl mx-auto relative z-10">
       
       <div className="mb-8 relative z-50">
@@ -547,11 +547,37 @@ export default function Dashboard() {
                 <option value={999999}>Show All ({filteredLogins.length})</option>
               </select>
 
+              {/* Top Pagination Controls */}
+              {loginPageSize < 999999 && totalPages > 1 && (
+                <div className="flex items-center gap-1 bg-white/90 backdrop-blur border border-slate-200 rounded-xl p-0.5 shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => setLoginPage(p => Math.max(1, p - 1))}
+                    disabled={loginPage === 1}
+                    className="px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  >
+                    ← Prev
+                  </button>
+                  <span className="px-2 text-xs font-bold text-indigo-700">
+                    {loginPage} / {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setLoginPage(p => Math.min(totalPages, p + 1))}
+                    disabled={loginPage === totalPages}
+                    className="px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+
               {/* Export to Excel */}
               <button
+                type="button"
                 onClick={handleExportExcel}
                 title="Export Login History to Excel"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm hover:shadow transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm hover:shadow transition-all cursor-pointer"
               >
                 <Download size={15} />
                 <span className="hidden sm:inline">Export</span>
@@ -611,36 +637,39 @@ export default function Dashboard() {
 
                 {/* Pagination footer */}
                 {filteredLogins.length > 0 && (
-                  <div className="p-3 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-                    <div>
+                  <div className="p-3.5 bg-slate-50/70 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 sm:pr-32 relative z-20">
+                    <div className="font-medium text-slate-600">
                       {loginPageSize >= 999999 ? (
                         <span>Showing all {filteredLogins.length} records</span>
                       ) : (
                         <span>
-                          Showing {Math.min((loginPage - 1) * loginPageSize + 1, filteredLogins.length)} to{' '}
-                          {Math.min(loginPage * loginPageSize, filteredLogins.length)} of {filteredLogins.length} entries
+                          Showing <span className="font-semibold text-slate-800">{Math.min((loginPage - 1) * loginPageSize + 1, filteredLogins.length)}</span> to{' '}
+                          <span className="font-semibold text-slate-800">{Math.min(loginPage * loginPageSize, filteredLogins.length)}</span> of{' '}
+                          <span className="font-semibold text-slate-800">{filteredLogins.length}</span> entries
                         </span>
                       )}
                     </div>
 
                     {loginPageSize < 999999 && totalPages > 1 && (
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         <button
+                          type="button"
                           onClick={() => setLoginPage(p => Math.max(1, p - 1))}
                           disabled={loginPage === 1}
-                          className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-colors"
+                          className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-semibold text-slate-700 shadow-sm cursor-pointer transition-all"
                         >
-                          Prev
+                          ← Prev
                         </button>
-                        <span className="px-2 text-slate-700 font-semibold">
+                        <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 font-bold shadow-sm">
                           {loginPage} / {totalPages}
                         </span>
                         <button
+                          type="button"
                           onClick={() => setLoginPage(p => Math.min(totalPages, p + 1))}
                           disabled={loginPage === totalPages}
-                          className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-colors"
+                          className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-semibold text-slate-700 shadow-sm cursor-pointer transition-all"
                         >
-                          Next
+                          Next →
                         </button>
                       </div>
                     )}

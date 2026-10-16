@@ -118,10 +118,10 @@ export default function AIChat() {
   return (
     <>
       {/* Floating Chat Button container */}
-      <div className={`fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 transition-all duration-300 ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}>
+      <div className={`fixed bottom-6 right-6 z-50 pointer-events-none flex flex-col items-end gap-3 transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
         
         {/* Popup Text Bubble */}
-        <div className="relative bg-white text-indigo-700 text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-lg border border-indigo-100 animate-bounce cursor-pointer" onClick={() => setIsOpen(true)}>
+        <div className="pointer-events-auto relative bg-white text-indigo-700 text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-lg border border-indigo-100 animate-bounce cursor-pointer" onClick={() => setIsOpen(true)}>
           How can I help you?
           <div className="absolute -bottom-2 right-6 w-4 h-4 bg-white border-b border-r border-indigo-100 transform rotate-45"></div>
         </div>
@@ -129,7 +129,7 @@ export default function AIChat() {
         {/* Action Button */}
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 bg-indigo-600 text-white p-4 rounded-full shadow-xl hover:bg-indigo-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
+          className="pointer-events-auto flex items-center gap-2 bg-indigo-600 text-white p-4 rounded-full shadow-xl hover:bg-indigo-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
           aria-label="Open AI Assistant"
         >
           <Sparkles size={24} className="group-hover:rotate-12 transition-transform" />
