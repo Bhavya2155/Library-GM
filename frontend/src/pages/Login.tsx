@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -12,15 +12,31 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
-  const { login } = useAuth();
+  const { login, token } = useAuth();
   const { isInstalled, installApp } = usePWA();
   const navigate = useNavigate();
 
+  // If already authenticated, redirect straight to dashboard
+  useEffect(() => {
+    const savedToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (savedToken || token) {
+      navigate('/', { replace: true });
+    }
+  }, [token, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanUser = username.trim();
+    const cleanPass = password.trim();
+
+    if (!cleanUser || !cleanPass) {
+      toast.error('Please enter both username and password');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const res = await axios.post('/admin/login', { username, password });
+      const res = await axios.post('/admin/login', { username: cleanUser, password: cleanPass });
       login(res.data.token, res.data.role || 'admin', res.data.username);
       toast.success('Logged in successfully');
       navigate('/');
@@ -28,12 +44,8 @@ export default function Login() {
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
       const err = error as any;
-      if (err?.response?.status === 401) {
-        toast.error('Invalid username or password');
-      } else {
-        const backendError = err?.response?.data?.error;
-        toast.error(`Backend Error: ${backendError || err?.message || 'Unknown'}`);
-      }
+      const errorMsg = err?.response?.data?.error || err?.message || 'Invalid username or password';
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -54,12 +66,12 @@ export default function Login() {
             <input 
               type="text" 
               required 
+              autoComplete="username"
+              autoCapitalize="words"
+              placeholder="e.g. Mangeshbhai, Dada, Vedant..."
               className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 transition-colors"
               value={username} 
-              onChange={e => {
-                const val = e.target.value;
-                setUsername(val ? val.charAt(0).toUpperCase() + val.slice(1) : '');
-              }} 
+              onChange={e => setUsername(e.target.value)} 
             />
           </div>
           <div>

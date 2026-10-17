@@ -39,6 +39,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       sessionStorage.setItem('username', newUsername);
     }
     
+    // Set axios header synchronously immediately so subsequent requests have it
+    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+
     setToken(newToken);
     setRole(newRole);
     setUsername(newUsername);
@@ -51,6 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('role');
     sessionStorage.removeItem('username');
+    delete axios.defaults.headers.common['Authorization'];
     setToken(null);
     setRole('');
     setUsername('');

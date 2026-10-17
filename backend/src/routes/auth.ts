@@ -9,15 +9,46 @@ const router = express.Router();
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const admin = await prisma.admin.findUnique({ where: { username } });
-    
-    if (!admin) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    const cleanUsername = String(username).trim();
+    const cleanPassword = String(password).trim();
+
+    // 1. Direct indexed match
+    let admin = await prisma.admin.findUnique({ where: { username: cleanUsername } });
+    
+    // 2. Case-insensitive lookup fallback in SQLite
+    if (!admin) {
+      const matched: any[] = await prisma.$queryRawUnsafe(
+        'SELECT * FROM admins WHERE username = ? COLLATE NOCASE LIMIT 1',
+        cleanUsername
+      );
+      if (matched && matched.length > 0) {
+        admin = matched[0];
+      }
+    }
+
+    // 3. Typo/alias tolerance for Vaidik / Daidik
+    if (!admin && (cleanUsername.toLowerCase() === 'vaidik' || cleanUsername.toLowerCase() === 'daidik')) {
+      admin = await prisma.admin.findFirst({
+        where: {
+          OR: [
+            { username: 'Vaidik' },
+            { username: 'Daidik' }
+          ]
+        }
+      });
+    }
+
+    if (!admin) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    const isMatch = await bcrypt.compare(cleanPassword, admin.password);
     if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'Invalid username or password' });
     }
 
     // Log the successful login (unless it's the dev account)
@@ -32,7 +63,7 @@ router.post('/login', async (req, res) => {
 
     // Generate JWT token valid for 1 year so user stays logged in
     const token = jwt.sign({ id: admin.id, role: admin.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '365d' });
-    res.json({ token, username, role: admin.role });
+    res.json({ token, username: admin.username, role: admin.role });
   } catch (err: any) {
     console.error("LOGIN ERROR:", err);
     res.status(500).json({ error: `Server error: ${err.message}` });
