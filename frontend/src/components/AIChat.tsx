@@ -37,9 +37,15 @@ export default function AIChat() {
       const botMessageId = Date.now().toString() + 'bot';
       setMessages(prev => [...prev, { id: botMessageId, role: 'assistant', content: '' }]);
 
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const requestHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        requestHeaders['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${axios.defaults.baseURL}/assistant/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: requestHeaders,
         body: JSON.stringify({ 
           message: userMessage.content,
           messages: [...messages, userMessage] 

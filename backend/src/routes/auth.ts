@@ -3,10 +3,11 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/db';
 import { auth, isAdmin } from '../middleware/auth';
+import { authLimiter } from '../middleware/rateLimiter';
 
 const router = express.Router();
 
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -72,6 +73,9 @@ router.post('/login', async (req, res) => {
 
 router.post('/seed', async (req, res) => {
   try {
+    if (process.env.NODE_ENV === 'production' && req.headers['x-seed-secret'] !== process.env.CRON_SECRET) {
+      return res.status(403).json({ error: 'Seeding is disabled in production' });
+    }
     const admin = await prisma.admin.findUnique({ where: { username: 'admin' } });
     if (!admin) {
       const hashedPassword = await bcrypt.hash('admin123', 10);

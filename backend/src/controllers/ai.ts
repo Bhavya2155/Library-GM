@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import jwt from 'jsonwebtoken';
 import { libraryTools } from '../lib/aiTools';
 import prisma from '../lib/db';
 
-const executeTool = async (call: any) => {
+const executeTool = async (call: any, user: any) => {
   const name = call.name;
   const args = call.args;
 
@@ -19,16 +20,40 @@ const executeTool = async (call: any) => {
                  { category: { contains: args.query } }
                ]
              },
+             select: {
+               id: true,
+               title: true,
+               author: true,
+               category: true,
+               quantity: true,
+               availableCopies: true
+             },
              take: 10
            });
         }
-        return await prisma.book.findMany({ take: 10 });
+        return await prisma.book.findMany({
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            category: true,
+            quantity: true,
+            availableCopies: true
+          },
+          take: 10
+        });
+
       case 'check_book_availability':
         return await prisma.book.findMany({
           where: { title: { contains: args.title } },
-          select: { title: true, quantity: true, availableCopies: true }
+          select: { title: true, quantity: true, availableCopies: true, category: true, author: true }
         });
+
       case 'get_student_info':
+        // Sensitive PII: only authorized staff/admin accounts can inspect student records
+        if (!user || !['admin', 'coordinator', 'senior_leader', 'leader'].includes(user.role)) {
+          return { error: 'Access denied: Looking up student personal records is restricted to logged-in library staff.' };
+        }
         return await prisma.student.findMany({
           where: {
             OR: [
@@ -37,17 +62,33 @@ const executeTool = async (call: any) => {
               { email: { contains: args.query } }
             ]
           },
+          select: {
+            id: true,
+            name: true,
+            studentId: true,
+            grade: true,
+            section: true
+          },
           take: 5
         });
+
       case 'get_issued_books':
+        // Circulation data: only authorized staff/admin accounts can inspect who has issued books
+        if (!user || !['admin', 'coordinator', 'senior_leader', 'leader'].includes(user.role)) {
+          return { error: 'Access denied: Circulation book records are restricted to logged-in library staff.' };
+        }
         const whereClause: any = { status: 'issued' };
         if (args.studentId) whereClause.student = { studentId: args.studentId };
         if (args.overdueOnly) whereClause.dueDate = { lt: new Date() };
         return await prisma.issuedBook.findMany({
           where: whereClause,
-          include: { book: true, student: true },
+          include: {
+            book: { select: { title: true, author: true, category: true } },
+            student: { select: { name: true, studentId: true, grade: true, section: true } }
+          },
           take: 10
         });
+
       case 'get_library_stats':
         const [totalBooks, activeStudents, issuedBooks] = await Promise.all([
           prisma.book.count(),
@@ -55,6 +96,7 @@ const executeTool = async (call: any) => {
           prisma.issuedBook.count({ where: { status: 'issued' } })
         ]);
         return { totalBooks, activeStudents, issuedBooks };
+
       default:
         return { error: `Tool ${name} not found` };
     }
@@ -66,10 +108,20 @@ const executeTool = async (call: any) => {
 export const chatWithAI = async (req: Request, res: Response) => {
   try {
     const { message, messages } = req.body;
-    console.log('--- Incoming Request ---');
-    console.log('message:', message);
-    console.log('messages:', messages);
     
+    // Extract user auth token if present
+    let user: any = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        user = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+      } catch (err) {
+        // Invalid or expired token: treat as guest
+        user = null;
+      }
+    }
+
     // Fallback to message if messages array is not provided
     const userMessage = message || (messages && messages.length > 0 ? messages[messages.length - 1].content : '');
 
@@ -140,12 +192,12 @@ export const chatWithAI = async (req: Request, res: Response) => {
       }
 
       if (functionCallFound) {
-        // Append the exact model parts (including thoughtSignature) to history
+        // Append the exact model parts to history
         contents.push({ role: 'model', parts: modelParts });
 
         const functionResponses = [];
         for (const call of functionCallsToExecute) {
-           const toolResult = await executeTool(call);
+           const toolResult = await executeTool(call, user);
            functionResponses.push({
              functionResponse: {
                name: call.name,
